@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)https://ets.toeicolpc.com/InTest.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title></title>
+    <script type="text/javascript">
+        function GetCookie(sName, bUnescape) {
+            var aCookie = document.cookie.split("; ");
+            for (var i = 0; i < aCookie.length; i++) {
+                var aCrumb = aCookie[i].split("=");
+                if ((sName == aCrumb[0]) && (aCrumb[1] != null)) {
+                    var ret = (bUnescape == undefined || bUnescape) ? unescape(aCrumb[1]) : aCrumb[1];
+                    do {
+                        ret = ret.replace("+", " ");
+                    } while (ret.indexOf("+") > -1)
+                    return ret;
+                }
+            }
+            return null;
+        }
+
+        function getCompositeCookie(sCName, sIName) {
+            var cookieStr = GetCookie(sCName);
+            if (cookieStr != null) {
+                var aCookie = cookieStr.split("^");
+                for (var i = 0; i < aCookie.length; i++) {
+                    var aCrumb = aCookie[i].split("*");
+                    if ((sIName == aCrumb[0]) && (aCrumb[1] != null)) {
+                        var ret = aCrumb[1];
+                        do {
+                            ret = ret.replace("+", " ");
+                        } while (ret.indexOf("+") > -1)
+                        return ret;
+                    }
+                }
+                return null;
+            }
+            else
+                return null;
+        }
+        var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+        var eventer = window[eventMethod];
+        var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+
+        eventer(messageEvent, function (e) {
+            var key = e.message ? "message" : "data";
+            var notification = e[key];
+            console.log("event: " + notification);
+
+            if (notification.toString().indexOf('TOEIC_TO_ED') > -1)
+                toeicToEdNotifications(notification);
+        }, false);
+
+        function toeicToEdNotifications(notification) {
+            var msgJson = JSON.parse(notification).TOEIC_TO_ED;
+            switch (msgJson.sender) {
+                case 'ED':
+                    switch (msgJson.msg.name) {
+                        case 'isToeicOpen':
+                            parent.postMessage(JSON.stringify({ 'TOEIC_TO_ED': { sender: 'TOEIC', msg: { name: 'ToeicOpen', data: getCompositeCookie("Personal", "InTest") } } }), "*");
+                            break;
+                        case 'closeWindow':
+                            localStorage.setItem("shouldClose", "true");
+                            break;
+                    }
+                    break;
+            }
+        }
+        //var json = { TOEIC_TO_ED: { sender: 'ED', msg: { name: 'isToeicOpen' } } };
+        //var json2 = { TOEIC_TO_ED: { sender: 'TOEIC', msg: { name: 'ToeicOpen', data: 'true' } } };
+        //var json2 = { TOEIC_TO_ED: { sender: 'TOEIC', msg: { name: 'TestSubmitted', data: { testTypeId: 2, testId: 45654, grade: 30 } } } };
+
+        //function isInTest() {
+        //    return getCompositeCookie("Personal", "InTest") == "true";
+        //}
+        //document.write(getCompositeCookie("Personal", "InTest"));
+       // parent.postMessage(JSON.stringify({ 'ToeicOpen': getCompositeCookie("Personal", "InTest") }), "*");
+    </script>
+</head>
+<body marginwidth="0" marginheight="0">
+
+
+
+</body></html>

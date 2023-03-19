@@ -1,0 +1,35 @@
+﻿$(document).ready(function () {
+    var _iid_ = getCompositeCookie("Community", "IID");
+    var _ib_ = getCompositeCookie("Community", "IB");
+    var _isid_ = getCompositeCookie("Student", "StudentID");
+    var _la_ = document.location.href;
+
+    if (_iid_ && _ib_) {
+        var _istate_ = getAS(_isid_, _la_);
+        edns.appToken.api.init().then(function () {
+        $.ajax({
+                url: 'WebApi/Bot/BOT/GetScript/' + _iid_ + '/' + _istate_,
+                //            url: 'http://localhost:60000/WebApi/BOT/GetScript/' + _iid_ + '/' + _istate_,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'text',
+                success: function (data, textStatus, xhr) {
+                    if (data && data.length > 0) {
+                        var s = document.createElement('script');
+                        s.appendChild(document.createTextNode(data));
+                        document.body.appendChild(s);
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                }
+            });
+        });
+    }
+});
+
+function getAS(isid, _la_) {
+    var _ret_ = isid == null ? 1 : _la_ && _la_.toLowerCase().indexOf('learningArea.html'.toLowerCase()) > -1 ? 3 : 2;
+    if (edns.testEnvironment.isInTestEnvironment) _ret_ = -1;
+    return _ret_;
+}

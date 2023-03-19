@@ -1,0 +1,457 @@
+﻿(function (global) {
+    global.edns = edns || {};
+    global.edns.dictionary = {};
+
+    var audioPlayer;
+    var strWavePath = "";
+    var wd_Word = "";
+    var wd_Language = null;
+    var historyWord = null;
+    var wd_LanguageId = null;
+    var translate = [];
+    var dictionaryContext;
+    var dictionarySearchDisabled = false;
+
+    init(translate);
+    ///////////////
+    function init(translate) {
+        //global.edns.dictionary.sendMsg = sendMsg; //not in use here (but part of module)
+        //global.edns.dictionary.setDictFile = setDictFile; //not EXPOSED here (but part of module)
+        //global.edns.dictionary.playTranslationsMP = playTranslationsMP;
+        global.edns.dictionary.backToTheList = backToTheList;
+        global.edns.dictionary.clickOnGo = clickOnGo;
+        global.edns.dictionary.checkState = checkState;
+        global.edns.dictionary.initTranslation = initTranslation;
+        global.edns.dictionary.onDocReady = onDocReady;
+        global.edns.dictionary.dictionarySearchDisabled = function () {
+            return dictionarySearchDisabled;
+        }
+
+        $(document).ready(onDocReady);
+    }
+
+    ////////////
+    // search for new word:
+    function initTranslation(word, lang) {
+        if (dictionarySearchDisabled) {
+            return;
+        }
+        wd_Word = word;
+        wd_Word = wd_Word.replace("%", " ").replace("'", "''''");
+        wd_Language = 1;
+        if (wd_Word.trim(' ').length > 0) {
+            wd_Word = wd_Word.trim(' ')
+        }
+        wd_LanguageId = wd_Language;
+        var wd_ForeignToEnglish = false;
+        var wd_WordToShow = "";
+        var contentDir = "";
+        var connectFlag = 0;
+        var varInfo = wd_Word;
+        var originalSound = true;
+        var displayWord = true;
+        var amper = "";
+        var counter = 0;
+        var iExplCnt = 1;
+        var bExplCnt = false;
+        var wd_Type = "";
+        var strTranslParts = [];
+        var classArray = [];
+        var strAdditional = [];
+        var strTD = "";
+        var wd_LinkWord = "";
+        var wd_LinkWord2 = "";
+        var wd_Translation = "";
+
+        if (top.$('#DictionaryPanelContainer').length > 0) {
+            dictionaryContext = top.document;
+        } else if ($('#DictionaryPanelContainer').length > 0) {
+            dictionaryContext = window.document;
+        }
+
+        $(dictionaryContext).find("#translations-main-content").empty();
+        $(dictionaryContext).find("#kdictBtn").attr("alt", translate[300]);
+        $(dictionaryContext).find("#back-to-list").text(translate[299]);
+        if (isRTLMode()) { $('head').append('<link href="../Css/layoutRtl.css" rel="stylesheet" />'); }
+        disableDictionarySearch();
+
+        if (!lang) {
+            //get dictionary id to use (e.g. id for eng to spa)
+            $.ajax({
+                url: "api/Translation/translation-id",
+                type: "GET",
+                dataType: 'json',
+                error: onError,
+                success: function (langId) {
+                    onLangId(langId, getTranslationDetails);
+                }
+            });
+        } else {
+            onLangId(lang, getTranslationDetails);
+        }
+
+        ////////////
+        function onLangId(langId, getTranslationDetails) {
+            wd_Language = langId;
+            wd_LanguageId = langId;
+            buildLanguagesList(getTranslationDetails);
+        }
+
+        function getTranslationDetails() {
+            $.ajax({
+                url: "api/Translation/" + wd_Language + "/details",
+                type: "GET",
+                dataType: 'json',
+                error: onError,
+                success: function (details) {
+                    if (details) {
+                        wd_Language = details.TranslationLanguage;
+                        wd_ForeignToEnglish = details.ForeignToEnglish;
+                    }
+
+                    if (wd_Language == "Hebrew" || wd_Language == "Arabic") {
+                        contentDir = "style=direction:rtl;text-align:right;";
+                    } else {
+                        contentDir = "";
+                    }
+
+                    connectFlag = 0;
+                    varInfo = wd_Word;
+                    getDictionaryConnectWord(wd_Language);
+                }
+            });
+        }
+
+        function getDictionaryConnectWord(wd_Language) {
+            $.ajax({
+                url: "api/Translation/dictionary-connect-word?word=" + wd_Word,
+                type: "GET",
+                dataType: 'text',
+                error: onError,
+                success: function (word) {
+                    getDictionaryConnectWordSuccess(word, wd_Language);
+                }
+            });
+        }
+
+        function getTranslationDictionary(wd_Language) {
+            if (connectFlag == 3) {
+                return;
+            }
+            disableDictionarySearch();
+            $.ajax({
+                url: "api/Translation/dictionary?language=" + wd_Language + "&baseWord=" + varInfo + "&foreignToEnglish=" + wd_ForeignToEnglish,
+                type: "GET",
+                dataType: 'json',
+                error: onError,
+                success: function (dictionary) {
+                    onDictionarySuccess(dictionary, $.noop);
+                }
+            });
+        }
+
+        function getDictionaryConnectWordSuccess(word, wd_Language) {
+            if (word) {
+                varInfo = word;
+                connectFlag = 1;
+            }
+            originalSound = true;
+
+            if (wd_Language != "") {
+                displayWord = true;
+                if (connectFlag != 1) {
+                    getTranslationDictionary(wd_Language);
+                } else {
+                    $.ajax({
+                        url: "api/Translation/dictionary-connect-details?language=" + wd_Language + "&baseWord=" + varInfo + "&foreignToEnglish=" + wd_ForeignToEnglish,
+                        type: "GET",
+                        dataType: 'json',
+                        error: onError,
+                        success: function (dictionary) {
+                            var getTranslationDictionaryBound = getTranslationDictionary.bind(this, wd_Language);
+                            onDictionarySuccess(dictionary, getTranslationDictionaryBound);
+                        }
+                    });
+                }
+            }
+        }
+
+        function onDictionarySuccess(dictionary, getTranslationDictionary) {
+            if (dictionary.length > 0) {
+                generateTranslation(dictionary);
+                getTranslationDictionary(wd_Language);
+            } else if (wd_Word != "" & wd_Word != "openDictNow") {//typed word not exist in database
+                connectFlag = 3;
+                Getsimilarwords();
+            } else {
+                connectFlag = 3;
+                var innerHtml = "<table border='0' cellspacing='0' cellpadding='0'><tr>";
+                innerHtml += "<td ><img src='" + Root + "Runtime/Context/Chat/whitebox.gif' width='10' height='5'><br>";
+                innerHtml += "<span class='stext'><font class='sinstractions'></font></span></td></tr></table><br>";
+                $(dictionaryContext).find("#translations-main-content").append(innerHtml);
+            }
+        }
+
+        function Getsimilarwords() {
+            var innerHtml = "<table border='0' cellspacing='0' cellpadding='0'><tr>";
+            innerHtml += "<td ><img src='" + Root + "Runtime/Context/Chat/whitebox.gif' width='10' height='5'><br>";
+            innerHtml += "<span class='stext'><font class='sinstractions'>No matching word was found. Check your spelling!</font></span></td></tr></table><br>";
+            $(dictionaryContext).find("#translations-main-content").append(innerHtml);
+            if (!wd_ForeignToEnglish) {
+                $.ajax({
+                    url: "api/Translation/similar-words?word=" + wd_Word,
+                    type: "GET",
+                    dataType: 'json',
+                    error: onError,
+                    success: function (dictionary) {
+                        if (dictionary.length > 0) {
+                            for (var i = 0; i < dictionary.length; i++) {
+                                wd_LinkWord = dictionary[i];
+                                wd_LinkWord2 = wd_LinkWord;
+                                wd_LinkWord2 = wd_LinkWord2;
+                                var $linkedWordHtml = $("<table border='0' cellspacing='0' cellpadding='0' class='sinflations' height='15'>" +
+                                    "<tr><td class='sinflations'><a href='#' class='stexthome' target='_self'>" +
+                                    "<span class='sinflations'>" + wd_LinkWord + "</span></a></td></tr></table>");
+                                var goToSimilarWordBound = goToSimilarWord.bind(this, wd_Word, wd_LinkWord2, wd_LanguageId);
+                                $linkedWordHtml.on('click', goToSimilarWordBound);
+                                $(dictionaryContext).find("#translations-main-content").append($linkedWordHtml);
+                                $(dictionaryContext).find('.sinstractions').text(translate[302]);
+                                //$(dictionaryContext).find('#translations-main-content .stexthome').on('click', goToSimilarWordBound);
+                            }
+                        }
+                        enableDictionarySearch();
+                    }
+                });
+            } else {
+                enableDictionarySearch();
+            }
+
+        }
+
+        function generateTranslation(dictionary) {
+            if (dictionary.length > 0) {
+                wd_WordToShow = dictionary[0].BaseWord;
+                amper = wd_WordToShow.indexOf("@", 0) + 1;
+                if (amper > 0) {
+                    wd_WordToShow = wd_WordToShow.substring(0, amper);
+                }
+                counter = 1;
+                strWavePath = "Runtime/Media/Dictionary/" + dictionary[0].FirstChar.trim(' ') + "/" + wd_WordToShow.replace(" ", "_") + ".mp3";
+                if (dictionary[0].Sound && originalSound) {
+                    originalSound = false;
+                    var playerHtml = $(dictionaryContext).find("#player-template").html().replace("*wd_WordToShow*", wd_WordToShow);
+                    $(dictionaryContext).find("#translations-main-content").append(playerHtml);
+                    $('#dictionaryResults__speaker, #dictionary__wd_WordToShow').on('click', playTranslationsMP);
+                    setDictFile();
+                }
+                iExplCnt = 1;
+                bExplCnt = false;
+                var innerHtml = "";
+                for (var i = 0; i < dictionary.length; i++) {
+                    if (wd_Type != dictionary[i].Type || wd_WordToShow != dictionary[i].BaseWord) {
+                        if (wd_WordToShow != dictionary[i].BaseWord) {
+                            wd_WordToShow = dictionary[i].BaseWord;
+                        }
+                        wd_Type = dictionary[i].Type;
+                        displayWord = true;
+                        iExplCnt = 1;
+                        counter = 1;
+                        if (dictionary[i].TypeCount > 1) {
+                            bExplCnt = true;
+                        }
+                    }
+                    if (wd_Language != "English") {
+                        if (wd_ForeignToEnglish == 0) {
+                            if (dictionary[i].LanguageTranslation) {
+                                wd_Translation = dictionary[i].LanguageTranslation;
+                            }
+                        }
+                        else {
+                            wd_Translation = GetDbValue(dR, "English");
+                        }
+                    }
+                    if (dictionary[i].BaseWord && displayWord) {
+                        innerHtml += "<table border='0' cellspacing='0' cellpadding='0' class='stranslation'><table border='0' cellspacing='0' cellpadding='0' class='stranslation'>";
+                        innerHtml += "<tr>";
+                        innerHtml += "<td class='stranslation'><br />";
+                        innerHtml += "<span class='stranslation'>" + wd_WordToShow + " (" + wd_Type + ")</span></td>";
+                        innerHtml += "</tr>";
+                        innerHtml += "</table>";
+                        displayWord = false;
+                    }
+                    strTranslParts = [wd_Translation, dictionary[i].Explanation.trim(' '), dictionary[i].Description.trim(' '), dictionary[i].Example.trim(' ')];
+                    classArray = ["stranslation2", "sexplanation", "sexamples", "sexamples"];
+                    strAdditional = ["<div " + contentDir + ">" + counter + ". ", iExplCnt + ". ", "", ""];
+                    if (!bExplCnt) {
+                        strAdditional[1] = "";
+                    }
+                    for (var y = 0; y < strTranslParts.length; y++) {
+                        if (strTranslParts[y].trim(' ').length != 0) {
+                            innerHtml += "<table border='0' cellspacing='0' cellpadding='0' class='" + classArray[y] + "'>";
+                            strTD = "";
+                            if (y > 1) {
+                                strTD = "<td></td>";
+                            }
+                            innerHtml += "<tr>" + strTD + "<td class='" + classArray[y] + "'>";
+                            innerHtml += "<span class='" + classArray[y] + "'>" + strAdditional[y] + "" + strTranslParts[y] + "</span></div></td></tr></table>";
+                        }
+                    }
+                    counter = counter + 1;
+                    iExplCnt = iExplCnt + 1;
+                    wd_Translation = "";
+                }
+                $(dictionaryContext).find("#translations-main-content").append(innerHtml);
+            }
+            enableDictionarySearch();
+        }
+
+
+    }
+    //////////
+    function goToSimilarWord(nativeWord, word, lang, e) {
+        e.preventDefault()
+        historyWord = nativeWord;
+        initTranslation(word, lang);
+        $(dictionaryContext).find("#backTable").show();
+        $(dictionaryContext).find("#Mysearchtext").val(word);
+    }
+
+    function backToTheList() {
+        $(dictionaryContext).find("#Mysearchtext").val(historyWord);
+        $(dictionaryContext).find("#backTable").hide();
+        initTranslation(historyWord, wd_LanguageId);
+        historyWord = null;
+    }
+
+    function clickOnGo(e) {
+        var word = $(dictionaryContext).find("#Mysearchtext").val();
+        var selecteLangDDLEl$ = $(dictionaryContext).find("#selectLanguage")
+        var lang = selecteLangDDLEl$.val();
+        initTranslation(word, lang);
+    }
+
+    function checkState(event1) {
+        if (event1.keyCode != 13)
+            return true;
+        var txtArea = event1.srcElement ? event1.srcElement : event1.target;
+        if (!checkChanges())
+            return false;
+        if (txtArea && txtArea.value.length > 0 && txtArea.value.match(new RegExp(" {" + txtArea.value.length + "}")) == null)
+            clickOnGo(false);
+        return false;
+    }
+    ////
+    /// private ///
+    function buildLanguagesList(onSuccess) {
+        $(dictionaryContext).find("#selectLanguage").empty();
+        $.ajax({
+            url: "api/Translation/options",
+            type: "GET",
+            dataType: 'json',
+            error: function (error) {
+                onError(error);
+                $(dictionaryContext).find("#selectLanguage").attr("filled", null);
+
+            },
+            success: function (languages) {
+                for (var i = 0; i < languages.length; i++) {
+                    if (languages[i].LanguageId != 0) {
+                        var selected = languages[i].TranslationId == wd_LanguageId ? "selected " : " ";
+                        $(dictionaryContext).find("#selectLanguage").append("<option value='" + languages[i].TranslationId + "' " + selected + ">" + languages[i].Description + "</option>");
+                    }
+                }
+                if (onSuccess) { onSuccess(); }
+            }
+        });
+    }
+
+    function isRTLMode() {
+        var lang, support;
+
+        if (GetCookie("Student") != null && getCompositeCookie("Student", "SID") != "-1") {
+            support = getCompositeCookie("Student", "LangSupLevel");
+            lang = getCompositeCookie("Student", "Language") || language;
+        }
+        else {
+            support = getCompositeCookie("Community", "InstLangSupLevel");
+            lang = getCompositeCookie("Community", "InstLang");;
+        }
+
+        if ((lang == "heb" || lang == "ara") && support == 3) {
+            return true;
+        }
+
+        return false;
+    }
+    ///
+    function sendMsg() {
+        global.parent.frames["wd_ToolFrame"].wdHistoryButtOn();
+    }
+
+    function setDictFile() {//refactor - it is for script race.
+        if (setFileForMP) {
+            setFileForMP();
+        } else {
+            setTimeout(setDictFile, 500);
+        }
+    }
+
+    function setFileForMP() {
+        if (audioPlayer) {
+            audioPlayer.openNewFile(MediaRoot + strWavePath);
+        }
+    }
+
+    function playTranslationsMP(e) {
+        e.preventDefault();
+        if (audioPlayer) {
+            audioPlayer.play();
+        }
+    }
+
+    function onDocReady() {
+        var extL10n = GetCookie("extL10n");
+        applyTemplate(playTranslationsMP, backToTheList, clickOnGo, checkState);
+        audioPlayer = new g_spObj1("DMediaPlayer", false);
+        $.getJSON('Languages/' + extL10n + '.json', function (data) { translate = data; })
+    }
+
+    function applyTemplate(playTranslationsMP, backToTheList, clickOnGo, checkState) {
+        var tmpl = '<div class="DictionaryPanelHeader"> <div class="layout__pull"> <h4>Dictionary</h4> </div> <div class="layout__push closeBtn DictionaryClose"> <a href="javascript:void(0)" title="Close panel">&times;</a> </div> </div> <div class="componentPanelContent"> <table width="auto" cellspacing="0" cellpadding="5" class="DictionaryGray" style="margin-right: 35px;"> <tr> <td class="dictionarySearch__searchInputW"> <input type="text" class="dictionarySearch__formField" name="Mysearchtext" id="Mysearchtext" style="width: expression(inputWidth(this));" size="15" maxlength="40"> </td> <td class="DictionaryGoBtn"> <a href="#" class="DictionaryGo"></a> </td> </tr> <tr align="left" valign="middle"> <td colspan="3"> <select name="selectLanguage" class="dictionarySearch__formField stext dictionarySearch__selectLang" id="selectLanguage" size="1"></select> </td> </tr> </table> <table width="315px"> <tr align="center" valign="top"> <td> <table height="230" border="0" cellspacing="0" cellpadding="0"> <tr align="center" valign="top"> <td id="translations-main-content" style="height: 230px; overflow: auto; display: block; text-align: left; padding-left: 20px;" class="layout__noMinWidth layout__dirPull dictionaryResults__main"></td> </tr> </table> </td> </tr> </table> <div id="player-template" style="display: none;"> <table height="30" title="Click to hear the word." border="0" cellspacing="0" cellpadding="0"> <tr valign="middle"> <td class="dictionaryResults__speakerW" style="width: 30px;"> <a id="dictionaryResults__speaker" href="#"> <div id="speaker" name="speaker" class="mediaSpeaker" alt="Click on the speaker to hear the word."> </div> </a> </td> <td width="172"><a id="dictionary__wd_WordToShow" href="" class="category">*wd_WordToShow*</a></td> </tr> </table> </div> <div class="layout__noMinWidth layout__dirPull"> <div class="DictionaryFooter"> <div class="layout__push toolsLight" id="kdictBtn" ></div> <table style="display:none" border="0" cellspacing="0" cellpadding="0" id="backTable" class="DictionaryBackBtn"> <tr id="dictionary__backToTheListBtn"> <td align="center"> <a href="#" id="back-to-list"></a> </td> </tr> </table> </div> </div> </div>';
+
+        $('#DictionaryPanelContainer').html(tmpl);
+        $('#kdictBtn').on('click', function () { top.window.open(Root + 'Runtime/Dictionary/kerneman_page.htm', 'kerneman', 'scrollbars = yes, resizable = yes, width = 300, height = 400') });
+        $("#kdictBtn").html("<img src='" + Root + "Runtime/Context/Dictionary/Di0000B0KernemanLogo.gif' alt='KDICTIONARIES' border='0'>");
+
+        $('#dictionaryResults__speaker, #dictionary__wd_WordToShow').on('click', playTranslationsMP);
+        $('#dictionary__backToTheListBtn').on('click', backToTheList);
+        $('#selectLanguage').on('change', clickOnGo);
+        enableDictionarySearch();
+        $('#Mysearchtext').on('onkeypress', checkState);
+    }
+
+    function onDictionaryGoClick(e) { e.preventDefault(); clickOnGo(); }
+
+    function onDictionaryGoClickDisable(e) { e.preventDefault(); }
+
+    function enableDictionarySearch() {
+        dictionarySearchDisabled = false;
+        $(dictionaryContext).find('.DictionaryGo').off('click').on('click', onDictionaryGoClick);
+        $(dictionaryContext).find('#selectLanguage').attr("disabled", null);
+        $(dictionaryContext).find(".DictionaryGo").removeClass('DictionaryGo--disabled');
+        $.publish('dictionary', { disableDictionarySearch: { value: dictionarySearchDisabled } });
+    }
+
+    function disableDictionarySearch() {
+        dictionarySearchDisabled = true;
+        $(dictionaryContext).find('.DictionaryGo').off('click').on('click', onDictionaryGoClickDisable);
+        $(dictionaryContext).find('#selectLanguage').attr("disabled", "disabled");
+        $(dictionaryContext).find(".DictionaryGo").addClass('DictionaryGo--disabled');
+        $.publish('dictionary', { disableDictionarySearch: { value: dictionarySearchDisabled } });
+    }
+
+    function onError(error) {
+        alert(translate[146]);
+        enableDictionarySearch();
+    }
+})(window);

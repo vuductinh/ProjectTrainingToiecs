@@ -1,0 +1,3948 @@
+﻿var edns = edns || {};
+edns.createNS = function (namespace) {
+    var nsparts = namespace.split(".");
+    var parent = edns;
+
+    //root ns is optional
+    if (nsparts[0] === "edns") {
+        nsparts = nsparts.slice(1);
+    }
+
+    // loop and create objs if necessary
+    for (var i = 0; i < nsparts.length; i++) {
+        var partname = nsparts[i];
+
+        if (typeof parent[partname] === "undefined") {
+            parent[partname] = {};
+        }
+        // get a reference to the deepest element 
+        // in the hierarchy so far
+        parent = parent[partname];
+    }
+    // the parent is now completely constructed 
+    // with empty namespaces and can be used.
+    return parent;
+};
+////
+edns.createNS('edns.network');
+edns.network.asyncCall = (function () {
+    return function (url, settings, onAjaxSuccess) {
+        settings = settings || {};
+        onAjaxSuccess = onAjaxSuccess || $.noop;
+        var data,
+            isGettingdata = false,
+            dataDeferreds = [];
+
+        return {
+            get: get,
+        };
+
+        function get() {
+            var defer = $.Deferred();
+            waitOrCall(defer, onAjaxSuccess);
+            return defer.promise();
+            ////
+            function waitOrCall(defer, onAjaxSuccess) {
+                if (data) {
+                    defer.resolve(data);
+                } else {
+                    dataDeferreds.push(defer);
+                    if (!isGettingdata) {
+                        callAsyncOnce(onAjaxSuccess);
+                    }
+                }
+            }
+
+            function callAsyncOnce(onAjaxSuccess) {
+                isGettingdata = true;
+                $.ajax(url, settings).then(onCallSuccess);
+                ////
+                function onCallSuccess(response) {
+                    data = response;
+                    onAjaxSuccess(data);
+                    isGettingdata = false;
+                    dataDeferreds.forEach(resolveAll);
+                    dataDeferreds = [];
+                    ////
+                    function resolveAll(deferredCB, i, dataDeferreds) {
+                        deferredCB.resolve(data);
+                    }
+                }
+            }
+        }
+    }
+})();
+////
+(function () {
+    edns.createNS('edns.appToken');
+    var storageKey = 'EDAPPToken';
+    var EDAPPToken = null;
+
+    edns.appToken = {
+        set: set
+        , remove: remove
+        , get: get
+    };
+
+    function set(token) {
+        EDAPPToken = token;
+        localStorage.setItem(storageKey, EDAPPToken);
+    }
+
+    function remove() {
+        EDAPPToken = null;
+        localStorage.removeItem(storageKey);
+    }
+
+    function get() {
+        return localStorage.getItem(storageKey);
+    }
+})();
+
+
+(function () {
+    edns.createNS('edns.appToken.api');
+    function apisPath() {
+        return (JSON.parse(localStorage.getItem('api')) || {}).host || '';
+    };//'https://www.newAPILocation.com'; //window.edAppApiPath
+
+    function apiControllers() {
+        return (JSON.parse(localStorage.getItem('api')) || {}).controllers || [];
+    }
+    var headerName = 'Authorization';
+    var getAPISettingsCall = edns.network.asyncCall('/InitialSettings.json', {dataType: 'text'}, saveAPISettings);
+
+    edns.appToken.api = {
+        header: {
+            add: addHeader
+        },
+        url: {
+            set: setURL
+        },
+        ajaxBeforeSend: ajaxBeforeSend  //only for ext files that cannot take referance this file
+        , ajaxComplete: ajaxComplete //only for ext files that cannot take referance this file
+        , ajaxUnAuth: ajaxUnAuth //only for ext files that cannot take referance this file
+        , init: getAPISettings
+        , getCheckSessionDelay : getCheckSessionDelay
+        , getPingInterval: getPingInterval
+    };
+
+    function getAPISettings() {
+        return getAPISettingsCall.get();
+    }
+
+    function saveAPISettings(result) {
+        var data = JSON.parse(result);
+        localStorage.setItem('api', JSON.stringify({ 'host': data.EdusoftWebApiHost, 'controllers': data.EdusoftControllers, 'checkSessionDelay': data.CheckSessionDelay, 'pingInterval': data.PingInterval }));
+    }
+
+    function getCheckSessionDelay() {
+        var apiData = JSON.parse(localStorage.getItem('api'));
+        var result = (apiData && apiData.checkSessionDelay) ? parseInt(apiData.checkSessionDelay, 10) : null;
+        return result;
+    }
+
+    function getPingInterval() {
+        var apiData = JSON.parse(localStorage.getItem('api'));
+        var result = (apiData && apiData.pingInterval) ? parseInt(apiData.pingInterval, 10) : 60000;
+        return result;
+    }
+
+    function addHeader(url, headers) {
+        if (shouldAddHeader(url)) {
+            headers[headerName] = 'Bearer ' + edns.appToken.get();
+        }
+        else if (apiRequire(url) && url.indexOf('Auth') > 0) {
+            headers['withCredentials'] = 'true';
+        }
+        return headers;
+    }
+
+    function setURL(url) {
+        if (apiRequire(url)) {
+            url = url.startsWith('http') ? new URL(url).pathname.substring(1) : url;
+            url = apisPath() + url.split('/')[0].toLowerCase().replace('webapi', 'api') + url.substring(url.indexOf('/'));
+        }
+        return url;
+    }
+
+    function shouldAddHeader(url) {
+        return apiRequire(url) && edns.appToken.get();
+    }
+
+    //check if newApiPath exists in storage and if the controller in URL is included in the processed controllers
+    function apiRequire(url) {
+        url = url.toLowerCase();
+        if (apisPath() !== '') {
+            var apiInURL = url.indexOf('api/');
+            if (apiInURL > -1) {
+                var afterApiInURL = apiInURL + 'api/'.length;
+                var withParameters = url.indexOf('/', afterApiInURL);
+                var controller = (withParameters == -1) ? url.substring(afterApiInURL) : url.substring(afterApiInURL, withParameters);
+                return (apiControllers().map(function (v) {return v.toLowerCase();}).includes(controller));
+            }
+            return false;
+        }
+        return false;
+        //return url.indexOf(apisPath()) > -1;
+    }
+
+    function ajaxBeforeSend(jqXHR, settings) {
+        var apiUrl = edns.appToken.api.url.set(settings.url);
+        var tokenHeader = edns.appToken.api.header.add(settings.url, {});
+        if (Object.keys(tokenHeader).length > 0) {
+            Object.keys(tokenHeader).forEach(function (key) {
+                jqXHR.setRequestHeader(key, tokenHeader[key]);
+            })
+        }
+        if (apiUrl !== settings.url) {
+            settings.url = apiUrl;
+        }
+    }
+    
+    function ajaxUnAuth() {
+        $.publish('sessionTimeout');
+         window.opener ? window.opener.postMessage('sessionTimeout') : (window.top !== window.self) ? window.top.postMessage('sessionTimeout'): $.noop();
+        //console.log('revoke token and session timeout');
+    }
+
+    function ajaxComplete(getHeaders) {
+        //console.log(getHeaders('content-length'));
+        var newAuthToken = getHeaders('set-authorization');
+        if (newAuthToken !== null) {
+            edns.appToken.set(newAuthToken);
+            //debugger;            
+            //console.log('Token refreshed');
+        }
+    }
+})();
+
+
+$.ajaxSetup({
+    beforeSend: edns.appToken.api.ajaxBeforeSend
+    , complete: function (jqXHR) {
+            edns.appToken.api.ajaxComplete(jqXHR.getResponseHeader);
+        }
+    , statusCode: {
+        401: edns.appToken.api.ajaxUnAuth
+    }
+});
+edns.network.canSendAndForget = function () { return fetch !== void 0;} 
+edns.network.sendAndForget =  function (url, data, customSettings) {
+    customSettings = customSettings || {};
+    var defaultSettings = {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: data,
+        method: 'POST'
+    };
+
+    var nonOverwritablesSettings =  {
+        keepalive: true
+    };
+
+    var settings = Object.assign({}, defaultSettings, customSettings, nonOverwritablesSettings);
+    /////
+    var apiUrl = edns.appToken.api.url.set(url);
+    var tokenHeader = edns.appToken.api.header.add(url, {});
+        if (Object.keys(tokenHeader).length > 0){
+            Object.keys(tokenHeader).forEach(function (key) {
+            settings.headers[key] = tokenHeader[key];
+            }) 
+        }
+    if (apiUrl !== url) {
+        url = apiUrl;
+    }
+    /////    
+    fetch(url, settings);
+        //.then(function (response) {console.log(response)});
+};
+edns.navigator = (function () {
+    return {
+        goToCourseLesson: loadCourseJson //goto lesson in any user's course
+        , removeLAGotoPath: removeLAGotoPath
+    };
+
+    function loadCourseJson(courseId, unitId, lessonId) {
+        //if (localStorage.getItem("Course") == null || JSON.parse(localStorage.getItem('Course') == 'undefined') || typeof unitId == 'undefined' || typeof lessonId == 'undefined') {
+        if (localStorage.getItem("Course") != null && JSON.parse(localStorage.getItem('Course')) != 'undefined' && courseId == JSON.parse(localStorage.getItem('Course')).CourseId)
+            goToCourseLesson(courseId, unitId, lessonId);
+        else {
+            callService("GET", null, "WebApi/CourseTree/GetStaticCourseTree/" + courseId, function (result) {
+                localStorage.setItem("Course", JSON.stringify({ CourseId: courseId, CourseJson: JSON.stringify(result.CourseTreeRoot) }));
+                goToCourseLesson(courseId, unitId, lessonId);
+            }, function () { }, false, null, "json");
+        }
+    }
+
+    function goToCourseLesson(courseId, unitId, lessonId) {
+        if (typeof unitId == 'undefined' || typeof lessonId == 'undefined') {
+            var courseJSON = JSON.parse(JSON.parse(localStorage.getItem('Course')).CourseJson);
+            unitId = courseJSON.Children[0].NodeId;
+            lessonId = courseJSON.Children[0].Children[0].NodeId;
+        }
+
+        localStorage.setItem("nav2Course", courseId);
+        setCompositeCookie("Unit", "UnitId", unitId);
+        localStorage.setItem("Unit", JSON.stringify({ UnitId: unitId }));
+        setCompositeCookie("Component", "ComponentId", lessonId);
+        localStorage.setItem("Component", JSON.stringify({ Id: lessonId }));
+        removeLAGotoPath();
+
+        $.ajax({
+            url: "WebApi/Institution/GetInstitutionsData/" + getCompositeCookie("Community", "IID"),
+            type: "GET",
+            dataType: 'json',
+            success: function (data) {
+                var pageName = (data && data.learningAsAng) ? 'learningArea.html' : 'Template.html';
+                if (bIE && (getIEVer() < 10)) {
+                    parent.window.opener.location = "Runtime/" + pageName + "?unitData=" + unitId + "&FromTMS=false&SID=" + getCompositeCookie("Student", "SID")
+                    window.close();
+                }
+                else {
+                    var url = (window.location.hostname == "localhost") ? window.parent.location.protocol + "//" + window.parent.location.host : "../../..";
+                    window.location = url + "/Runtime/" + pageName;
+                }
+            },
+            error: function (e) {
+            }
+        });
+    }
+
+    function removeLAGotoPath() {
+         localStorage.removeItem('LAGotoPath');
+    }
+})();
+
+/////
+(function () {
+    edns.createNS('edns.testEnvironment');
+    if (window.Root === void 0 && window.location.href.toLowerCase().indexOf('testarea.html') > -1) {
+        var href = window.location.href;
+        window.Root = href.substring(0, href.toLowerCase().indexOf("runtime"));
+    }
+    edns.testEnvironment.cookieName = 'PLTExternal';
+    var testEnvironmentUrl = 'Runtime/TestArea.html';
+    var instPropKey = 'TestEnvInLA';
+    var propVal = getCompositeCookie('Community', instPropKey);
+    //edns.testEnvironment.testEnvInLA = true;//!!(propVal && propVal === '1'); 
+    var extAPITestEnvDataCookie = getCookieAsJSON(edns.testEnvironment.cookieName);
+    var extAPITestEnvDataLS = (localStorage.getItem('TestEnv') && JSON.parse(localStorage.getItem('TestEnv')).ReturnLink) ? JSON.parse(localStorage.getItem('TestEnv')) : null;
+
+    //if (extAPITestEnvDataLS) {
+    //    edns.testEnvironment.extAPITestEnvData = extAPITestEnvDataLS ;//console.log('foo');
+    //} else {
+    //    edns.testEnvironment.extAPITestEnvData = extAPITestEnvDataCookie;//console.log('bar');
+    //}
+    edns.testEnvironment.extAPITestEnvData = ((!!extAPITestEnvDataLS) ? extAPITestEnvDataLS : extAPITestEnvDataCookie);
+
+    if (edns.testEnvironment.extAPITestEnvData) {
+        createEDCookiesForAPI(edns.testEnvironment.extAPITestEnvData);
+        edns.navigator.removeLAGotoPath();
+        //edns.l10n.getLangCode
+    }
+
+    edns.testEnvironment.testEnvInLA = edns.testEnvironment.extAPITestEnvData ? true : (propVal === null) ? false : new Date(propVal + '+0000') < Date.now();
+
+
+    edns.testEnvironment.testEnvironmentUrl = testEnvironmentUrl;
+    edns.testEnvironment.isInTestEnvironment = !!(location.href.toLowerCase().indexOf(testEnvironmentUrl.toLowerCase()) > -1);
+    edns.testEnvironment.deleteCookie = function () { document.cookie = edns.testEnvironment.cookieName + '=; expires=' + (new Date(0)).toUTCString().replace('GMT', 'UTC') + '; path=/;'; }
+    edns.testEnvironment.deleteLocalStorage = function () { localStorage.removeItem('TestEnv'); }
+    edns.testEnvironment.deleteCookieLocaltorage = function () { edns.testEnvironment.deleteCookie(); edns.testEnvironment.deleteLocalStorage(); }
+    edns.testEnvironment.deleteTEResultsData = function () {
+        sessionStorage.removeItem("userTestComponentProgressId");
+        document.cookie = 'CompTest=; expires=' + (new Date(0)).toUTCString().replace('GMT', 'UTC') + '; path=/;';
+        document.cookie = 'TestResultsMode=; expires=' + (new Date(0)).toUTCString().replace('GMT', 'UTC') + '; path=/;';
+
+        localStorage.removeItem("compTestSequence");
+        //localStorage.removeItem("PreviewMode");
+        localStorage.removeItem("ViewTestResultsMode");
+    }
+    //// 
+    function createEDCookiesForAPI(extAPITestEnvData) {
+        if (extAPITestEnvData.IID) {
+            //setCompositeCookie("Community", "IID", extAPITestEnvData.IID);
+            //localStorage.setItem("Community", JSON.stringify(getCookieAsJSON('Community')));
+            delete extAPITestEnvData.IID;
+        }
+        if (extAPITestEnvData.studentId) {
+            //setCompositeCookie("Student", "StudentID", extAPITestEnvData.studentId);
+            //localStorage.setItem("Student", JSON.stringify(getCookieAsJSON('Student')));
+            delete extAPITestEnvData.studentId;
+        }
+        //if (extAPITestEnvData.resPathRoot) {
+        //    localStorage.setItem("resPathRoot", extAPITestEnvData.resPathRoot);
+        //    delete extAPITestEnvData.resPathRoot;
+        //} else 
+        if (GetCookie("resPathRoot")) {
+            localStorage.setItem("resPathRoot", GetCookie("resPathRoot"));
+        }
+
+        if (GetCookie("Student")) {
+            localStorage.setItem("Student", JSON.stringify(getCookieAsJSON('Student')));
+        }
+
+        if (GetCookie("Community")) {
+            localStorage.setItem("Community", JSON.stringify(getCookieAsJSON('Community')));
+        }
+
+
+    }
+})();
+
+if (typeof Root == 'undefined') {
+    var href = window.location.href;
+    //  Root = href.substring(0, href.toLowerCase().indexOf(getCompositeCookie('Community', 'Name')));
+    if (edns.testEnvironment.isInTestEnvironment && edns.testEnvironment.extAPITestEnvData) {
+        Root = edns.testEnvironment.extAPITestEnvData.Root;
+    } else {
+        Root = href.substring(0, href.toLowerCase().indexOf('/' + getCompositeCookie('Community', 'alias'), href.indexOf('://') + 3)) + '/';
+
+    }
+}
+
+if (typeof syschekModal == 'undefined') {
+
+    window.syschekModal = [];
+}
+
+var bLoadExternalLanguageJSON = false;
+
+
+//#region IeDetect
+
+function getIEVer() {
+    var rv = -1;
+
+    if (navigator.appName == 'Microsoft Internet Explorer') {
+        var ua = navigator.userAgent;
+        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat(RegExp.$1);
+    }
+    else if (navigator.appName == 'Netscape') {
+        var ua = navigator.userAgent;
+        var re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat(RegExp.$1);
+    }
+    return rv;
+}
+
+function detect() {
+    var ua = window.navigator.userAgent;
+
+    if ((ua.indexOf("Firefox") != -1) || (ua.indexOf("Chrome") != -1) || (ua.indexOf("Safari") != -1) || (ua.indexOf("Universum") != -1)) {
+        bFF = true;
+    } else bFF = false;
+
+    if (ua.indexOf("Windows") != -1) {
+        bWinXP = (ua.indexOf("Windows NT 5.1") != -1) || (ua.indexOf("Windows NT 5.2") != -1);
+
+        bWinVS = (ua.indexOf("Windows NT 6.0") != -1);
+        bWin7 = (ua.indexOf("Windows NT 6.1") != -1);
+        bWin8 = (ua.indexOf("Windows NT 6.2") != -1);
+        var bWin_10 = (ua.indexOf("Windows NT 10.0") != -1);
+        var bWin8_1 = (ua.indexOf("Windows NT 6.3") != -1);
+
+        // if (!bWinXP && !bWinVS && !bWin7 && !bWin8 && !bWin8_1)
+        //  { alert("Unsupported version of the Operating System"); }
+        //if (!bWinXP && !bWinVS && !bWin7 && !bWin8 && !bWin8_1 && !bWin_10)
+        //{ alert("Unsupported version of the Operating System"); }
+
+
+        var msIE_Ver = getIEVer();
+
+        var bMSIE = (msIE_Ver != -1);
+
+
+        if (bMSIE) {
+            bIE = true;
+            bControl = true;
+
+            var bMSIE8 = (msIE_Ver == 8);
+            var bMSIE9 = (msIE_Ver == 9);
+            var bMSIE10 = (msIE_Ver == 10);
+            var bMSIE11 = (msIE_Ver > 10);
+
+            if (!bMSIE8 && !bMSIE9 && !bMSIE10 && !bMSIE11) {
+                if (!top.once) {
+                    alert("You are using an unsupported version of Microsoft© Internet Explorer!\n We strongly recommend you upgrade to version 10.0 or later");
+                    top.once = true;
+                }
+            }
+        }
+        else if (bFF) {
+        }
+        else
+            alert("Sorry, this application only works with Microsoft© Internet Explorer.");
+    }
+}
+
+var bIE = false;
+detect();
+if (bIE) { document.getElementsByTagName('html')[0].className += ' browserIe'; }
+//#endregion
+
+
+edns = edns || {};
+edns.mobile = (function (windowScreen) {
+    return {
+        isMobileDevice: isMobileDevice
+        , isMobileIos: isMobileIos
+        , isMobileAndroid: isMobileAndroid
+        , isSmallScreen: isSmallScreen
+        , isAndroid: isAndroid
+        , isIos: isIos
+    };
+
+    function isMobileAndroid() {
+        return isAndroid() || isSmallScreen();
+    }
+
+    function isMobileIos() {
+        return isIos() || isSmallScreen();
+    }
+
+    function isMobileDevice() {
+        return isIos() || isAndroid() || isSmallScreen();
+    }
+
+    function isIos() {
+        return (navigator.userAgent.match(/iPad|iPhone|iPod/i) != null || window.orientation !== void 0);
+    }
+    function isAndroid() {
+        return (navigator.userAgent.match(/Android/i) != null);
+    }
+
+    function isSmallScreen() {
+        var smallScreenWidth = 480;
+        return windowScreen.width <= smallScreenWidth;
+    }
+
+})(window.screen);
+//////////////
+
+function isMobile() {
+    return edns.mobile.isMobileDevice();
+    /*
+        // Sony: SGP, Samsung: SM
+        if (navigator.userAgent.match(/Android|iPad|iPhone|iPod/i) != null || window.orientation !== void 0 || screen.width <= 480) {
+            return true;
+        }
+        else
+            return false;
+    */
+    //return ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i)));
+}
+//////////////
+//#region - OpenWindow manager 
+if (typeof edns === 'undefined') var edns = {};
+edns.OpenWindowsManager = (function OpenWindowsManager() {
+    "use strict";
+    var that;
+
+
+    function openWindowsManagerConstructor(options) {
+        that = this;
+        this.wins = [];
+
+        //TODO: function syncWidnows() {}
+
+
+    }
+
+    openWindowsManagerConstructor.prototype.addWindow = function (win) {
+        if (that.wins.indexOf(win) === -1) {
+            that.wins.push(win);
+        }
+    }
+
+    //openWindowsManagerConstructor.prototype.removeWindow = function (winName) {
+    //    var winIndex = -1;
+    //    for (var i = 0; i < that.wins.length; i++) {
+    //        if (that.wins[i].name === winName) {
+    //            winIndex = i;
+    //            break;
+    //        }
+    //    }
+    //    if (winIndex > -1) {
+    //        that.wins.splice(that.wins.indexOf(winIndex), 1);
+    //    }
+    //}
+
+    openWindowsManagerConstructor.prototype.closeWindow = function (win) {
+        // debug and fix
+        function removeWindow(winName) {
+            var winIndex = -1;
+            for (var i = 0; i < that.wins.length; i++) {
+                if (that.wins[i].name === winName) {
+                    winIndex = i;
+                    break;
+                }
+            }
+            if (winIndex > -1) {
+                that.wins.splice(that.wins.indexOf(winIndex), 1);
+            }
+        }
+
+        function closeWindow(item) {
+            if (item.name === win) {
+                item.close();
+            }
+        }
+
+        that.wins.map(closeWindow);
+        removeWindow(win);
+    }
+
+    /**singelton ?*/
+
+    if (window.openWindowsMngr === undefined) {
+        //var owm = new OpenWindowsManager();
+        window.openWindowsMngr = new openWindowsManagerConstructor();
+    } else {
+        return;
+    }
+
+    return openWindowsManagerConstructor;
+})();
+//#endregion - Modal manager 
+
+//#region framebox
+
+var bMobile = isMobile();
+var isHTML5Player = false;
+
+var customcomponentName;
+
+
+
+edns = edns || {};
+edns.browser = edns.browser || {};
+edns.browser.eventNames = (function (edns) {
+    var onBeforeunloadEventName = edns.mobile.isMobileIos() ? 'pagehide' : 'beforeunload';
+    //var clickEventName = getClickEventName(edns.mobile.isMobileDevice());
+
+    var clickEventName_mobileIos_touchStart = getClickEventName(edns.mobile.isMobileIos(), true)
+        , clickEventName_mobileIos_touchEnd = getClickEventName(edns.mobile.isMobileIos(), false)
+
+        , clickEventName_mobileAndroid_touchStart = getClickEventName(edns.mobile.isMobileAndroid(), true)
+        , clickEventName_mobileAndroid_touchEnd = getClickEventName(edns.mobile.isMobileAndroid(), false)
+
+        , clickEventName_mobileAll_touchStart = getClickEventName(edns.mobile.isMobileDevice(), true)
+        , clickEventName_mobileAll_touchEnd = getClickEventName(edns.mobile.isMobileDevice(), false);
+
+    return {
+        onBeforeunloadEventName: onBeforeunloadEventName
+        //, clickEventName: clickEventName // isMobileDevice , return touchend/click
+
+        , clickEventName_mobileIos_touchStart: clickEventName_mobileIos_touchStart
+        , clickEventName_mobileIos_touchEnd: clickEventName_mobileIos_touchEnd //general use
+
+        , clickEventName_mobileAndroid_touchStart: clickEventName_mobileAndroid_touchStart
+        , clickEventName_mobileAndroid_touchEnd: clickEventName_mobileAndroid_touchEnd
+
+        , clickEventName_mobileAll_touchStart: clickEventName_mobileAll_touchStart
+        , clickEventName_mobileAll_touchEnd: clickEventName_mobileAll_touchEnd
+
+        , getClickEventName: getClickEventName //function, parameter based
+    };
+
+    function getClickEventName(noMouse, atStart) {
+        atStart = atStart || false;
+        var mobileEvent = (atStart) ? 'touchstart' : 'touchend';
+        return (noMouse) ? mobileEvent : 'click';
+    }
+
+})(edns)
+
+//////////////
+
+
+//#region dictionary
+
+var showRCD = "1";
+if (getCompositeCookie("Student", "RCD") == "0")
+    showRCD = "0";
+
+
+function doAttachEvents() {
+    if (!document) {
+        timerId = setTimeout("doAttachEvents()", 1000);
+    }
+    else {
+        if (!bMobile) {
+            //    if(bIE) {
+            if (document.attachEvent) {
+                document.attachEvent("oncontextmenu", handleRightClick);
+                //document.attachEvent("onkeydown", keydownHandler);
+            }
+            else {
+                document.addEventListener("contextmenu", handleRightClick, false);
+                //document.addEventListener("keydown", keydownHandler, false);
+            }
+        }
+    }
+
+}
+
+function isIE64bit() {
+    var ua = window.navigator.userAgent;
+
+    //  if (ua.indexOf("MSIE") == -1) return false; -- fix for IE11 (igb 2014.07.)
+    if (!bIE) return false;
+    if (ua.indexOf("Win64") != -1) return true;
+
+    return false;
+}
+
+function isSRBDisable() {
+    return getCompositeCookie("Media", "SRBD") == "1";
+}
+
+function checkOffScreen(elem) {
+    if (elem[0].getBoundingClientRect().bottom > innerHeight && parseInt(elem.css('top')) - elem.height() > 50)
+        elem.css('top', parseInt(elem.css('top')) - elem.height());
+    if (elem[0].getBoundingClientRect().top < 70)
+        elem.css('top', parseInt(elem.css('top')) + 70);
+}
+
+function openDictionary(word, x, y) {
+    //right click dictionary
+    if (edns.dictionary.dictionarySearchDisabled()) { return; }
+    var wd_Language;
+
+    if (word != "") {
+        wd_Language = 1;
+        if (Root.toLowerCase().indexOf("classicsite.aspx") !== -1) {
+            Root = Root.substring(0, Root.indexOf('classicsite.aspx'));
+        }
+
+        if (window.dicWin != null)
+            window.dicWin.close();
+        setTimeout(function () {
+            var dicContext;
+            if (top.$('#DictionaryPanelContainer').length > 0) {
+                dicContext = top;
+            } else if ($('#DictionaryPanelContainer').length > 0) {
+                dicContext = window;
+            }  
+
+            var dic = dicContext.$('#DictionaryPanelContainer');
+            dic.off('click', dontCloseDic).on('click', dontCloseDic);
+            function dontCloseDic(e) {
+                e.stopPropagation();
+            }
+            dic.addClass('DictionaryWrapper--rightClick').removeClass('DictionaryWrapper--settings');
+            if (dic.length == 0)
+                if (parent.$('#DictionaryPopupContainer').length > 0) {
+                    var newsizes = getPopupSizeWithDictionary(parent.name);
+                    parent.resizeTo(newsizes.width, newsizes.height);
+                    dic = parent.$('#DictionaryPopupContainer');
+                    parent.$('body').addClass('popupScroll');
+                } else dic = parent.$('#DictionaryPanelContainer');
+            dic.find("#Mysearchtext").val(word);
+            var initTransFn = window.initTranslation || edns.dictionary.initTranslation;
+            initTransFn(word);
+            dic.find("#backTable").hide();
+            if (typeof (afterDicDrag) == 'undefined' || !afterDicDrag)
+                if (parent.$('#DictionaryPopupContainer').length == 0)
+                    dic.css({ 'position': 'absolute', 'left': (parseInt(x) + 15) + 'px', 'top': (parseInt(y) + 5) + 'px' });
+            dic.show();
+
+            if (dicContext) {
+                checkOffScreen(dic);
+                if (dicContext.$('.learning__main.learning__W').length != 0)
+                    dic.draggable({
+                        containment: '.learning__main.learning__W',
+                        stop: function () {
+                            afterDicDrag = true;
+                        },
+                        iframeFix: true
+                    });
+                else
+                    dic.draggable({
+                        containment: '#mainContent',
+                        start: function (event, ui) {
+                            dic.draggable("option", "cursorAt", { top: $('.home__userBar').height() + event.offsetY });
+                        },
+                        stop: function () {
+                            afterDicDrag = true;
+                        },
+                        iframeFix: true
+                    });
+            }
+            //window.dicWin = window.open(URL, "Dictionary", "width=242,height=300,left=200,top=200");
+            //if (window.dicWin != null) {
+
+            //    window.dicWin.focus();
+            //}
+        }, 100);
+    }
+
+    registerCloseDictionary();
+
+    return false;
+    //////////////
+    function registerCloseDictionary() {
+        var dicSelector = '.layout__push.closeBtn.DictionaryClose'
+        var $dicCloseBtnEl;
+        var dicCloseContext;
+        if ($(dicSelector).length == 0) {
+            $dicCloseBtnEl = top.$(dicSelector);
+            dicCloseContext = top;
+        } else {
+            $dicCloseBtnEl = $(dicSelector);
+            dicCloseContext = window;
+        }
+        if (dicCloseContext.$(dicSelector)[0]) {
+            var clickEvOnCloseEl = $._data(dicCloseContext.$(dicSelector)[0], 'events');
+            if (!clickEvOnCloseEl) {
+                dicCloseContext.$(dicSelector).on('click', function () { onDicClose.call(null, dicCloseContext); });
+            }
+        }
+    }
+
+    function onDicClose(context) {
+        var dic = context.$('#DictionaryPanelContainer');
+        dic.find('DictionaryIF').removeAttr('src');
+        dic.hide();
+        afterDicDrag = false;
+        if (context.$('#DictionaryPopupContainer').length > 0) {
+            context.$('#DictionaryPopupContainer').hide();
+            context.$('body').removeClass('popupScroll');
+            var newsizes = getPopupSizeWithoutDictionary(context.name);
+            context.resizeTo(newsizes.width, newsizes.height);
+        }
+    }
+}
+
+function getPopupSizeWithoutDictionary(name) {
+    switch (name) {
+        case 'Language Tools':
+            return { width: 425, height: 345 }
+        case 'ChangePassword':
+            return { width: 531, height: 397 }
+        case 'Profile_':
+            return { width: 318, height: 460 }
+        case 'explanation':
+            return { width: 825, height: 480 }
+        case 'Medo':
+            return { width: 590, height: 530 }
+
+    }
+}
+
+function getPopupSizeWithDictionary(name) {
+    switch (name) {
+        case 'Language Tools':
+            return { width: 769, height: 500 }
+        case 'ChangePassword':
+            return { width: 864, height: 500 }
+        case 'Profile_':
+            return { width: 650, height: 500 }
+        case 'explanation':
+            return { width: 1155, height: 500 }
+        case 'Medo':
+            return { width: 1155, height: 530 }
+    }
+}
+
+
+function OnDicClick(userLanguage) //settings menu dictionary
+{
+    var wd_Word = document.getElementById('DictionaryInput').value;
+    var dic = $('#DictionaryPanelContainer')
+    dic.addClass('DictionaryWrapper--settings').removeClass('DictionaryWrapper--rightClick');
+    dic.find("#Mysearchtext").val(wd_Word);
+    var initTransFn = window.initTranslation || edns.dictionary.initTranslation;
+    initTransFn(wd_Word);
+    
+    if (typeof (afterDicDrag) == 'undefined' || !afterDicDrag)
+        if (typeof x == 'undefined') {
+            //dic.css({ 'position': 'absolute', 'left': innerWidth / 2 - dic.width() / 2 + 'px' }); //align center
+            var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            dic.css({ 'position': 'absolute', 'left': innerWidth - dic.width() - scrollbarWidth + 'px' });//align right
+            if (!(document.documentElement.clientHeight < 400))
+                dic.css({ 'top': document.body.scrollTop == 0 ? $(window).scrollTop() + 100 : document.body.scrollTop + dic.height() / 2 + 'px' });
+            else dic.css({ 'top': document.body.scrollTop == 0 ? $(window).scrollTop() : document.body.scrollTop + 180 - dic.height() / 2 + 'px' });
+        } else dic.css({ 'position': 'absolute', 'left': x + 'px', 'top': y + 'px' });
+    dic.show();
+    if ($('.learning__main.learning__W').length != 0)
+        dic.draggable({
+            delay: 300,
+            containment: '.learning__main.learning__W',
+            stop: function () {
+                afterDicDrag = true;
+            },
+        });
+    else dic.draggable({
+        containment: '#mainContent',
+        delay: 300,
+        start: function (event, ui) {
+            dic.draggable("option", "cursorAt", { top: $('.home__userBar').height() + event.offsetY });
+        },
+        stop: function () {
+            afterDicDrag = true;
+        },
+    });
+    var eventName = (bMobile) ? 'touchend': 'click';
+    $('.layout__push.closeBtn.DictionaryClose').on(eventName, closeMenuDic);
+    $.subscribe('closeMenuDictionary', closeMenuDic);
+    return false;
+    /////
+    function closeMenuDic() {
+        var dic = $('#DictionaryPanelContainer');
+        $('DictionaryIF').removeAttr('src');
+        dic.hide();
+        afterDicDrag = false;
+    }
+}
+
+function hideDictionary(e) {
+    var openDic = $('.DictionaryWrapper--rightClick:visible');
+    if (openDic.length > 0) {
+        openDic.hide();
+    }
+}
+
+function buildMediaPlayer(id, width, height, autoStart, showStatusBar) { // BBVA version: replace MP to Flash
+    var spFlashUrl = Root + "Runtime/";
+    initArrMPTypes(id);
+    if (!bMobile) {	// PC
+        if (bIE) {
+            document.write('<OBJECT id="' + id + '" name="' + id + '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" WIDTH="0" HEIGHT="0" MENU="FALSE">');
+            document.write('<PARAM NAME="movie" VALUE="' + spFlashUrl + 'sp_flash.swf"><PARAM NAME="menu" VALUE="false"><PARAM NAME="FlashVars" VALUE="strFPName=' + id + '"><PARAM NAME="quality" VALUE="high"><PARAM NAME="bgcolor" VALUE=#FFFFFF><PARAM NAME="allowScriptAccess" VALUE="always">');
+            document.write('</OBJECT>');
+        }
+        else {
+            document.write('<embed src="' + spFlashUrl + 'sp_flash.swf" FlashVars="strFPName=' + id + '" quality="high" bgcolor="#ffffff" width="0" height="0" id="' + id + '" name="' + id + '" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash" SWLIVECONNECT="true" pluginspage="https://www.macromedia.com/go/getflashplayer" />');
+        }
+    }
+    else {	// Mobile
+        $('.myRecControls').addClass('noSupport').html('<div class="cPanelMobile"><span>' + getTranslate('Not supported by this device!') + '</span></div>');
+    }
+}
+
+function handleRightClick(e, word) {
+
+    if ((getCompositeCookie("Student", "RCD") == null || $('.onBoarding__IW').is(':visible')) && GetCookie('PreviewMode') != "1")
+        return;
+
+    //block on tests
+    if (isDuringCourseTest() || isDuringComponentTest()) {
+        edns.vendors.google.analytics.sendCustomEvent('dictionary', { enabled: false, source: 'right_click'}); 
+        e.preventDefault();
+        return;
+    }
+    function isDuringCourseTest() { 
+        var teData = JSON.parse(localStorage.getItem("TestEnv"));
+        if (teData && teData.Continue === 'true') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function isDuringComponentTest() { return window.top.InTest; }
+
+    e.preventDefault();
+    if (e.target.innerText == 'Continue') {
+        openDictionary('Continue', e.pageX, e.pageY);
+        return;
+    }
+    if (getCompositeCookie("Student", "RCD") == "1") {
+        var text = "";
+        if (typeof word != "undefined")
+            text = word;
+        else {
+            if (!e) e = window.event;
+
+            var rng;
+
+            var x = e.clientX, y = e.clientY;
+            var src = bIE ? e.srcElement : e.target;
+
+            var isEditable = isSrcEditable(src);
+
+            if (src != null && isEditable) {
+                if (src.tagName == "INPUT") {
+                    if (src.type == "submit" || src.type == "button" || src.type == "reset") {
+                        text = src.value.trim();
+                        var length = text.split(" ").length;
+                        if (length > 1)
+                            text = getCurrentWord(src, x, y);
+                    }
+                    else if (src.type == "text")
+                        text = getCurrentWord(src, x, y);
+                }
+                else if (src.tagName == "BUTTON") {
+                    text = src.value.trim();
+                    var length = text.split(" ").length;
+                    if (length > 1)
+                        text = getCurrentWord(src, x, y);
+                }
+                else if (src.tagName == "TEXTAREA") {
+
+                    if (src.textContent != '') {
+                        rng = src.createTextRange();
+                        rng.moveToPoint(x, y);
+                        rng.expand("word");
+                        rng.select();
+                        text = rng.text.trim();
+                    }
+                }
+            }
+            else if (src != null && src.tagName == "SELECT") {
+                text = src.options[src.selectedIndex].text.trim();
+                var length = text.split(" ").length;
+                if (length > 1) {
+                    var rect = src.getClientRects()[0];
+                    text = text.split(" ")[0].trim();
+                }
+            }
+            else if (src != null && src.tagName == "IMG") {
+                return;
+            }
+            else {
+                try {
+                    if (bIE) {
+                        rng = document.body.createTextRange();
+                        rng.moveToPoint(x, y);
+                        var beforeExpandParent = rng.parentElement();
+                        rng.expand("word");
+                        var afterExpandParent = rng.parentElement();
+
+                        if (beforeExpandParent != afterExpandParent) { //the range has moved to another HTML object
+                            if (e) e.returnValue = false;
+                            return;
+                        }
+
+                        rng.select();
+
+                        text = rng.text.trim();
+                    }
+                    else {
+                        text = getWordUnderCursor(e);//getWordAtPoint(src, x, y);
+                    }
+                }
+                catch (ex) { }
+            }
+        }
+        text = remSpecialChar(text);
+        if (text !== undefined && text != "" && isEnglish(text))
+            openDictionary(text, e.pageX, e.pageY)
+    }
+    if (e) e.returnValue = false;
+}
+
+
+function isSrcEditable(src) {
+    if (window.navigator.userAgent.indexOf("MSIE") != -1)
+        return src.isTextEdit;
+    else
+        return src.isContentEditable;
+}
+
+
+function getWordUnderCursor(event) {
+    var range, textNode, offset;
+
+    if (document.body.createTextRange) {           // Internet Explorer
+        try {
+            range = document.body.createTextRange();
+            range.moveToPoint(event.clientX, event.clientY);
+            range.select();
+            range = getTextRangeBoundaryPosition(range, true);
+
+            textNode = range.node;
+            offset = range.offset;
+        } catch (e) {
+            return "";
+        }
+    }
+    else if (document.caretPositionFromPoint) {    // Firefox
+        range = document.caretPositionFromPoint(event.clientX, event.clientY);
+        textNode = range.offsetNode;
+        offset = range.offset;
+    } else if (document.caretRangeFromPoint) {     // Chrome
+        range = document.caretRangeFromPoint(event.clientX, event.clientY);
+        textNode = range.startContainer;
+        offset = range.startOffset;
+    }
+
+    //data contains a full sentence
+    //offset represent the cursor position in this sentence
+    var data = textNode.data,
+        i = offset,
+        begin,
+        end;
+
+
+    //Find the begin of the word (space)
+    while (i > 0 && escape(data[i]) != "%20" && escape(data[i]) != "%A0") { --i; };
+    begin = i;
+
+    //Find the end of the word
+    i = offset;
+    while (i < data.length && escape(data[i]) != "%20" && escape(data[i]) != "%A0") { ++i; };
+    end = i;
+
+    //Return the word under the mouse cursor
+    return data.substring(begin, end);
+}
+
+// This code make it works with IE
+// REF: http://stackoverflow.com/questions/3127369/how-to-get-selected-textnode-in-contenteditable-div-in-ie
+function getTextRangeBoundaryPosition(textRange, isStart) {
+    var workingRange = textRange.duplicate();
+    workingRange.collapse(isStart);
+    var containerElement = workingRange.parentElement();
+    var workingNode = document.createElement("span");
+    var comparison, workingComparisonType = isStart ?
+        "StartToStart" : "StartToEnd";
+
+    var boundaryPosition, boundaryNode;
+
+    // Move the working range through the container's children, starting at
+    // the end and working backwards, until the working range reaches or goes
+    // past the boundary we're interested in
+    do {
+        containerElement.insertBefore(workingNode, workingNode.previousSibling);
+        workingRange.moveToElementText(workingNode);
+    } while ((comparison = workingRange.compareEndPoints(
+        workingComparisonType, textRange)) > 0 && workingNode.previousSibling);
+
+    // We've now reached or gone past the boundary of the text range we're
+    // interested in so have identified the node we want
+    boundaryNode = workingNode.nextSibling;
+    if (comparison == -1 && boundaryNode) {
+        // This must be a data node (text, comment, cdata) since we've overshot.
+        // The working range is collapsed at the start of the node containing
+        // the text range's boundary, so we move the end of the working range
+        // to the boundary point and measure the length of its text to get
+        // the boundary's offset within the node
+        workingRange.setEndPoint(isStart ? "EndToStart" : "EndToEnd", textRange);
+
+        boundaryPosition = {
+            node: boundaryNode,
+            offset: workingRange.text.length
+        };
+    } else {
+        // We've hit the boundary exactly, so this must be an element
+        boundaryPosition = {
+            node: containerElement,
+            offset: getChildIndex(workingNode)
+        };
+    }
+
+    // Clean up
+    workingNode.parentNode.removeChild(workingNode);
+
+    return boundaryPosition;
+}
+
+function getCurrentWord(src, x, y) {
+    var text = "";
+    var rng = src.createTextRange();
+    var length = rng.text.split(" ").length;
+    rng.moveEnd("word", 1 - length);
+    for (var i = 0; i < length; i++) {
+        var oRect = rng.getBoundingClientRect();
+        //		if (x >= oRect.left && x <= oRect.right)
+        if ((oRect != null) && (x >= oRect.left && x <= oRect.right)) {
+            rng.select();
+            text = rng.text.trim();
+            break;
+        }
+        else {
+            rng.move("word");
+            rng.expand("word");
+        }
+    }
+    return text;
+}
+
+function remSpecialChar(string) {
+    if (string === void 0) { return string; }
+    var ret = string.replace(/\u00A0/g, "");
+    ret = ret.replace(/[\s!@#%'",:<>\.\-\+\*\&\?/\(\)]/g, "");
+    return ret;
+}
+
+function isEnglish(word) {
+    var len = word.length;
+    for (var i = 0; i < len; i++) {
+        var code = word.charCodeAt(i);
+        if (code >= 128)
+            return false;
+    }
+    return true;
+}
+//#endregion
+
+/********************************************* Localization *************************************************/
+edns.createNS('l10n');
+edns.l10n.langCodes = { "eng": "en_US", "heb": "he_IL", "rus": "ru_RU", "spa": "es_ES", "chi": "zh_TW", "chs": "zh_CN", "cre": "ht_HT", /*"eus":"????"*/ "fre": "fr_FR", "ger": "de_DE", "gre": "el_GR", "ita": "it_IT", "jpn": "ja_JP", "kor": "ko_KR", "pol": "pl_PL", "por": "pt_PT", /*"sau": "????"*/ "slv": "sl_SI", "tha": "th_TH", "tur": "tr_TR", "vie": "vi_VN", "ind": "id_ID", "chi": "zh_TW", "brz": "pt_BR","geo": "ka-GE" };
+(function () {
+    edns.l10n.getLangCode = function (language) {
+        switch (language) {
+            case "Arabic": obj = "ara"; break;
+            case "Chinese (Simplified)": obj = "chs"; break;
+            case "Chinese (Traditional)": obj = "chi"; break;
+            case "Dutch": obj = "dut"; break;
+            case "English": obj = "eng"; break;
+            case "French": obj = "fre"; break;
+            case "German": obj = "ger"; break;
+            case "Hebrew": obj = "heb"; break;
+            case "Italian": obj = "ita"; break;
+            case "Japanese": obj = "jpn"; break;
+            case "Korean": obj = "kor"; break;
+            case "Lithuanian": obj = "lit"; break;
+            case "Polish": obj = "pol"; break;
+            case "Portuguese": obj = "por"; break;
+            case "Portuguese (Brazil)": obj = "brz"; break;
+            case "Russian": obj = "rus"; break;
+            case "Slovenian": obj = "slv"; break;
+            case "Spanish": obj = "spa"; break;
+            case "Thai": obj = "tha"; break;
+            case "Turkish": obj = "tur"; break;
+            case "Vietnamese": obj = "vie"; break;
+            case "Greek": obj = "gre"; break;
+			case "Georgian": obj = "geo"; break;
+            default: obj = "eng"; break;
+        }
+        return obj;
+    }
+})();
+function sharedTranslateLanguageCode(code) {
+    //var codes = { "eng": "en_US", "heb": "he_IL", "rus": "ru_RU", "spa": "es_ES", "chi": "zh_TW", "chs": "zh_CN", "cre": "ht_HT", /*"eus":"????"*/ "fre": "fr_FR", "ger": "de_DE", "gre": "el_GR", "ita": "it_IT", "jpn": "ja_JP", "kor": "ko_KR", "pol": "pl_PL", "por": "pt_PT", /*"sau": "????"*/ "slv": "sl_SI", "tha": "th_TH", "tur": "tr_TR", "vie": "vi_VN", "ind": "id_ID", "chi": "zh_TW", "brz": "pt_BR" }
+    var codes = edns.l10n.langCodes;
+    if (code.length === 3 && codes.hasOwnProperty(code))
+        return codes[code];
+    else if (code.length === 5) {
+        for (var key in codes)
+            if (codes[key] === code)
+                return key;
+    }
+    console.error('Unable to translate language code: ' + code);
+    return 'eng';
+}
+
+function sharedGetLang() {
+    var student = JSON.parse(localStorage.getItem("Student"));
+    var community = JSON.parse(localStorage.getItem("Community"));
+
+    if (edns.testEnvironment.isInTestEnvironment) {
+        var testEnv = JSON.parse(localStorage.getItem("TestEnv"));
+        if (testEnv && testEnv.lang) {
+            return testEnv.lang;
+        }
+    }
+
+    if (student != null && student.SID != "-1")
+        return (student.LangSupLevel == 0 || student.LangSupLevel == 1) ? "eng" : (student.Language || ((community && community.InstLang) || "eng"));
+    if (community != null)
+        return (community.InstLangSupLevel == 0 || community.InstLangSupLevel == 1) ? "eng" : (community.InstLang || "eng");
+    // PLT
+    return "eng";
+}
+
+/*********************************** Cookies ****************************************************************/
+function setCompositeCookie(sCName, sIName, sIVal) {
+    var newCookie;
+
+    var oldCookie = GetCookie(sCName, false);
+    if (oldCookie != null) {
+        var SInd = 0, EInd = 0;
+        EInd = oldCookie.indexOf("^" + sIName + "*");
+        if (EInd != -1) {
+            EInd += sIName.length + 2;
+            newCookie = oldCookie.substring(SInd, EInd) + encodeURIComponent(sIVal);
+            SInd = EInd;
+            EInd = oldCookie.indexOf("^", SInd);
+            if (EInd != -1)
+                newCookie += oldCookie.substring(EInd);
+        }
+        else {
+            newCookie = oldCookie + "^" + sIName + "*" + encodeURIComponent(sIVal);
+        }
+    }
+    else
+        newCookie = "^" + sIName + "*" + encodeURIComponent(sIVal);
+
+    //	document.cookie = sCName + "=" + escape(newCookie) + "; path=/";
+    DelCookie(sCName);  // in Safari without DelCookie() add duplicate if Cookie Set Changed (igb 2011.09.22)
+
+    document.cookie = sCName + "=" + newCookie + "; path=/";
+}
+
+
+
+function setCompositeCookieNoEncode(sCName, sIName, sIVal) {
+    var newCookie;
+
+    var oldCookie = GetCookie(sCName, false);
+    if (oldCookie != null) {
+        var SInd = 0, EInd = 0;
+        EInd = oldCookie.indexOf("^" + sIName + "*");
+        if (EInd != -1) {
+            EInd += sIName.length + 2;
+            newCookie = oldCookie.substring(SInd, EInd) + sIVal;
+            SInd = EInd;
+            EInd = oldCookie.indexOf("^", SInd);
+            if (EInd != -1)
+                newCookie += oldCookie.substring(EInd);
+        }
+        else {
+            newCookie = oldCookie + "^" + sIName + "*" + sIVal;
+        }
+    } else {
+        newCookie = "^" + sIName + "*" + sIVal;
+    }
+    //	document.cookie = sCName + "=" + escape(newCookie) + "; path=/";
+    DelCookie(sCName);  // in Safari without DelCookie() add duplicate if Cookie Set Changed (igb 2011.09.22)
+
+    document.cookie = sCName + "=" + newCookie + "; path=/";
+
+
+}
+
+function DelCookie(sName)	//Deletes permanent cookie
+{
+    //document.cookie = sName + "=" + "" + "; expires=Fri, 31 Dec 1989 23:59:59 GMT;"; netser- this doesn't work in the CI
+    var d = new Date();
+    d.setDate(d.getDate() - 1);
+    document.cookie = sName + '=; Path=/; Expires=' + d.toUTCString() + ';';
+}
+
+function GetCookie(sName, bUnescape) {
+    var aCookie = document.cookie.split("; ");
+    for (var i = 0; i < aCookie.length; i++) {
+        var aCrumb = aCookie[i].split("=");
+        if ((sName == aCrumb[0]) && (aCrumb[1] != null)) {
+            //    var ret = (bUnescape==undefined || bUnescape) ? unescape(aCrumb[1]) : aCrumb[1];
+            var strTmp = aCrumb[1];
+            aCrumb.splice(0, 1);
+
+            if (aCrumb.length > 1) { strTmp = aCrumb.join('='); }
+
+            var ret = (bUnescape == undefined || bUnescape) ? decodeURIComponent(strTmp) : strTmp;
+
+            do {
+                ret = ret.replace("+", " ");
+            } while (ret.indexOf("+") > -1)
+            return ret;
+        }
+    }
+    return null;
+}
+
+function getCompositeCookie(sCName, sIName) {
+    var cookieStr = GetCookie(sCName);
+    if (cookieStr != null) {
+        var aCookie = cookieStr.split("^");
+        for (var i = 0; i < aCookie.length; i++) {
+            var aCrumb = aCookie[i].split("*");
+            if ((sIName == aCrumb[0]) && (aCrumb[1] != null)) {
+                var ret = aCrumb[1];
+                do {
+                    ret = ret.replace("+", " ");
+                } while (ret.indexOf("+") > -1)
+                return ret;
+            }
+        }
+        return null;
+    }
+    else
+        return null;
+}
+
+function getCookieAsJSON(mainKey) {
+    var jsonCookie = {}
+        , cookieValue;
+    var values = GetCookie(mainKey);
+    if (!values) return values;
+    var valuesArr = values.substring(1).split('^'); //substring(1) - because the first char is ^
+    valuesArr.forEach(function (val, key) {
+        cookieValue = val.split('*');
+        jsonCookie[cookieValue[0]] = cookieValue[1];
+    });
+    return jsonCookie;
+}
+
+/*********************************** Progress ****************************************************************/
+var calcVisualProgress = function (value, inputMaxOne, outputMaxOne) {
+    // The DB returns 0 to 1, we display 0 to 100.
+    // We need to know the input and output desired: 1 or 100, correlating to the range (0-1 || 0-100)
+
+    //  0.01 % - 0.99% : round up (i.e. display 1%)
+    //  1% - 99%: Round decimal (if decimal value is 0-4 round down, 5-9 round up)
+    //  99.01% - 99.99%: round down (i.e. display 99%)
+
+    var rVal;
+
+    value = (inputMaxOne) ? value * 100 : value;
+
+    if (value > 0 && value < 1) {
+        rVal = Math.ceil(value);
+    }
+    else if (value > 99 && value < 100) {
+        rVal = Math.floor(value);
+    }
+    else {
+        rVal = Math.round(value);
+    }
+
+    rVal = (outputMaxOne) ? rVal / 100 : rVal;
+    //console.log("value: " + value + ", rVal: " + rVal)
+    return rVal;
+}
+
+
+/*********************************** Tree Managet ************************************************************/
+
+var findNextChild = function (object, type, compared, val, nodeId, isFound) {
+    var result;
+
+    for (var i = 0; i < object.Children.length; i++) {
+        if (object.Children[i].CourseNodeType != type) {
+            result = findNextChild(object.Children[i], type, compared, val, nodeId, isFound);
+            if (result !== undefined) {
+                return result;
+            }
+        } else if (object.Children[i][compared] == val && isFound) {
+            return {
+                node: object.Children[i], parent: object
+            };
+        }
+        else if (object.Children[i][compared] == val && object.Children[i].NodeId == nodeId) {
+            isFound = true;
+        }
+
+    }
+};
+
+var findPrevChild = function (object, type, compared, val, nodeId, isFound) {
+    var result;
+
+    for (var i = object.Children.length - 1; i >= 0; i--) {
+        if (object.Children[i].CourseNodeType != type) {
+            result = findPrevChild(object.Children[i], type, compared, val, nodeId, isFound);
+            if (result !== undefined) {
+                return result;
+            }
+        } else if (object.Children[i][compared] == val && isFound) {
+            return {
+                node: object.Children[i], parent: object
+            };
+        }
+        else if (object.Children[i][compared] == val && object.Children[i].NodeId == nodeId) {
+            isFound = true;
+        }
+
+    }
+};
+
+var findChildByType = function (object, type, compared, val) {
+    var result;
+    for (var i = 0; i < object.Children.length; i++) {
+        if (object.Children[i].CourseNodeType != type) {
+            result = findChildByType(object.Children[i], type, compared, val);
+            if (result !== undefined) return result;
+        }
+        else if (object.Children[i][compared] == val)
+            return { node: object.Children[i], parent: object };
+    }
+};
+
+var findLastChildByType = function (object, type, compared, val) {
+    var result;
+    for (var i = object.Children.length - 1; i >= 0; i--) {
+        if (object.Children[i].CourseNodeType != type) {
+            result = findLastChildByType(object.Children[i], type, compared, val);
+            if (result !== undefined) return result;
+        }
+        else if (object.Children[i][compared] == val)
+            return { node: object.Children[i], parent: object };
+    }
+};
+
+/**************************** obj func ***************************************/
+
+var hasValuesInObj = function (obj) {
+    for (var prop in obj) {
+        if (obj[prop] != null)
+            return true;
+    }
+    return false;
+};
+
+
+function debounce(func, wait, immediate) {
+    //wait for event to end. from underscore.js :http://underscorejs.org/#debounce
+    var timeout, args, context, timestamp, result;
+
+    var later = function () {
+        var last = (new Date().getTime()) - timestamp;
+
+        if (last < wait && last >= 0) {
+            timeout = setTimeout(later, wait - last);
+        } else {
+            timeout = null;
+            if (!immediate) {
+                result = func.apply(context, args);
+                if (!timeout) context = args = null;
+            }
+        }
+    };
+
+    return function () {
+        context = this;
+        args = arguments;
+        timestamp = (new Date().getTime());
+        var callNow = immediate && !timeout;
+        if (!timeout) timeout = setTimeout(later, wait);
+        if (callNow) {
+            result = func.apply(context, args);
+            context = args = null;
+        }
+
+        return result;
+    };
+};
+
+/*********************************** Web Fonts caching *******************************************************/
+
+// from https://gist.github.com/iamdarrenhall/53b5eea54ac4bc25d0a6
+(function fontsCaching() {
+    "use strict";
+    // once cached, the css file is stored on the client forever unless
+    // the URL below is changed. Any change will invalidate the cache
+    var fontFileName = 'web-fonts.css';
+    var css_href = (window.location.hostname == "localhost") ? 'Css/' + fontFileName : Root + 'Css/' + fontFileName;
+    // a simple event handler wrapper
+    function on(el, ev, callback) {
+        if (el.addEventListener) {
+            el.addEventListener(ev, callback, false);
+        } else if (el.attachEvent) {
+            el.attachEvent("on" + ev, callback);
+        }
+    }
+
+    // if we have the fonts in localStorage or if we've cached them using the native browser cache
+    if ((window.localStorage && localStorage.font_css_cache) || document.cookie.indexOf('font_css_cache') > -1) {
+        // just use the cached version
+        injectFontsStylesheet();
+    } else {
+        // otherwise, don't block the loading of the page; wait until it's done.
+        on(window, "load", injectFontsStylesheet);
+    }
+
+    // quick way to determine whether a css file has been cached locally
+    function fileIsCached(href) {
+        return window.localStorage && localStorage.font_css_cache && (localStorage.font_css_cache_file === href);
+    }
+
+    // time to get the actual css file
+    function injectFontsStylesheet() {
+        // if this is an older browser
+        if (!window.localStorage || !window.XMLHttpRequest) {
+            var stylesheet = document.createElement('link');
+            stylesheet.href = css_href;
+            stylesheet.rel = 'stylesheet';
+            stylesheet.type = 'text/css';
+            document.getElementsByTagName('head')[0].appendChild(stylesheet);
+            // just use the native browser cache
+            // this requires a good expires header on the server
+            document.cookie = "font_css_cache";
+
+            // if this isn't an old browser
+        } else {
+            // use the cached version if we already have it
+            if (fileIsCached(fontFileName)) {
+                injectRawStyle(localStorage.font_css_cache);
+                // otherwise, load it with ajax
+            } else {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", css_href, true);
+                // cater for IE8 which does not support addEventListener or attachEvent on XMLHttpRequest
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // once we have the content, quickly inject the css rules
+                        injectRawStyle(xhr.responseText);
+                        // and cache the text content for further use
+                        // notice that this overwrites anything that might have already been previously cached
+                        localStorage.font_css_cache = xhr.responseText;
+                        localStorage.font_css_cache_file = fontFileName;
+                    }
+                };
+                xhr.send();
+            }
+        }
+    }
+
+    // this is the simple utitily that injects the cached or loaded css text
+    function injectRawStyle(text) {
+        var style = document.createElement('style');
+        // cater for IE8 which doesn't support style.innerHTML
+        style.setAttribute("type", "text/css");
+        // add the style element to the DOM before adding styles to it or IE8 will crash
+        document.getElementsByTagName('head')[0].appendChild(style);
+        if (style.styleSheet) {
+            style.styleSheet.cssText = text;
+        } else {
+            style.innerHTML = text;
+        }
+        document.getElementsByTagName('html')[0].classList.add('fontLoaded');
+    }
+
+}());
+
+//#region - Modal manager (acctually a factory)
+if (typeof edns === 'undefined') var edns = {};
+edns.modalManager = (function () {
+    "use strict";
+    var that;
+
+    function modalManagerConstructor(optionsIn) {
+        that = this;
+        var $modalParentEl, modaltmpl, options, defaultOptions;
+
+        defaultOptions = {
+            modalType: 'custom', // 'alert' / 'confirm' / 'custom'
+            modalHeader: '',
+            modalContent: '',
+            iFrameUrl: null,
+            iFrameHeight: 520,
+            iFrameWidth: 700,
+            iFrameClass: '',
+            isIframe: false,
+            confirmRow: false,
+            isAutoRTL: true,
+            $modalParentEl: $('body'),
+            modalWrapperClass: '',
+
+            showOkBtn: true,
+            showCancelBtn: true,
+            showCloseBtn: true,
+
+            okCallbackBefore: null,
+            okCallbackAfter: null,
+            okCallbackAsync: false, //(if 'async' = true : call the action within your callback (when you need it inside your async code))
+            okCallbackAsConfirm: null,
+
+            cancelCallbackBefore: null,
+            cancelCallbackAfter: null,
+            cancelCallbackAsync: false,
+
+            openCallbackBefore: null,
+            openCallbackAfter: null,
+            openCallbackAsync: false,
+
+            closeCallbackBefore: null,
+            closeCallbackAfter: null,
+            closeCallbackAsync: false,
+
+            disposeCallbackAfter: null,
+
+            okBtnText: (typeof (translate) != 'undefined') ? translate[6] : '', //'continue'
+            cancelBtnText: (typeof (translate) != 'undefined') ? translate[105] : '', //'cancel'
+            closeBtnText: (typeof (translate) != 'undefined') ? translate[25] : '', //'Close window'
+
+            resizeFunctions: [],
+
+            //BS options
+            backdrop: 'static',
+            keyboard: false,
+            show: false,
+            size: 'lg',
+            hide: true,
+            windowClass: ''
+            //toggle : toggle,//???
+            //handleUpdate: handleUpdate//????
+        }
+
+        options = (optionsIn === undefined) ? {} : optionsIn;
+        options = setOptions(options, defaultOptions);
+        $modalParentEl = options.$modalParentEl;
+        options = updateCssClasses(options);
+
+        modaltmpl = buildModalHtml(options);
+
+        function setOptions(options, defaultOptions) {
+
+            options = $.extend(defaultOptions, options);
+            options.modalId = getModalId(options.modalId);
+            updateOptionsForIframe(options);
+            options.windowClass = setWindowCssClass(options);
+
+            return options;
+        }
+
+        function getModalId(elementId) {
+
+            elementId = elementId || 'bsModal';
+
+            if ($('#' + elementId).length > 0) {
+                var counter = ($('#' + elementId + '_1').length > 0) ? +($('.modalW_' + options.modalType + ':last').attr('id').split('_').pop()) + 1 : 1;
+                return elementId + '_' + counter;
+            } else {
+                return elementId;
+            }
+        }
+
+        function updateCssClasses(options) {
+            options.windowClass = (options.showCloseBtn) ? options.windowClass : options.windowClass + ' modal--noCloseBtn';
+            options.windowClass = (options.modalHeader) ? options.windowClass : options.windowClass + ' modal--noModalHeader';
+            return options;
+        }
+
+        function updateOptionsForIframe(options) {
+            if (options.iFrameUrl === undefined || options.iFrameUrl === null || options.iFrameUrl.trim().length == 0) {
+                options.isIframe = false;
+            } else {
+                options.windowClass = 'rtlAware modalForContentInIframeW ' + options.windowClass;
+                options.isIframe = true;
+            }
+            return options;
+        }
+
+        function buildIframe(options) {
+            return ['<iframe src="', options.iFrameUrl, '" width="', options.iFrameWidth, '" height="', options.iFrameHeight, '" class="bsModal__iframe', options.iFrameClass, '" name="bsModal__iframe"></iframe>'].join('');
+        }
+
+        function buildConfirmRow(options) {
+            var confirmBtn, cancelBtn, rowHtml;
+
+            confirmBtn = (options.showOkBtn === true) ? '<input type="button" id="btnOk" name="btnOk" value="' + options.okBtnText + '" class="okButton utils__BSOKBtn">' : '',
+                cancelBtn = (options.showCancelBtn === true) ? '<span class="utils__BSCancelBtnW"><a id="btnCancel" class="utils__cancelLInk utils__BSCancelBtn">' + options.cancelBtnText + '</a></span>' : '',
+                rowHtml = '<div class="buttonsDiv popupButtonsWrapper" id="popupButtonsWrapper">' + confirmBtn + cancelBtn + '</div>';
+
+            return rowHtml;
+        }
+
+        function cleanNBSPUnicode(str) {
+            return str.replace(new RegExp('\u00a0', 'g'), ' ');
+        }
+
+        function setWindowCssClass(options) {
+            return (options.confirmRow === true) ? ' confirmPopup__main ' + options.windowClass : options.windowClass;
+        }
+
+        function buildModalHtml(options) {
+            var confirmEl, headerEl, contentEl, closeEl, AutoRtlClasses;
+            AutoRtlClasses = options.isAutoRTL ? 'layout__text-pull layout__unlistPull ' : '';
+
+            confirmEl = (options.confirmRow === true) ? buildConfirmRow(options) : '';
+            headerEl = (options.modalHeader.trim().length < 1) ? '' : ['<h2 class="modal-title">', cleanNBSPUnicode(options.modalHeader), '</h2>'].join('');
+            contentEl = (options.isIframe === true) ? buildIframe(options) + confirmEl : ['<div class="', AutoRtlClasses, ' TinyScrollbarW">', cleanNBSPUnicode(options.modalContent), confirmEl, '</div>'].join('');
+            closeEl = (options.showCloseBtn) ? '<a class="modal-close" title="' + options.closeBtnText + '"></a>' : '';
+
+            return [
+                '<div class="modal ', options.windowClass, '">',
+                '   <div class="modal-dialog modal-lg">',
+                '       <div class="modal-content">',
+                '           <div class="titleIcon"></div>',
+                '           <div class="modal-header">',
+                headerEl,
+                closeEl,
+                '           </div>',
+                '           <div class="modal-body">',
+                contentEl,
+                '           </div>',
+                '        </div>',
+                '    </div>',
+                '</div>'
+            ].join('');
+        }
+
+        function attachModal(modaltmpl, options) {
+            var modalWrapperClass = options.modalWrapperClass !== '' ? ' ' + options.modalWrapperClass : '';
+            $modalParentEl.append('<div class="modalW modalW_' + options.modalType + modalWrapperClass + '" id=' + options.modalId + '>');
+            that.getModalEl(options).html(modaltmpl);
+            if (options.isIframe === true) { resizeWrapperAroundIframe(options); }
+            //calc inner scroll for smaller screens (scroll on '.modal-body'?), neet to update dimentions of '.modal-dialog' too.
+            attachEvents(options);
+        }
+
+        function resizeWrapperAroundIframe(options) {
+            var outerEl = that.getModalEl(options).find('.modal-dialog');
+            var innerEl = outerEl.find('.modal-content');
+            var elPadding = getCssNumericVal(innerEl, 'padding-left') + getCssNumericVal(innerEl, 'padding-right');
+            outerEl.css({ 'width': options.iFrameWidth + elPadding, 'max-width': 'none' });
+        }
+
+        function attachEvents(options) {
+            var clickEventName = edns.browser.eventNames.getClickEventName(edns.mobile.isIos());
+
+            var confirmBtnEl = that.getModalEl(options).find('.utils__BSOKBtn'),
+                cancelBtnEl = that.getModalEl(options).find('.utils__BSCancelBtn'),
+                closeBtnEl = that.getModalEl(options).find('.modal-close');
+
+
+            if (confirmBtnEl.length > 0) { // OK / confirm button
+                //before 
+                confirmBtnEl.on(clickEventName, function () {
+                    if (options.okCallbackBefore) { options.okCallbackBefore(); };
+                });
+            }
+
+            if (options.okCallbackAsync === false && options.okCallbackAsConfirm === null) {
+                if (options.showOkBtn === true) {
+                    confirmBtnEl.on(clickEventName, function dispose() { that.disposeModal(options) });
+                }
+            }
+
+            //after
+            if (options.okCallbackAfter) {
+                confirmBtnEl.on(clickEventName, function () {
+                    if (options.okCallbackAfter) { options.okCallbackAfter() };
+                });
+            }
+
+            //close if CB retuns true
+            if (options.okCallbackAsConfirm) {
+                confirmBtnEl.on(clickEventName, function () {
+                    if (options.okCallbackAsConfirm() === true) {
+                        that.disposeModal(options)
+                    }
+                });
+            }
+
+            // ******************* cancel element //close button
+            //before
+
+            if (cancelBtnEl.length > 0) {
+                cancelBtnEl.on(clickEventName, function () {
+                    if (options.cancelCallbackBefore) { options.cancelCallbackBefore(); };
+                });
+            }
+            if (closeBtnEl.length > 0) {
+                closeBtnEl.on(clickEventName, function () {
+                    if (options.closeCallbackBefore) { options.closeCallbackBefore(); };
+                })
+            }
+
+
+            if (options.okCallbackAsync === false) {
+                if (cancelBtnEl.length > 0) { cancelBtnEl.on(clickEventName, function dispose() { that.disposeModal(options) }); }
+                if (closeBtnEl.length > 0) { closeBtnEl.on(clickEventName, function dispose() { that.disposeModal(options) }); }
+            }
+
+            //after
+            if (cancelBtnEl.length > 0) {
+                cancelBtnEl.on(clickEventName, function () {
+                    if (options.cancelCallbackAfter) { options.cancelCallbackAfter(); };
+                });
+            }
+            if (closeBtnEl.length > 0) {
+                closeBtnEl.on(clickEventName, function () {
+                    if (options.closeCallbackAfter) { options.closeCallbackAfter(); };
+                });
+
+            }
+
+        }
+
+        function insertBackdropToModalWrapper(options) {
+            var modalEl, modalBackdrop;
+            modalEl = that.getModalEl(options);
+            modalBackdrop = $('.modal-backdrop:last').detach();
+            modalEl.append(modalBackdrop);
+        }
+
+        //function setBackdropClass(options) {
+        //    if ($('.modalW').length > 1) {
+        //        function setCssClass() { return $(this).addClass('modalW--transparent') }
+        //        $('.modalW').map(setCssClass);
+        //    }
+        //}
+
+        function setModalDimentionsToWrappers(options) {
+            var heightMargin = 200, widthMargin = 100, viewportHeight = $(window).innerHeight();
+            if (viewportHeight - heightMargin < options.iFrameHeight || $(window).width() < options.iFrameWidth + elPadding + widthMargin) {
+                var innerEl, elPadding, cssRules;
+                innerEl = that.getModalEl(options).find('.modal-content');
+                elPadding = getCssNumericVal(innerEl, 'padding-left') + getCssNumericVal(innerEl, 'padding-right');
+                cssRules = { 'width': options.iFrameWidth + elPadding, 'min-width': 'inherit' };
+
+                that.getModalEl(options).css(cssRules);
+                //$('body').css({ 'width': options.iFrameWidth + elPadding + 30 + 'px', 'min-width': '0' });
+                if (bMobile) {
+                    $('body').css({ 'height': (viewportHeight + heightMargin) + 'px', 'min-height': '0', 'width': options.iFrameWidth + elPadding + widthMargin + 'px' });
+                }
+                that.getModalEl(options).find('.modal-backdrop').css(cssRules);
+            }
+        }
+
+        this.resizeModalToWindow = function resizeModalToWindow() {
+
+            var heightMargin = parseFloat($(window).height() * .2),
+                widthMargin = parseFloat($(window).width() * .1),
+                outerEl,
+                innerEl,
+                outerSizeDiff = {},
+                scrollWidth = 20,
+                viewportHeight = $(window).innerHeight();
+
+            outerEl = that.getModalEl(options).find('.modal-dialog');
+            innerEl = that.getModalEl(options).find('.modal-body'); // will recieve scroll
+            //TODO: support for non-frame overflow
+            //innerEl = (options.isIframe === true) ? innerEl = that.getModalEl(options).find('.modal-body'): innerEl = that.getModalEl(options).find('.bsModal__iframe');
+
+            if (innerEl.length < 1 || outerEl.length < 1) { //exit if called from debounced resize.
+                return;
+            }
+
+            innerEl.removeClass('modal-body--hasScroll');
+            innerEl.attr('style', '');
+            resizeWrapperAroundIframe(that.options);//re-calc old values
+
+            //if (viewportHeight < outerEl.height() || $(window).width() < outerEl.width() || innerEl.hasClass('modal-body--hasScroll')) {
+
+
+
+            // if (viewportHeight < outerEl.height() + heightMargin) {
+            outerSizeDiff.vertical = parseFloat($('.modal-content').css('padding-top')) + parseFloat($('.modal-content').css('padding-bottom'));
+            outerEl.css({ 'height': (viewportHeight - heightMargin) + 'px' });
+            innerEl.css({ 'height': (outerEl.height() - outerSizeDiff.vertical) + 'px' });
+            innerEl.css({ 'overflow-y': 'auto' });
+            //}
+            if ($(window).width() < outerEl.width()) {
+                outerSizeDiff.horizontal = parseFloat($('.modal-content').css('padding-left')) + parseFloat($('.modal-content').css('padding-right'));
+                outerEl.css({ 'width': ($(window).width() - widthMargin) + 'px' });
+                innerEl.css({ 'width': (outerEl.width() - outerSizeDiff.horizontal) + 'px' });
+                innerEl.css({ 'overflow-x': 'auto' });
+            }
+
+            if (innerEl.attr('style').split(';').filter(function (v) { return v.indexOf('overflow-') > -1 }).length === 1) { //only scroll on one side
+                if (innerEl.attr('style').indexOf('overflow-y') > -1) {
+                    innerEl.css({ 'width': innerEl.width() + scrollWidth + 'px' });
+                    outerEl.css({ 'width': outerEl.width() + scrollWidth + 'px' });
+                } else {
+                    innerEl.css({ 'height': innerEl.height() + scrollWidth + 'px' });
+                    outerEl.css({ 'height': outerEl.height() + scrollWidth + 'px' });
+                }
+            }
+
+            innerEl.addClass('modal-body--hasScroll');
+
+            //that.options.resizeFunctions.push(that.lazyResizeModalToWindow);
+
+            //} 
+
+        }
+
+        this.lazyResizeModalToWindow = function () {
+            debounce(resizeModalToWindow, 250);
+        }
+
+        window.onmessage = function (e) {
+            if (e.data === 'resizeModal') {
+                that.resizeModalToWindow();
+            }
+        }
+        //exposed functions
+        this.getModalEl = function (options) {
+            options = options ? options : this.options;
+            return $modalParentEl.find('#' + options.modalId);
+        }
+
+        this.disposeModal = function disposeModal(options) {
+            options = options ? options : this.options;
+            that.getModalEl(options).remove();
+            if ($('.modalW').length > 0) {
+                $('.modalW .modal').show();
+            } else {
+                $('body').removeClass('modal-open');
+            }
+            //$modalParentEl.find('.modal-backdrop:last').remove();//TODO!!
+            $('body').css({ 'height': '', 'min-height': '', 'min-width': '', 'width': '' });
+            //keep last:
+            if (options.disposeCallbackAfter) { options.disposeCallbackAfter(); }
+        }
+
+        this.openModal = function openModal(options) {
+            var modalBackdrop;
+            options = options ? options : this.options;
+            attachModal(modaltmpl, options);
+            //if (that.getModalEl(options).find('.modal') && that.getModalEl(options).find('.modal').modal){
+            //  that.getModalEl(options).find('.modal').modal(options).modal('show');
+            //}
+            $('body').addClass('modal-open');
+            insertBackdropToModalWrapper(options);
+            //setBackdropClass(options);
+            if (options.isIframe === true) {
+                setModalDimentionsToWrappers(options);
+            }
+
+            if ((bMobile && navigator.userAgent.match(/Android/) !== null) || !bMobile) {
+                if (options.isIframe) {
+                    this.resizeModalToWindow();
+                    $(window).on('resize', debounce(this.resizeModalToWindow, 220));
+                }
+            }
+
+
+
+
+
+        }
+        //async API
+        this.asyncClose = this.disposeModal;
+        this.asyncOpen = this.openModal;
+        this.asyncOK = this.disposeModal;
+        this.asyncCancel = this.disposeModal;
+        // expose options
+        this.options = options;
+    }
+
+    //exposed functions
+    modalManagerConstructor.prototype.open = function (options) {
+        options = options ? options : this.options;
+        if (options.openCallbackBefore) { options.openCallbackBefore(); } // keep first
+
+        if (options.openCallbackAsync === false) {
+            that.openModal(options);
+        }
+
+        if (options.openCallbackAfter) { options.openCallbackAfter(); } //keep last
+    }
+
+    modalManagerConstructor.prototype.close = function (options) {
+        options = options ? options : this.options;
+        if (options.closeCallbackBefore) { options.closeCallbackBefore(); } //keep first
+        if (options.okCallbackAsync === false) { that.disposeModal(options); };
+        if (options.closeCallbackAfter) { options.closeCallbackAfter(); }//keep last
+
+
+        //options.resizeFunctions.forEach(function (func) {
+        //    $(window).off('resize', func);
+        //});
+    }
+
+    /* 
+    colorboxEventName:open , load  ; bootstrapEventName:show
+    colorboxEventName:complete     ; bootstrapEventName:shown
+    colorboxEventName:cleanup      ; bootstrapEventName:hide 
+    colorboxEventName:closed       ; bootstrapEventName:hidden 
+                                   ; bootstrapEventName:loaded
+    */
+
+    //modalManagerConstructor.prototype.setOptions = function (options) {
+    //    setOptions(options);
+    //}
+
+    // 'static' functions
+    modalManagerConstructor.alert = function (message, options) {
+        var extOptions, alertModal, customOptions;
+        if (message) { message = message.replace('\n', '<br/>'); }
+
+        customOptions = $.extend({
+            modalType: 'alert',
+            modalContent: message,
+            modalId: 'alertModal',
+            confirmRow: true,
+            //okBtnText: translate[312],
+            okBtnText: (typeof (translate) != 'undefined') ? translate[312] : '', //
+            showCancelBtn: false,
+            windowClass: 'rtlAware layout__alertModal'
+        }, options);
+
+        extOptions = $.extend(customOptions, options);
+
+        alertModal = new edns.modalManager(extOptions);
+        alertModal.open();
+        return alertModal;
+    }
+
+    modalManagerConstructor.confirm = function (message, options) {
+
+        var extOptions, confirmModal, customOptions;
+        if (message) { message = message.replace('\n', '<br/>'); }
+
+        customOptions = $.extend({
+            modalType: 'confirm',
+            modalContent: message,
+            modalId: 'confirmModal',
+            confirmRow: true,
+            //okBtnText: translate[6],
+            windowClass: 'rtlAware layout__confirmModal'
+        }, options);
+
+        extOptions = $.extend(customOptions, options);
+
+        confirmModal = new edns.modalManager(extOptions);
+        confirmModal.open();
+        return confirmModal;
+    }
+
+    modalManagerConstructor.custom = function (options) {
+        var extOptions,
+            customOptions = { modalType: 'custom', modalId: 'bsModal' },
+            customModal;
+
+        extOptions = $.extend(customOptions, options);
+
+        customModal = new edns.modalManager(extOptions);
+        customModal.open();
+        return customModal;
+    }
+
+    return modalManagerConstructor;
+})();
+
+//#endregion - Modal manager 
+
+/************** string extention *****************/
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function (str) { return this.indexOf(str) === 0; };
+}
+
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function (str) { return this.indexOf(str, this.length - str.length) !== -1; };
+}
+
+
+var getCssNumericVal = function (el, prop) { //getting the numbers from css property
+    if (el.css(prop) === undefined) return 0;
+    return parseInt(el.css(prop).getNumbers());
+}
+
+String.prototype.getNumbers = (String.getNumbers !== undefined) || function () { //returns only numbers in string, useful for getting the numbers from css property
+    if (this !== undefined) {
+        return this.replace(/[^-\d\.]/g, '');
+    }
+}
+
+var FrameBoxObj = (function () {
+
+    var selfObj;
+
+    var _FrameBoxId = "EdoFrameBox";
+    var _FrameBoxSrcId = "EdoFrameBoxSrc";
+    var _FrameBoxContentId = "EdoFrameBoxContent";
+
+    function _FrameBoxObj(targSrc, width, height, callbackFunc, params) {
+        selfObj = this;
+
+        //--igb 2014.09.17-------------------
+        if (document.attachEvent)
+            document.attachEvent("onkeydown", selfObj.ChkEsc);
+        else
+            document.addEventListener("keydown", selfObj.ChkEsc, false);
+        //--igb 2014.09.17-------------------
+
+
+        chkVisioFlash();
+        if (params) {
+            customComponentName = params.logout;
+            var Root = params.Root == undefined ? '' : params.Root;
+        } else var Root = window.Root;
+        _srcW = width;
+        _srcH = height;
+
+        if (isMobile()) {
+            var zoomLevel = document.documentElement.clientWidth / window.innerWidth;
+            // window.innerHeight returns height of the visible area. 
+            // We multiply it by zoom and get out real height.
+            var mobileWindowHeight = window.innerHeight * zoomLevel;
+            var mobileWindowWidth = window.innerWidth * zoomLevel;
+
+            _srcTop = ((document.documentElement.clientHeight - height) / 3) + (Math.max($('body').scrollTop(), $('html').scrollTop()));
+            _srcLeft = (mobileWindowWidth - width) / 2;
+        } else {
+            //_srcTop = (screen.height - height) / 3;
+            //_srcLeft = (screen.width - width) / 2;
+            _srcTop = ((document.documentElement.clientHeight - height) / 3) + (Math.max($('body').scrollTop(), $('html').scrollTop()));
+            _srcLeft = (document.documentElement.clientWidth - width) / 2;
+        }
+        var height = parseInt($(document).height()) + 62 + "px";
+        _FrameBoxHtml = "<div id='" + _FrameBoxId + "' style='top:-62px; left:0px; width:100%; height:" + height + "; background-color:black; opacity:0.5; filter:alpha(opacity=50); z-index:1999; position:absolute;'></div>";
+
+        _FrameBoxHtml += "<div id='" + _FrameBoxContentId + "' style='display:block; top:" + _srcTop.toString() + "px; left:" + _srcLeft.toString() + "px; width:" + _srcW.toString() + "px; height:" + _srcH.toString() + "px; position:absolute; z-index:9999;'>";
+        _FrameBoxHtml += "<iframe src='" + Root + "Runtime/" + targSrc + "' width='100%' id='colorBoxIframe' height='100%' scrolling='no' frameborder='0' ></iframe>";
+        _FrameBoxHtml += "</div>";
+
+
+        $('#' + _FrameBoxId).remove();
+
+        $('body').append(_FrameBoxHtml);
+
+        selfObj.callbackFunc = callbackFunc;
+        selfObj.params = params;
+    }
+
+    _FrameBoxObj.prototype.retRes = function (res) {
+        if ((res == true) && (selfObj.callbackFunc != null)) {
+            setTimeout(function () { selfObj.callbackFunc(); }, 10);
+
+            if (selfObj.params && (selfObj.params != "undefined") && (selfObj.params.length > 0)) return;
+            //          return;
+        }
+
+        selfObj.Dispose();
+    }
+
+    _FrameBoxObj.prototype.Dispose = function () {
+
+        //--igb 2014.09.17-------------------
+        if (document.detachEvent)
+            document.detachEvent("onkeydown", selfObj.ChkEsc);
+        else
+            document.removeEventListener("keydown", selfObj.ChkEsc, false);
+        //--igb 2014.09.17-------------------
+
+        var e1 = document.getElementById(_FrameBoxContentId);
+        var e2 = document.getElementById(_FrameBoxId);
+
+        e1.parentNode.removeChild(e1);
+        e2.parentNode.removeChild(e2);
+
+        $(selfObj.ReFlash).width(selfObj.ReWidth);
+        $(selfObj.ReFlash).height(selfObj.ReHeight);
+
+        frBox = null;
+    }
+
+    //--igb 2014.09.17-------------------
+    _FrameBoxObj.prototype.ChkEsc = function (e) {
+        if (!e) e = window.event;
+
+        if (e.keyCode == 27) {
+            selfObj.Dispose();
+        }
+    }
+    //--igb 2014.09.17-------------------
+
+    function chkVisioFlash() {
+        selfObj.ReFlash = null;
+
+        selfObj.ReWidth = 0;
+        selfObj.ReHeight = 0;
+
+        var obj = document.getElementsByTagName('object');
+
+        if (obj.length > 0) {
+            for (var i = 0; i < obj.length; i++) {
+                if (isVisioFlash(obj[i].Movie)) {
+                    selfObj.ReFlash = obj[i];
+
+                    hideFlashObj();
+
+                    return;
+                }
+            }
+        }
+
+        //.....................
+        var emb = document.getElementsByTagName('embed');
+
+        if (emb.length > 0) {
+            for (var i = 0; i < emb.length; i++) {
+                if (isVisioFlash(emb.item(i).src)) {
+                    selfObj.ReFlash = emb.item(i);
+
+                    hideFlashObj();
+
+                    return;
+                }
+            }
+        }
+    }
+
+    function hideFlashObj() {
+        selfObj.ReWidth = $(selfObj.ReFlash).width();
+        selfObj.ReHeight = $(selfObj.ReFlash).height();
+
+        $(selfObj.ReFlash).width(1);
+        $(selfObj.ReFlash).height(1);
+    }
+
+    function isVisioFlash(chkMovie) {
+        var resMovie = ["EPlayer.swf", "EPlayerNT.swf", "preExplore.swf", "WordZone.swf", "container.swf"];
+
+        for (i = 0; i < resMovie.length; i++) {
+            if (chkMovie.indexOf(resMovie[i]) != -1) { return true; }
+        }
+
+        return false;
+    }
+
+    return _FrameBoxObj;
+})();
+
+function getQueryString(param) {
+    var sURL = document.URL.toString();
+    if (sURL.indexOf(param + "=") != -1) {
+        var aQuery = sURL.split("?");
+        aQuery = aQuery[1].split("&");
+        for (var i = 0; i < aQuery.length; i++) {
+            var aCrumb = aQuery[i].split("=");
+            if (param == aCrumb[0])
+                return unescape(aCrumb[1]);
+        }
+    }
+    else
+        return null;
+}
+//#endregion
+
+function getParameterByName(window, name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    try {
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(window.location.search);
+    }
+    catch (err) {
+        results = null;
+    }
+
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+
+var __debug = function (yes) {
+    console.info('Log data is ' + (yes ? 'on' : 'off'));
+    try {
+        getTLWindow().developerMode = yes;
+        getTLWindow().sipObject && getTLWindow().sipObject.setDebugMode(yes);
+        SIPml && (yes ? SIPml.setDebugLevel('info') : SIPml.setDebugLevel('fatal'));
+    } catch (e) { 'ERROR SETTING DEBUG VALUE! Exception: ' + e.message }
+};
+
+
+function getInstitutionName() {
+    var name = JSON.parse(localStorage.getItem('Community')).Name;
+    if (name.length === 0 || name.indexOf('/') !== -1)
+        name = getCompositeCookie('Community', 'IID');
+    return name;
+}
+
+
+(function loadGoogleAnalytics() {
+    if (edns === void 0 || edns.vendors === void 0) {
+        edns.createNS('vendors.google.analytics');
+    }
+
+    if (!edns.vendors.google.analytics.sendPageView) {
+        var vga = edns.vendors.google.analytics
+
+        var pageUrl = window.location.pathname + window.location.hash;
+        var userCode = '53329841';
+        var studentId = null;
+
+        var student = JSON.parse(localStorage.getItem("Student"));
+        if (student !== null && student.StudentID !== null) {
+            studentId = student.StudentID;
+        }
+
+        var siteCodes = {
+            'ed.engdis.com': 'UA-' + userCode + '-10',
+            'ed.online.engdis.com': 'UA-' + userCode + '-11',
+            'www4.manabiland.com': 'UA-' + userCode + '-13'
+        };
+        var siteCodesV4 = {
+            'ed.engdis.com': 'G-MGH18HZ15K',
+        };
+
+        var currHostCode = siteCodes[window.location.host.toLowerCase()];
+        var currHostCodeV4 = siteCodesV4[window.location.host.toLowerCase()];
+
+        var impersonate = sessionStorage.getItem('GAImpersonate');
+        var sendOnlyToConsole = sessionStorage.getItem('GASendOnlyToConsole');
+
+        if (impersonate) {
+            //sendOnlyToConsole = true;
+            currHostCode = siteCodes['ed.engdis.com'];
+            currHostCodeV4 = siteCodesV4['ed.engdis.com']; 
+        }
+
+        vga.sendPageView = function (pageUrl, pageParams) {
+            if (currHostCode || currHostCodeV4) {
+
+                if (sendOnlyToConsole) {
+                    //console.info('would request GA file from google...');
+                    console.info('would be sending pageview on ' + pageUrl);
+                } else {
+                    if (currHostCode) {
+                        (function (i, s, o, g, r, a, m) {
+                            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                                (i[r].q = i[r].q || []).push(arguments)
+                            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+                        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+						
+						var studentId = localStorage.getItem('Student') !== null ? JSON.parse(localStorage.getItem('Student')).StudentID : '';
+                        if (studentId === null) {
+                            ga('create', currHostCode, 'auto', '');
+                        } else {
+                            ga('create', currHostCode, 'auto', '', { userId: studentId });
+                        }
+                        // Set inst dimension 
+                        ga('set', 'dimension1', localStorage.getItem('Community') !== null ? JSON.parse(localStorage.getItem('Community')).IID : '');
+
+                        ga('send', 'pageview', pageUrl);
+                    }
+
+                    ///////////
+                    //var v4_Id = 'G-MGH18HZ15K';
+                    if (siteCodesV4) {
+                        function gtag() { dataLayer.push(arguments); }
+                        var communityId = localStorage.getItem('Community') !== null ? JSON.parse(localStorage.getItem('Community')).IID : '';
+                        var studentId = localStorage.getItem('Student') !== null ? JSON.parse(localStorage.getItem('Student')).StudentID : '';
+                        pageParams = pageParams || {};
+                        pageParams = (pageParams.GA !== void 0 && pageParams.GA === false) ? {} : pageParams;
+                        var pageViewMandatoryParams = {
+                            page_title: pageUrl,
+                            page_location: pageUrl,
+                            communityId: communityId,
+                            studentId: studentId
+                        }
+                        var pageViewParams = Object.assign(pageViewMandatoryParams, pageParams)
+                        gtag('event', 'page_view', pageViewParams);
+                    }
+                }
+
+            }
+        }
+        vga.sendCustomEvent = function (GAEventName, GAEventParams) {
+            if (currHostCode || currHostCodeV4) {
+
+                if (sendOnlyToConsole) {
+                    //console.info('would request GA file from google...');
+                    console.info('would be sending event ' + GAEventName + ' with params:' , GAEventParams);
+                } else {
+                    ///////////
+                    //var v4_Id = 'G-MGH18HZ15K';
+                    if (siteCodesV4) {
+                        function gtag() { dataLayer.push(arguments); }
+                        var communityId = localStorage.getItem('Community') !== null ? JSON.parse(localStorage.getItem('Community')).IID : '';
+                        var studentId = localStorage.getItem('Student') !== null ? JSON.parse(localStorage.getItem('Student')).StudentID : '';
+                        GAEventParams = GAEventParams || {};
+                        var GAEventMandatoryParams = {
+                            communityId: communityId,
+                            studentId: studentId
+                        }
+                        var GAEventAllParams = Object.assign(GAEventMandatoryParams, GAEventParams)
+                        gtag("event", GAEventName, GAEventAllParams);
+                    }
+                }
+        
+            }
+        }
+        ////
+        // v4
+        if (currHostCodeV4) {
+            addTag(currHostCodeV4);
+        }
+
+        function addTag(GA_id) {
+            var GAUrl = 'https://www.googletagmanager.com/gtag/js?id=' + GA_id;
+            addGAScript(GAUrl);
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            var gtagOpt = {};
+            gtagOpt.debug_mode = JSON.parse(sessionStorage.getItem('GADebugMode'));
+            gtag('config', GA_id, gtagOpt);
+            //gtag('config', GA_id ,{ 'debug_mode':true });
+            //
+            function addGAScript(src) {
+                var s = document.createElement('script');
+                s.setAttribute('async', '');
+                s.setAttribute('src', src);
+                s.setAttribute('id', 'GA_v4');
+                document.head.appendChild(s);
+            }
+        }
+
+    }
+
+})();
+  
+
+//edns.vendors.google.analytics.pageview(pageurl);
+
+$.fn.removeClassPrefix = function (prefix) {
+    this.each(function (i, el) {
+        var classes = el.className.split(" ").filter(function (c) {
+            return c.lastIndexOf(prefix, 0) !== 0;
+        });
+        el.className = $.trim(classes.join(" "));
+    });
+    return this;
+};
+
+//scroll right
+$.fn.extend({
+    scrollRight: function (val) {
+        if (val === undefined) {
+            return this[0].scrollWidth - (this[0].scrollLeft + this[0].clientWidth) + 1;
+        }
+        return this.scrollLeft(this[0].scrollWidth - this[0].clientWidth - val);
+    }
+});
+
+function ajaxCall(url, dataObj, asyncCall, onSuccessFn) {
+    $.ajax({
+        url: url,
+        dataType: "json",
+        async: asyncCall == "undefined" ? true : asyncCall,
+        contentType: "application/json;charset=utf-8",
+        type: "POST",
+        data: dataObj,
+        success: function (data) {
+            if (onSuccessFn) onSuccessFn();
+        },
+        error: function (err) {
+            console.log("Error in service" + err.responseText);
+        }
+    });
+}
+
+function sendClick(TrackingRecord) {
+    if (getCompositeCookie("Community", "DataGathering") != 0) {
+        $.support.cors = true;
+        ajaxCall(getCompositeCookie("Analytics", "ClickT"), JSON.stringify(TrackingRecord));
+    }
+}
+
+function logLesson(lessonId, courseId, status, asyncCall, onSuccessFn, onNoAjaxCallFn) {
+    onNoAjaxCallFn = onNoAjaxCallFn || $.noop;
+    var institutionsData = JSON.parse(sessionStorage.getItem('InstitutionsData'))
+    if (institutionsData && institutionsData.timeOnLesson) {
+
+        //if (lessonId == null || courseId == null)
+        //    return;
+
+        if (localStorage.getItem("Student") != null)
+            studentid = JSON.parse(localStorage.getItem("Student")).StudentID;
+        else
+            return;
+
+        if (localStorage.getItem("Activity") != null)
+            userSessionId = JSON.parse(localStorage.getItem("Activity")).SessionID;
+        else
+            return;
+
+        var obj = new Object();
+        obj.StudentId = studentid;
+        obj.LessonId = lessonId;
+        obj.CourseId = courseId;
+        obj.UserSessionId = userSessionId;
+        obj.TimeStamp = (new Date).getTime();
+        obj.TabId = sessionStorage.getItem("TabID");
+        if (status == "S") {
+            obj.LessonSessionId = generateGUID();
+            localStorage.setItem("LessonSessionID", obj.LessonSessionId);
+            localStorage.setItem("TLlessonID", lessonId);
+            localStorage.setItem("TLcourseID", courseId);
+        }
+        else {
+            obj.LessonSessionId = localStorage.getItem("LessonSessionID");
+            localStorage.removeItem("LessonSessionID");
+            localStorage.removeItem("TLlessonID");
+            localStorage.removeItem("TLcourseID");
+        }
+
+        obj.Status = status;
+        if (obj.LessonSessionId != null) {
+            var toeicSessionKey = (edns.toeic.isToeic) ? (edns.toeic.extToeicCredentials ? edns.toeic.extToeicCredentials.sessionKey : edns.toeic.getTeoicCredentials().sessionKey) : '';
+            var url = new URL(getCompositeCookie("Analytics", "TimeOnL")).pathname + ((toeicSessionKey) ? toeicSessionKey : '');
+            url = url.indexOf('/') === 0 ? url.substring(1) : url;
+
+            if (status == 'E' && edns.network.canSendAndForget && !onSuccessFn) {
+                var data_ = new Blob([JSON.stringify(obj)], { type: 'application/json' });
+                edns.network.sendAndForget(url, data_);
+            }
+            else ajaxCall(url, JSON.stringify(obj), asyncCall, onSuccessFn);
+        } else {
+            onNoAjaxCallFn();
+        }
+    } else {
+        onNoAjaxCallFn();
+    }
+}
+
+function logAction(srs, dest, attr) {
+    if (localStorage.getItem('Activity') == null)
+        return;
+
+    if (srs == "")
+        return;
+
+    if (attr.indexOf('swap;') > 0) {
+        attr = attr.replace('swap;', '');
+        varSrs = srs;
+        srs = dest;
+        dest = varSrs;
+    }
+
+    var trackableArray = attr.split(';');
+    var count = 0;
+
+    var obj = new Object();
+    obj.SessionKey = JSON.parse(localStorage.getItem('Activity')).SessionID;
+    obj.ActivityType = getTrackableAttr(trackableArray, 'at');
+    obj.ActivityName = getTrackableAttr(trackableArray, 'id');
+    obj.Context = "";
+
+    var ActivityParams = {};
+    ActivityParams.Answer = srs;
+
+    if (dest != null) {
+        ActivityParams.Destination = dest;
+        ActivityParams.Activity = getTrackableAttr(trackableArray, 'an');
+    }
+    else {
+        ActivityParams.Activity = getTrackableAttr(trackableArray, 'an');
+    }
+
+    for (var i = 3; i < trackableArray.length; i++)
+        ActivityParams[trackableArray[i].split(':')[0]] = trackableArray[i].split(':')[1];
+
+    obj.ActivityParams = ActivityParams;
+    sendClick(obj);
+}
+
+function getTrackableAttr(trackableArray, key) {
+    for (var i = 0; i < trackableArray.length; i++) {
+        var b = trackableArray[i].split(':');
+        if (b[0] == key)
+            return b[1];
+    }
+}
+
+function logActionAngular(activityType, activityName, activityParams, context) {
+    if (localStorage.getItem('Activity') == null)
+        return;
+
+    sessionId = JSON.parse(localStorage.getItem('Activity')).SessionID;
+
+    var obj = new Object();
+    obj.SessionKey = sessionId;
+    obj.ActivityType = activityType;
+    obj.ActivityName = activityName;
+    if (context !== void 0) {
+        obj.Context = context;
+    }
+    if (typeof (activityParams) != "undefined") {
+        var activityArray = activityParams.split(';');
+        var ActivityParams = {};
+        for (var i = 0; i < activityArray.length; i++) {
+            var objectArray = activityArray[i].split(':');
+            ActivityParams[objectArray[0]] = objectArray[1];
+        }
+        obj.ActivityParams = ActivityParams;
+    }
+    sendClick(obj);
+}
+
+function generateGUID() {
+    var d = new Date().getTime();
+    if (window.performance && typeof window.performance.now === "function") {
+        d += performance.now(); //use high-precision timer if available
+    }
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
+}
+
+function notify(eventName, eventAction, eventData) {
+    $.publish(eventName, { action: eventAction, data: eventData });
+}
+
+edns.utils = edns.createNS('edns.utils');
+edns.utils.addItemsToArrayOfArrays = function (arr, desiredlength, emptyItem) {
+    var arrLen = arr.length;
+
+    for (var i = 0; i < arrLen; i++) {
+        var lastArrayLen = arr[i].length;
+
+        if (lastArrayLen < desiredlength) {
+            for (var t = desiredlength; t > lastArrayLen; t--) {
+                arr[i].push(_.clone(emptyItem));
+            }
+        }
+    }
+    return arr;
+}
+edns.utils.replaceTokens = function (input, tokensObj) {
+    var res = input;
+    for (var prop in tokensObj) {
+        var token = '<' + prop + '>';
+        var regexpr = new RegExp(token, 'gi');
+        res = res.replace(regexpr, tokensObj[prop]);
+    }
+
+    return res;
+};
+
+
+
+//edns.utils.popupWins = {};
+//edns.utils.popupWins.init = function () {
+//    if (!window.openPopups) {
+//        //for manage the popups
+//        window.openPopups = [];
+//    }
+//    var openpopups = localStorage.getItem('openpopups')
+//    if (openpopups) {
+//        openpopups = JSON.parse(openpopups);
+//        for (var i = 0; i < openpopups.length; i++) {
+//            var newWin = window.open("", openpopups[i], "width=...");
+//            window.openPopups.push(newWin);
+//        }
+//    }
+//};
+//edns.utils.popupWins.isWindowExist = function (winName) {
+//    return !!window[winName];
+//}
+edns.utils.popupWins = (function () {
+    return {
+        tabsManager: tabsManager,
+        //addToOpenPopupsStorage: addToOpenPopupsStorage,
+        getOpenedWindow: getOpenedWindow,
+        openWindow: openWindow,
+        addToOpenPopupsStorage: addToOpenPopupsStorage
+    }
+
+    function tabsManager(address, winName) {
+        if (window.openPopups) {
+            for (var i = 0; i < window.openPopups.length; i++) {
+                if (window.openPopups[i].closed) {
+                    window.openPopups.splice(i, 1);
+                }
+                else if (getParameterByName(window.openPopups[i], "source").indexOf(address) != -1) {
+                    return;
+                }
+            }
+        }
+        var url = address;
+        return url;
+    }
+
+    function addToOpenPopupsStorage(openedWinName) {
+        var openpopupsWin = localStorage.getItem("openpopupsWin");
+        var openpopupsWinJson;
+        if (openpopupsWin == null) openpopupsWinJson = [];
+        else openpopupsWinJson = JSON.parse(openpopupsWin);
+        if (openpopupsWinJson.indexOf(openedWinName) == -1) {
+            openpopupsWinJson.push(openedWinName);
+            localStorage.setItem("openpopupsWin", JSON.stringify(openpopupsWinJson));
+        }
+    }
+
+    function getOpenedWindow(winName) {
+        if (window.openPopups && window.openPopups.length > 0 && (Object.getOwnPropertyNames(window.openPopups[0])).length > 0) {
+            for (var i = 0; i < window.openPopups.length; i++) {
+                if (window.openPopups[i].name == winName) {
+                    return window.openPopups[i];
+                }
+            }
+        }
+        else {
+            var openpopupsWin = localStorage.getItem("openpopupsWin");
+            if (openpopupsWin != null) {
+                for (var i = 0; i < openpopupsWin.length; i++) {
+                    if (openpopupsWin[i] == winName) {
+                        var newWin = window.open("", winName);
+                        window.openPopups.push(newWin);
+                        return newWin;
+                    }
+                }
+            }
+        }
+    }
+
+    function openWindow(url, winName, winParameters) {
+        var openedWin = window.open(url, winName, winParameters);
+        if (window.openPopups) {
+            window.openPopups.push(openedWin);
+        }
+
+        addToOpenPopupsStorage(winName);
+    }
+})();
+
+//receive message for Toeic window
+var onWindowOpen;
+var onWindowClosed;
+var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+var eventer = window[eventMethod];
+var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+
+eventer(messageEvent, function (e) {
+    var key = e.message ? "message" : "data";
+    var notification = e[key];
+    console.log("event: " + notification);
+
+    if (notification !== null && notification.toString().indexOf('TOEIC_TO_ED') > -1) {
+        toeicToEdNotifications(notification);
+        return;
+    }
+
+    if (notification !== null && notification.toString().indexOf('TOEFL_TO_ED') > -1) {
+        toeflToEdNotifications(notification);
+        return;
+    }
+
+    if (notification !== null && notification.toString().indexOf('OpenPopup') > -1) {
+        //debugger;
+        var winInfo = JSON.parse(notification).OpenPopup.msg;
+        edns.utils.popupWins.openWindow(winInfo.url, winInfo.winName, winInfo.winParameters);
+        return;
+    }
+    if (notification !== null && notification.toString().indexOf('StudyPlaner') > -1) {
+        var studyPlanerNotif = JSON.parse(notification).StudyPlaner.msg;
+        $(".studyPlanerModal iframe")[0].contentWindow.postMessage(JSON.stringify({ StudyPlaner: { sender: 'ED', msg: { func: studyPlanerNotif.func } } }), "*");
+        return;
+    }
+    if (edns.toeic.isToeic && notification !== null && notification === 'closeModal') {
+        $("#toeicInTestFR")[0].contentWindow.postMessage(JSON.stringify({ TOEIC_TO_ED: { sender: 'ED', msg: { name: 'closeWindow' } } }), "*");
+    }
+    if (notification !== null && notification.toString().indexOf('hideWizard') > -1) {
+        window.opener ? window.opener.postMessage('hideWizard', "*") : window.top.wizardEvent('hideWizard');
+        return;
+    }
+    if (notification !== null && notification.toString().indexOf('wizardLoaded') > -1) {
+        window.opener ? window.opener.postMessage('wizardLoaded', "*") : window.top.wizardEvent('wizardLoaded');
+        return;
+    }
+    if (notification !== null && notification.toString().indexOf('openModal') > -1) {
+        var modalOptions = {
+            iFrameUrl: Root + 'Runtime/SpeakingPal/Wizard.aspx',
+            modalType: 'custom',
+            modalId: 'SpRegWizard',
+            iFrameHeight: 680,
+            iFrameWidth: 800,
+            okBtnText: 'Blablabla',  //$filter('translate')("312"),
+            showOkBtn: true,
+            closeCallbackAfter: function () {
+                //debugger;
+            },
+            okCallbackAfter: function () {
+                //debugger;
+            }
+        };
+        window.syschekModal = edns.modalManager.custom(modalOptions);
+
+        //var text = 'Hello world';
+        //var obtnText = 'Eprstufhcch';
+        //edns.modalManager.alert(text, { okBtnText: obtnText, modalWrapperClass: 'modalW_alert--aboveOB' });
+
+
+        //window.opener ? window.opener.postMessage('hideWizard', "*") : window.top.hideWizard('hideWizard');
+        //window.top.postMessage('{FirstName:"zzz"}', "*");
+        //JSON.stringify({ "data": "abc", "openModal": { "msg": { "url": Root + 'Runtime/SpeakingPal/Wizard.aspx', "winName": "ZZZ", "winParameters": "" } } }), "*");
+        return;
+    }
+
+    if (notification !== null && notification.toString().indexOf('sessionTimeout') > -1) {
+        edns.appToken.api.ajaxUnAuth();
+        return;
+    }
+    //if (toeicWindowIsOpen.toString().indexOf('ToeicOpen') > -1)
+    //    isTOEICWindowOpen(onWindowOpen, onWindowClosed);
+}, false);
+
+
+function toeicToEdNotifications(notification) {
+    var msgJson = JSON.parse(notification).TOEIC_TO_ED;
+    switch (msgJson.sender) {
+        case 'TOEIC':
+            switch (msgJson.msg.name) {
+                case 'TestSubmitted':
+                    break;
+                case 'ToeicOpen':
+                    isTOEICWindowOpen(onWindowOpen, onWindowClosed, msgJson.msg.data);
+                    break;
+                case "Improve":
+                    edns.toeic.improve(msgJson.msg.data.abilityIndex, msgJson.msg.data.courseId);
+                    break;
+                case "StartNextModule":
+                    edns.toeic.navigate2NextCourse(msgJson.msg.data.nextTOEICCourseId);
+                    break;
+                case "ExtendTimeOut":
+                    edns.toeic.extendTimeout();
+                    break;
+            }
+            break;
+    }
+}
+
+function toeflToEdNotifications(notification) {
+    var msgJson = JSON.parse(notification).TOEFL_TO_ED;
+    switch (msgJson.sender) {
+        case 'TOEFL':
+            switch (msgJson.msg.name) {
+                case "ExtendTimeOut":
+                    edns.ping.extendTimeout();
+                    break;
+            }
+            break;
+    }
+}
+
+function isTOEICWindowOpen(isOpenAction, isClosedAction, toeicWindowIsOpen) {
+    if (typeof isOpenAction != "undefined" && typeof isClosedAction != "undefined") {
+        if (toeicWindowIsOpen == "true")
+            isOpenAction();
+        else
+            isClosedAction();
+    }
+    //edns.toeic.toeicFrameResponded = true;
+}
+
+(function () {
+    edns.createNS('edns.ping');
+    edns.ping.extendTimeout = function extendTimeout() {
+        var userId = JSON.parse(localStorage.getItem('Student')).StudentID;
+        $.ajax({
+            url: Root + "WebApi/ExtendTimeout/" + userId,
+            type: "GET",
+            cache: false,
+            context: document.body
+        });
+    }
+    edns.ping.clearWindowOnTimeout = function (additionalRules) {
+        var clearRules = [];
+        var actionsOnClose = [];
+        additionalRules = additionalRules || [];
+
+        additionalRules.forEach(function (v) { clearRules.push(v); });
+
+        clearRules.push(openerClosedOrLost);
+        clearRules.push(appClosed);
+
+        actionsOnClose.push(clearWindow);
+        actionsOnClose.push(setClosed);
+
+        setInterval(function () {
+            if (clearRules.filter(function (v) { return v.call(this); }).length > 0) {
+                actionsOnClose.forEach(function (v) { v.call(this); });
+            }
+        }, 1000);
+        ///
+        function openerClosedOrLost() { return (opener == null || opener.closed); }
+        function appClosed() { return (localStorage.getItem('closed') === 'true'); }
+
+        function clearWindow() { $('html').html(''); }
+        function setClosed() { localStorage.setItem('closed', 'true'); }
+    }
+    //edns.ping.onSessionTimeout = function () {
+    //    localStorage.setItem('closed', 'true');
+    //    $rootScope.isLogedin = false;
+    //    $interval.cancel(pingInterval);
+    //    edns.appToken.remove();
+    //    if ($location.path() == '') {
+    //        storageService.setCookie('stateBeforeLogin', 'stateBeforeLogin')
+    //        location.href = $rootScope.root + '/' + (edns.domains.isHostedDomain(storageService.get('Community', 'CannonicalDomain')) ? '' : getCompositeCookie('Community', 'alias')) + "#/SessionTimeout";
+    //    }
+    //    else $location.path('/SessionTimeout');
+    //}
+
+})();
+
+(function () {
+    edns.createNS('edns.ping.closeOnLogout');
+
+    var timerRef;
+    var modalRefs = [];
+
+    edns.ping.closeOnLogout = {
+        modals: {
+            add: addToCloseOnLogout
+            , remove: removeFromCloseOnLogout
+        }
+    };
+    ///////
+    function addToCloseOnLogout(modalRef) {
+        modalRefs.push(modalRef);
+        if (!timerRef) {
+            timerRef = startWatch();
+        }
+    }
+
+    function removeFromCloseOnLogout(modalRef) {
+        modalRefs = modalRefs.filter(function (v) { return v !== modalRef; });
+        if (modalRefs.length === 0) { stopWatch(); }
+    }
+
+    function startWatch() { return setInterval(watchAppClosed, 1000); }
+    function stopWatch() { clearInterval(timerRef); timerRef = null; }
+
+    function watchAppClosed() {
+        if (appClosed()) {
+            modalRefs.forEach(function (v) { if (v.close) { v.close(); } });
+            stopWatch();
+        }
+    }
+
+    function appClosed() { return (localStorage.getItem('closed') === 'true'); }
+
+})();
+
+edns.toeic = (function () {
+    var initRes = init();
+
+    return {
+        isToeic: initRes.isToeic
+        , extToeicCredentials: initRes.extToeicCredentials
+        , getTeoicCredentials: getTeoicCredentials
+        //, gotoTest: gotoTest
+        //, testUrl: testUrl
+        //, setToeicInTestIFRAME: setToeicInTestIFRAME
+        , gotoUnitTest: gotoUnitTest
+        , gotoUnitTestResultsReview: gotoUnitTestResultsReview
+        , gotoCourseTest: gotoCourseTest
+        , getCourseTestFullReportURL: getCourseTestFullReportURL
+        , gotoCourseTestViewResults: gotoCourseTestViewResults
+        , improve: improve
+        , extendTimeout: edns.ping.extendTimeout
+        , navigate2NextCourse: navigate2NextCourse
+        , getUnitTests: getUnitTests
+        , addUnitTests: addUnitTests
+        , logoff: logoff
+
+    };
+    /////////////
+    function init() {
+        res = {};
+        res.isToeic = localStorage.getItem("toeicInformation") ? true : false;
+
+        $(document).ready(function () {
+            if (res.isToeic) {
+                if ($("#toeicInTestFR").length > 0 && $("#toeicInTestFR").attr("src") == "") {
+                    addToeicInTestIFRAME();
+                }
+
+            };
+        });
+        ;
+        return res;
+    };
+    ////////    
+
+    function gotoUnitTest(testId, courseId, failmessage) {
+        setToeicWindowDependables(failmessage);
+        onWindowClosed = openTestUrl.bind(null, testId, 2, courseId);
+    }
+
+    function gotoUnitTestResultsReview(testId, courseId, failmessage) {
+        setToeicWindowDependables(failmessage);
+        onWindowClosed = openUnitTestResultsReview.bind(null, testId, 2, courseId);
+    }
+
+    function gotoCourseTest(testId, testTypeId, courseId, isBridge, failmessage) {
+        setToeicWindowDependables(failmessage);
+        onWindowClosed = openTestUrl.bind(null, testId, testTypeId, courseId, isBridge);
+    }
+
+    function gotoCourseTestViewResults(testId, courseId, failmessage) {
+        setToeicWindowDependables(failmessage);
+        onWindowClosed = openCourseTestViewResults.bind(null, testId, courseId);
+    }
+
+    function getCourseTestFullReportURL(userTestId, courseId, testId, lastProgressToeicCourseId) {
+        edns.toeic.extToeicCredentials = edns.toeic.extToeicCredentials || getTeoicCredentials();
+        var introUrl = buildToeicIntroUrl();
+        var url = edns.toeic.extToeicCredentials.toeicHost + "Runtime/FinalTestScore.aspx?userTestId=" + userTestId + "&selectedCourse=" + courseId + "&testId=" + testId + "&currentTOEICCourseIdInED=" + lastProgressToeicCourseId;
+        //url = url;
+        //var urlEnc = url;//encodeURIComponent(url);
+        var testUrl = introUrl + "&testTypeId=-1&courseId=-1&selectedCourse=" + courseId + "&testId=" + testId + "&edCourseName=" + escape(getEdCourseName(courseId)) + "&link=" + encodeURIComponent(url);
+        return testUrl;
+    }
+    ///////////////////
+    function setToeicWindowDependables(failmessage) {
+        edns.toeic.extToeicCredentials = edns.toeic.extToeicCredentials || getTeoicCredentials();
+        setToeicInTestIFRAME();
+        setOnWindowOpen(failmessage);
+    }
+
+    function setOnWindowOpen(failmessage) {
+        onWindowOpen = function onUserIn() {
+            edns.modalManager.alert(failmessage.messageTxt, { okBtnText: failmessage.btnTxt });
+        }
+    }
+
+    function openToeicWindow(url) {
+        window['extToeic'] = window.open(url, 'extToeic', "width=" + screen.width + ",height=" + screen.height + ",left=0,top=0");
+    }
+
+    function openTestUrl(testId, testTypeId, courseId, isBridge) {
+        var toeicFileURL = 'Runtime/Test.aspx';
+        var introUrl = buildToeicIntroUrl();
+        var testUrl = introUrl + "&testTypeId=" + testTypeId + "&testId=" + testId + "&courseId=" + courseId + "&edCourseName=" + escape(getEdCourseName(courseId)) + "&link=" + edns.toeic.extToeicCredentials.toeicHost + toeicFileURL + "&isBridge=" + isBridge ;
+        openToeicWindow(testUrl);
+    }
+
+    function openUnitTestResultsReview(testId, testTypeId, courseId) {
+        var toeicFileURL = 'Runtime/testResultsReview.aspx';
+        var introUrl = buildToeicIntroUrl();
+        var testUrl = introUrl + "&testTypeId=" + testTypeId + "&testId=" + testId + "&courseId=" + courseId + "&link=" + edns.toeic.extToeicCredentials.toeicHost + toeicFileURL;
+        openToeicWindow(testUrl);
+    }
+
+    function openCourseTestViewResults(testId, courseId) {//testResultsReview.aspx?testId=' + testId + '&courseId=' + selectedCourse
+        var toeicFileURL = 'Runtime/testResultsReview.aspx';
+        var introUrl = buildToeicIntroUrl();
+        var testUrl = introUrl + "&testTypeId=" + "-1" + "&testId=" + testId + "&courseId=" + courseId + "&edCourseName=" + escape(getEdCourseName(courseId)) + "&link=" + edns.toeic.extToeicCredentials.toeicHost + toeicFileURL;
+        openToeicWindow(testUrl);
+    }
+
+    function getEdCourseName(toeicCourseId) {
+        var name = "", edCourseId;
+
+        var edCourse = _.find(JSON.parse(localStorage.getItem("toeicInformation")).toeicEDCoursesMappers, function (mapItem) { return (toeicCourseId.toString() === mapItem.toeicId.toString()) });
+        if (typeof edCourse != "undefined")
+            edCourseId = edCourse.edId;
+
+        edCourse = _.find(JSON.parse(localStorage.getItem("Courses")), function (course) { return (course.CourseId == edCourseId) });
+        if (typeof edCourse != "undefined")
+            name = edCourse.courseName
+
+        return name;
+    }
+
+    function buildViewResultsUrl() { }
+    function buildFullReportUrl() { }
+    ////////////
+    function getTeoicCredentials() {
+        var cred = { error: null };
+        cred.username = getCompositeCookie("Student", "UserName");
+        var toeicInformation = JSON.parse(localStorage.getItem("toeicInformation"));
+        cred.toeicHost = toeicInformation.toeicDistributorDomain;
+        cred.sessionKey = toeicInformation.toeicSessionKey;
+
+        if (cred.toeicHost != null && cred.username != null && cred.sessionKey != null) {
+            cred.toeicHost = useHttps(cred.toeicHost);
+            return cred;
+        } else {
+            return { error: 'failed to load cred' };
+        }
+    }
+
+    function useHttps(url) {
+        var regex = /http:/g;
+        if (url.indexOf('localhost') === -1) {
+            url = url.replace(regex, "https:");
+        }
+        return url;
+    }
+
+    function testUrl(testId, courseId, toeicFileURL) {
+        var testUrl = toeicHost + "IntroFromED.aspx?uId=" + username + "&token=" + sessionKey + "&testTypeId=2&testId=" + testId + "&courseId=" + courseId;
+        testUrl = testUrl + "&link=" + toeicHost + toeicFileURL;
+        return testUrl;
+    }
+
+    function buildToeicIntroUrl() {
+        var cred = edns.toeic.extToeicCredentials;
+        if (!cred.error) {
+            var introUrl = cred.toeicHost + "IntroFromED.aspx?uId=" + cred.username + "&token=" + cred.sessionKey;//+ "&lang=" + sharedGetLang();
+            return introUrl;
+        } else {
+            console.log(cred.error);
+            return null;
+        }
+    }
+    //////////////
+    function addToeicInTestIFRAME() {
+        var src = JSON.parse(localStorage.getItem("toeicInformation")).toeicDistributorDomain + "InTest.html"
+        src = useHttps(src);
+        $("#toeicInTestFR").attr("src", src);
+    }
+
+    function setToeicInTestIFRAME() {
+        if ($("#toeicInTestFR").length > 0 && $("#toeicInTestFR").attr("src") == "")
+            addToeicInTestIFRAME();
+
+        if ($("#toeicInTestFR").length > 0)
+            $("#toeicInTestFR")[0].contentWindow.postMessage(JSON.stringify({ TOEIC_TO_ED: { sender: 'ED', msg: { name: 'isToeicOpen' } } }), "*");
+    }
+
+    function improve(abilityIndex, toeicCourseId) {
+        var improveLevelsRoot = localStorage.getItem("resPathRoot").replace("\"", "").replace("\"", "") + "/Runtime/Metadata/Courses/ToeicImprove/";
+        $.getJSON(improveLevelsRoot + toeicCourseId + ".json", function (data) {
+            var edCourseId = _.find(JSON.parse(localStorage.getItem("toeicInformation")).toeicEDCoursesMappers, function (mapItem) { return (toeicCourseId === mapItem.toeicId.toString()) }).edId;
+
+            edns.navigator.goToCourseLesson(edCourseId, data[abilityIndex - 1].unitId, data[abilityIndex - 1].lessonId);
+        });
+    }
+
+    function navigate2NextCourse(nextToeicCourseId) {
+        var edCourseId = _.find(JSON.parse(localStorage.getItem("toeicInformation")).toeicEDCoursesMappers, function (mapItem) { return (nextToeicCourseId === mapItem.toeicId) }).edId;
+        edns.navigator.goToCourseLesson(edCourseId);
+    }
+    //////////
+    function getUnitTests(course) {
+        var defer;
+        defer = $.Deferred();
+
+        var toeicEDCoursesMappers = JSON.parse(localStorage.getItem('toeicInformation')).toeicEDCoursesMappers;
+        if (toeicEDCoursesMappers != null && Array.isArray(toeicEDCoursesMappers)) {
+
+            var toeic2ED_courseMap = _.find(toeicEDCoursesMappers, function (courseMap) {
+                if (courseMap.edId == course.NodeId) return course;
+            });
+            var courseToeicId = toeic2ED_courseMap.toeicId;
+            course.Metadata.ToeicId = courseToeicId;
+
+            getUnitTestsData(courseToeicId, onGetUnitTestsSuccess.bind(null, toeic2ED_courseMap), function () { defer.resolve(null); });
+            ////////////
+            function onGetUnitTestsSuccess(toeic2ED_courseMap, data) {
+                defer.resolve({ data: data, toeic2ED_courseMap: toeic2ED_courseMap });
+            }
+
+        } else {
+            defer.resolve(null);
+        }
+
+        return defer.promise();
+    }
+
+    function addUnitTests(course, toeic2ED_courseMap, data) {
+
+        var childNodes = course.Children.map(function (unit) {
+            var toeic2ED_unitMap = _.find(toeic2ED_courseMap.childNodes, function (toeicUnit) { if (toeicUnit.edId == unit.NodeId) return toeicUnit; });
+            var toeicUnitInfo = _.find(data.d, { unitId: toeic2ED_unitMap.toeicId });
+            if (toeicUnitInfo) {
+                unit.Metadata.UnitTest = { toeicUnitId: toeicUnitInfo.unitId, testId: toeicUnitInfo.testId, grade: toeicUnitInfo.grade, opened: false };
+            }
+            return unit;
+        });
+        course.Children = childNodes;
+        course.Metadata.unitTestsRetrived = true;
+        course.Metadata.ToeicId = toeic2ED_courseMap.toeicId;
+        return course;
+    }
+
+    function getUnitTestsData(courseToeicId, successFn, failFn) {
+        var toeicURL = JSON.parse(localStorage.getItem('toeicInformation')).toeicServicesURL;
+        toeicURL += '/LearningService.svc/script/GetUnits';
+        var toeicSessionKey = JSON.parse(localStorage.getItem("toeicInformation")).toeicSessionKey;
+        $.ajax({
+            url: toeicURL + '?courseId=' + courseToeicId
+            , type: 'GET'
+            , datatype: "json"
+            , headers: { 'Edusoft-SessionKey': toeicSessionKey }
+            , success: successFn
+            , error: failFn
+        });
+    }
+
+    function logoff(successFn, failFn) {
+        var defer;
+        defer = $.Deferred();
+
+        successFn = (successFn) ? successFn : function () {
+            console.log('Logoff from toeic succeeded.');
+            defer.resolve(null);
+        };
+        failFn = (failFn) ? failFn : function (e) {
+            console.log('Logoff from toeic failed. ' + e.responseText);
+            defer.resolve(null);
+        };
+        var toeicURL = JSON.parse(localStorage.getItem('toeicInformation')).toeicServicesURL;
+        toeicURL += '/UsersService.svc/script/LogOffFromED';
+        var toeicSessionKey = JSON.parse(localStorage.getItem("toeicInformation")).toeicSessionKey;
+        $.ajax({
+            url: toeicURL
+            , type: 'GET'
+            , datatype: "json"
+            , cache: false
+            , headers: { 'Edusoft-SessionKey': toeicSessionKey }
+            , success: successFn
+            , error: failFn
+        });
+        return defer.promise();
+    }
+})();
+
+edns.toefl = (function () {
+    if (!JSON.parse(localStorage.getItem('Community'))) {
+        return { addItalicsForToefl: addItalicsForToefl, addItalicsForToeflInPath: addItalicsForToeflInPath };
+    }
+    var useIpadRecordingSetting = JSON.parse(localStorage.getItem('Community')).UseIPadRecordingingApp;
+
+    return {
+        isToeflIPadApp: isToeflIPadApp
+        , addItalicsForToefl: addItalicsForToefl
+        , addItalicsForToeflInPath: addItalicsForToeflInPath
+        , wrapFromTOEFLToReg: wrapFromTOEFLToReg
+    }
+
+    function isToeflIPadApp() {
+        return (edns.mobile.isMobileIos() && useIpadRecording());
+        //////
+        function useIpadRecording() {
+            if (useIpadRecordingSetting) {
+                var currentCourseId = JSON.parse(JSON.parse(localStorage.getItem('Course')).CourseJson).NodeId.toString();
+                return ($.inArray(currentCourseId, useIpadRecordingSetting.split(',')) > -1);
+            }
+            return false;
+        }
+    }
+
+    function addItalicsForToeflInPath(courseNamePath) {
+        if (isToeflCourseName(courseNamePath)) {
+
+            var courseNameParts = courseNamePath.indexOf('>') ? courseNamePath.split('>') : [courseNamePath, ''];
+            var courseName = addItalicsForToefl(courseNameParts.shift());
+            ;
+            var path = courseName + courseNameParts.join('&gt;');
+            return path;
+        }
+        return courseNamePath;
+    }
+
+    function addItalicsForToefl(courseName, skipIsToeflCourseName) {
+        if (isToeflCourseName(courseName) || skipIsToeflCourseName) {
+            var copyChar = (skipIsToeflCourseName && courseName.indexOf('TOEFL&reg;') > -1) ? '&reg;' : '®';
+            return '<span class="toeflYss"><span class="toeflYss__productName">' + courseName.replace(/>/g, '&gt;').replace(copyChar, '</span><sup class="reg">' + copyChar + '</sup>') + '</span>';
+        } else {
+            return courseName;
+        }
+    }
+
+    function isToeflCourseName(courseName) {
+        return (courseName !== void 0 && courseName.indexOf('TOEFL') > -1 && courseName.indexOf('®') > -1);
+    }
+    function wrapFromTOEFLToReg(text) {
+        var result;
+        var regSymbol = /®/g;
+        if ((text.indexOf('TOEFL') > -1 || text.indexOf('TOEIC') > -1) && text.indexOf('®') > -1) {
+            var re = (text.indexOf('TOEFL') > -1) ? /(TOEFL[\s\w]*®)/gi : /(TOEIC[\s\w]*®)/gi;
+
+            var startHTML = '<span class="toeflYss"><span class="toeflYss__productName">';
+            var endHTML = '</span><sup class="reg">&reg;</sup></span>';
+            result = text.replace(re, startHTML + '$1' + endHTML).replace(regSymbol, '');
+        } else {
+            result = text;
+        }
+        return result;
+    }
+})();
+
+
+
+edns.skins = (function () {
+    return {
+        addSkinCss: addSkinCss
+    }
+
+    function addSkinCss(_root) {
+        var root = _root || Root || href.substring(0, href.toLowerCase().indexOf("runtime"));
+        root = (location.href.toLowerCase().indexOf('/classicedo') > -1 || location.href.toLowerCase().indexOf('?') > -1) ? location.protocol + '//' + location.host : root;
+        root = (root.indexOf('runtime') > -1 && root.indexOf('://')>-1) ? new URL(root).origin + '/' : root;
+        var onGetWhiteLabelBound = onGetWhiteLabel.bind(this, root);
+
+        edns.whiteLabel.getWhiteLabel().then(onGetWhiteLabelBound);
+        
+        function onGetWhiteLabel(root){
+            var wl = edns.whiteLabel.whiteLabelData;//JSON.parse(sessionStorage.getItem("white_label"));
+            if (wl && wl.skin) {
+                skinRoot =  cleanRoot(root);
+                
+                var src = skinRoot + 'css/skin.' + wl.skin + '.css';
+
+                var link = document.createElement("link");
+                link.href = src;
+                link.type = "text/css";
+                link.rel = "stylesheet";
+
+                document.getElementsByTagName("head")[0].appendChild(link);
+            } else {
+                console.log('Error loading skin.');
+            }
+
+            function cleanRoot(r) {
+                r = r.replace(/\/+$/, "");//remove trailing '/'s
+                r = (r.length > 1) ? r + '/' : r;
+                return r;
+            }
+        }
+    }
+})();
+
+var event;
+if (typeof (Event) === 'function') {
+    event = new Event('ednsSkins_Loaded');
+} else {
+    event = document.createEvent('Event');
+    event.initEvent('ednsSkins_Loaded', true, true);
+}
+document.dispatchEvent(event);
+
+
+edns.whiteLabel = (function () {
+    var whiteLabelData;
+    var isGettingwhiteLabelData = false;
+    var whiteLabelDataDeferreds = [];
+
+    getWhiteLabel().then(function (wl) {
+        setPageTitle();
+        setFavIcon();
+    });
+
+
+    return {
+        getWhiteLabel: getWhiteLabel
+        , filter: filter
+        , whiteLabelData: whiteLabelData //ATTN - should implement asyc behaviour?
+    };
+
+
+    function setPageTitle() {
+
+        if (whiteLabelData.pagesTitle) {
+            if ($("title").length > 0) {
+                $("title").text(whiteLabelData.pagesTitle);
+            } else {
+                $('head').append('<title>' + whiteLabelData.pagesTitle + '</title>');
+            }
+        }
+    }
+    function setFavIcon(_root) {
+
+        var root = _root || Root || location.href.substring(0, href.toLowerCase().indexOf("runtime"));
+        root = Object.prototype.toString.call(Root) === '[object Array]' ? Root[0] : Root;
+        root = root.toLowerCase().indexOf('classicsite.aspx') > 0 ? '/' : root;
+        root = isClassicSite() ? getClassicSiteRoot() : root;
+        var icoPath = root + 'images/General/skins/' + whiteLabelData.favIcon + '/favicon.ico';
+
+        var linkEl = $('link[href^="favicon"]');
+        if (linkEl.length > 0) {
+            $(linkEl[0]).attr('link', icoPath);
+        } else {
+            $('head').append('<link rel="shortcut icon" href="' + icoPath + '">');
+        }
+    }
+
+    function getWhiteLabel() {
+        var defer = $.Deferred();
+
+        if (whiteLabelData) {
+            defer.resolve(whiteLabelData);
+        } else {
+            whiteLabelDataDeferreds.push(defer);
+            if (!isGettingwhiteLabelData) {
+                isGettingwhiteLabelData = true;
+                //var Root =  Root || href.substring(0, href.toLowerCase().indexOf("runtime"));
+                //Root = (location.href.toLowerCase().indexOf('/classicedo') > -1) ? location.href.substring(0, href.toLowerCase().indexOf("classicedo")) : Root ;
+                var root = Root || location.href.substring(0, href.toLowerCase().indexOf("runtime"));
+                root = Object.prototype.toString.call(Root) === '[object Array]' ? Root[0] : Root;
+                root = isClassicSite() ? getClassicSiteRoot() : root;
+                root = (root.toLowerCase().indexOf('runtime') > -1 && root.indexOf('://')>-1) ? new URL(root).origin + '/' : root;
+        
+                $.ajax(root + 'Config/whiteLabel.json')
+                    .then(function (response) {
+                        var domain = getCompositeCookie('Community', 'domain') || location.host + '/';
+                        var wl = findWhiteLabel(response.items, domain);
+                        if (wl.length < 1) {
+                            wl = findWhiteLabel(response.items, 'default');
+                        }
+                        whiteLabelData = wl[0];
+                        edns.whiteLabel.whiteLabelData = whiteLabelData;
+                        //sessionStorage.setItem("white_label", JSON.stringify(whiteLabelData));
+                        isGettingwhiteLabelData = false;
+                        whiteLabelDataDeferreds.forEach(function (deferredCB) {
+                            deferredCB.resolve(whiteLabelData);
+                        });
+
+
+                    });
+            }
+        }
+        return defer.promise();
+    }
+
+    function findWhiteLabel(items, domain) {
+        var wl = items.filter(function (v) {
+            var res = v.domains.filter(function (val) {
+                var res2 = domain ? domain.indexOf(val) > -1 : false;
+                return res2;
+            });
+            return res[0];
+        });
+        return wl;
+    }
+
+    function filter() {
+        return function (input) {
+            var res = '';
+            if (input !== void 0) {
+                res = input;
+                var data = edns.whiteLabel.whiteLabelData;//JSON.parse(sessionStorage.getItem("white_label"));
+
+                for (var prop in data) {
+                    var token = '<' + prop + '>';
+                    var regexpr = new RegExp(token, 'gi');
+                    //if (input.indexOf(token) > -1) {
+                    //    if (prop !== 'companyMail') { 
+                    res = res.replace(regexpr, data[prop]);
+                    //    }
+                    //    else {
+                    //        var instMail = getInstMail();
+
+                    //        if ((instMail !== '') && (instMail != data[prop]))
+                    //            res = input.replace(token, instMail);
+                    //        else
+                    //            res = input.replace(token, data[prop]);
+                    //    }
+                    //}
+                }
+            }
+            return res;
+        };
+    };
+    /////
+    function getClassicSiteRoot() {
+        return location.protocol + '//' + location.host + '/';
+    }
+    function isClassicSite() {
+        return (location.href.toLowerCase().indexOf('/classicedo') > -1);
+    }
+})();
+
+edns.courseMetadata = (function () {
+    var coursesMetadata_uo = {};
+    var coursesMetadata_ut = {};
+
+    var skillInLessonNameSkill;
+    var skillList = {
+        'Reading': {
+            'id': '2',
+            'localizedKey': '1218'
+        },
+        'Listening': {
+            'id': '3',
+            'localizedKey': '1219'
+        },
+        'Speaking': {
+            'id': '4',
+            'localizedKey': '1220'
+        },
+        'Grammar': {
+            'id': '6',
+            'localizedKey': '1221'
+        },
+        'Project': {
+            'id': '8',
+            'localizedKey': '1222'
+        },
+        'InteractiveVideo': {
+            'id': '9',
+            'localizedKey': '1223'
+        },
+        'Vocabulary': {
+            'id': '10',
+            'localizedKey': '1224'
+        },
+        'Alphabet': {
+            'id': '11',
+            'name': 'Alphabet',
+            'localizedKey': '1225'
+        },
+        'Writing': {
+            'id': '12',
+            'localizedKey': '1226'
+        },
+        'GettingToKnowTheToeic': {
+            'localizedKey': '1227'
+        }
+    };
+    var init = init();
+
+    var gettingToKnowInCode = /^.{2}[t]/;
+
+    return {
+        getSkillName: getSkillName
+        , getSkillLocalizedKey: getSkillLocalizedKey
+        , setUnitObjectives: setUnitObjectives
+        , setUnitTests: setUnitTests
+        , updateUnitTestGrade: updateUnitTestGrade
+    };
+
+    function init() {
+        edns.whiteLabel.getWhiteLabel().then(function (wl) {
+            if (wl.featureFlags && wl.featureFlags.skillInLessonName == "true")
+                skillInLessonNameSkill = true;
+        });
+    }
+    ///////////
+    function getSkillName(lessonMetadata) {
+        return (skillInLessonNameSkill) ? getSkillLocalizedKey(lessonMetadata) : null;
+    };
+
+    function getSkillLocalizedKey(lessonMetadata) {
+        var skill = _.find(skillList, function (skill) { return (skill.id == lessonMetadata.Skill) });
+        if (typeof skill != 'undefined') {
+            var skillLocalizedKey = skill.localizedKey;
+            if (lessonMetadata.Skill == skillList.Reading.id && new RegExp(gettingToKnowInCode).test(lessonMetadata.Code))
+                skillLocalizedKey = skillList.GettingToKnowTheToeic.localizedKey;
+            return skillLocalizedKey;
+        }
+        else
+            return '';
+    };
+
+    ///////////////
+    function setUnitObjectives(course) {
+        var defer;
+        defer = $.Deferred();
+        getUnitObjectives(course)
+            .then(function (UOData) {
+                if (UOData !== null) {
+                    course = setUnitObjFlag(course, UOData);
+                    defer.resolve(course);
+                } else {
+                    defer.resolve(course);
+                }
+            });
+        return defer.promise();
+    }
+
+    function getUnitObjectives(courseProgressTree) {
+        var defer;
+        defer = $.Deferred();
+
+        if (courseHasUnitObjectives() && courseMissingUnitObjectives(courseProgressTree)) {
+            if (coursesMetadata_uo[courseProgressTree.NodeId]) {
+                defer.resolve(coursesMetadata_uo[courseProgressTree.NodeId])
+            } else {
+                getUnitObjectiveData(courseProgressTree.NodeId, function (data) { coursesMetadata_uo[courseProgressTree.NodeId] = data; defer.resolve(data); }, function () { defer.resolve(null); });
+            }
+
+        } else {
+            defer.resolve(null);
+        }
+        return defer.promise();
+    }
+
+    function getUnitObjectiveData(courseId, onSuccess, onFail) {
+        var resPathRoot = localStorage.getItem("resPathRoot").replace("\"", "").replace("\"", "") + '/';
+        callService("GET", null, resPathRoot + "Runtime/Metadata/Courses/" + courseId + ".json", onSuccess, onFail, false, null, "json");
+    }
+
+    function setUnitObjFlag(courseProgressTree, UOData) {
+        var unitObjectivesArray = UOData.map(function (val) { return val.unitId });
+        courseProgressTree.Children = courseProgressTree.Children.map(function (unit) {
+            if (unitObjectivesArray.indexOf(unit.NodeId) > -1)
+                unit.Metadata.UnitObjectives = true;
+            return unit;
+        });
+        return courseProgressTree;
+    }
+
+    function courseHasUnitObjectives() {
+        return edns.toeic.isToeic;
+    }
+
+    function courseMissingUnitObjectives(course) {
+        return course.Children[0].Metadata.UnitObjectives === void 0;
+    }
+
+    ////////
+    function setUnitTests(course) {
+        var defer;
+        defer = $.Deferred();
+        getUnitTests(course)
+            .then(function (data) {
+                if (data !== null) {
+                    course = addUnitTests(course, data.toeic2ED_courseMap, data.data);
+                    defer.resolve(course);
+                } else {
+                    defer.resolve(course);
+                }
+            });
+        return defer.promise();
+    }
+
+    function getUnitTests(course) {
+        var defer;
+        defer = $.Deferred();
+        if (courseHasUnitTests() && courseMissingUnitTests(course)) {
+            if (coursesMetadata_ut[course.NodeId]) {
+                defer.resolve(coursesMetadata_ut[course.NodeId]);
+            } else {
+                edns.toeic.getUnitTests(course)
+                    .then(function (d) { coursesMetadata_ut[course.NodeId] = d; defer.resolve(d); });
+            }
+
+        } else {
+            defer.resolve(null);
+        }
+        return defer.promise();
+    }
+
+    function addUnitTests(course, toeic2ED_courseMap, data) {
+        return edns.toeic.addUnitTests(course, toeic2ED_courseMap, data);
+    }
+
+    function updateUnitTestGrade(courseId, unitTestId, grade) {
+
+        if (coursesMetadata_ut[courseId] !== void 0) {
+            var unitMD = _.find(coursesMetadata_ut[courseId].data.d, { testId: parseInt(unitTestId) });
+            if (unitMD) {
+                unitMD.grade = grade;
+            }
+        }
+    }
+
+    function courseHasUnitTests() {
+        return edns.toeic.isToeic;
+    }
+
+    function courseMissingUnitTests(course) {
+        return !course.Metadata.unitTestsRetrived;
+    }
+
+})();
+
+edns.domains = (function () {
+    return {
+        isHostedDomain: isHostedDomain
+    }
+
+    function isHostedDomain(cannonicalDomain) {
+        return cannonicalDomain.indexOf('/') === -1;
+    }
+})();
+
+edns.mediaHost = edns.mediaHost || {};
+edns.mediaHost.getMediaHost = edns.mediaHost.getMediaHost || function () {
+    var loc = getCompositeCookie("Community", "Loc"); //the client IP is in IP range defined in TMS
+
+    var mediaHost = {
+        soundHost: (getCompositeCookie("Media", "SoundHost") && loc == "1") ? getCompositeCookie("Media", "SoundHost") : MediaRoot,
+        videoHost: (getCompositeCookie("Media", "LanHost") && loc == "1") ? getCompositeCookie("Media", "LanHost") : MediaRoot
+    };
+    // var mediaHost = {
+    //    soundHost: 'https://edusoft.iigvietnam.vn/',
+    //    videoHost: 'https://edusoft.iigvietnam.vn/'
+    //};
+    return mediaHost;
+};
+
+edns.scheduler = (function () {
+    var measureKind = { 0: 'FromAssign', 1: 'FromUnassign', 2: 'Progress', 3: 'TimeOn', 4: 'Score' }
+    return {
+        userHasPlan: userHasPlan
+        , isScheduler: isScheduler
+        , execUserPlan: execUserPlan
+        , measureKind: measureKind
+        , isMeasureTimeBased: isMeasureTimeBased
+        , isTimeBased: isTimeBased
+        , formatTimeBasedData: formatTimeBasedData
+        , getTimeUntilAssign: getTimeUntilAssign
+        , getVisualProgress: getVisualProgress
+    }
+
+    function userHasPlan(courseId) {
+        if (!!JSON.parse(localStorage.getItem('Community')) == false) {
+            return false
+        }
+
+        if (typeof JSON.parse(localStorage.getItem('Community')).Scheduler == "undefined" || JSON.parse(localStorage.getItem('Community')).Scheduler == "0")
+            return false;
+        else
+            return (typeof _.find(JSON.parse(localStorage.getItem('Courses')), function (course) { return ((typeof courseId == 'undefined' || course.CourseId == courseId) && typeof course.coursePlan != 'undefined' && course.coursePlan != null) }) != 'undefined');
+    }
+    function isScheduler() {
+        var communityScheduler = JSON.parse(localStorage.getItem('Community')).Scheduler;
+        return communityScheduler && communityScheduler == "1";
+    }
+
+    function execUserPlan(courseId, checkAchievements) {
+        var defer;
+        defer = $.Deferred();
+        callService("GET", null, "WebApi/Scheduler/ExecUserPlan/" + ((checkAchievements != undefined) ? checkAchievements : true), function (data) {
+            defer.resolve(data);
+        }, function (data, defer) {
+            console.log('Failed to exec user plan.');
+            defer.resolve(null);
+        }, false, null, "json");
+        return defer.promise();
+    }
+    function isTimeBased(lockReason) {
+        return isMeasureTimeBased(lockReason.measures[0][0].id);
+    }
+
+    function getVisualProgress(lockReason, minVisual, maxVisual) {
+        minVisual = minVisual || 0;
+        maxVisual = maxVisual || 99;
+        var assignDateTime = lockReason.measures[0][0].value;
+        var passedPercentage = getPassedTimePercentage(assignDateTime, lockReason.planStart);
+        var passedPercentageProgressBar = Math.min(Math.max(passedPercentage, minVisual), maxVisual);
+
+        return passedPercentageProgressBar;
+    }
+
+    function getPassedTimePercentage(assignOnDateTime, planStart) {
+        var availTime = new Date(assignOnDateTime).getTime();
+        var planStartTime = new Date(planStart).getTime();
+        var nowTime = Date.now();
+        var dateFullRange = availTime - planStartTime;
+        var passedTime = nowTime - planStartTime;
+        var remainingPercentage = Math.round((passedTime / dateFullRange) * 100);
+        return remainingPercentage;
+    }
+
+    function formatTimeBasedData(lockReason) {
+        var res = {};
+        res.timePartsUntilAssign = lockReason.measures[0][0].timeUntilAssign;
+        res.remainingPercentageProgressBar = getVisualProgress(lockReason);
+        var assignDateTime = lockReason.measures[0][0].value;
+        res.availiableOn = getFormattedDate(assignDateTime, '/');
+        return res;
+    }
+
+    function getFormattedDate(theDate, seperator) {
+        seperator = seperator || '/';
+        var d = new Date(theDate);
+        var dDay = d.getDate();
+        var dMonth = d.getMonth() + 1;
+        var dYear = d.getFullYear();
+
+        return dDay + seperator + dMonth + seperator + dYear;
+    }
+
+    function getTimeUntilAssign(soonerDate, laterDate) {
+        var dLaterDate = new Date(laterDate);
+        var dSoonerDate = new Date(soonerDate);
+        var diff = TimeSpan.FromDates(dSoonerDate, dLaterDate);
+
+        if (diff.minutes() > 1) {
+            var days = Math.floor(diff.totalDays());
+            var hours = Math.floor(diff.totalHours() - (days * 24));
+            var minutes = Math.floor(diff.totalMinutes() - (hours * 60) - (days * 24 * 60));
+            return { days: days, hours: hours, minutes: minutes };
+        } else {
+            return { days: 0, hours: 0, minutes: 1 };
+        }
+
+    }
+
+    function isMeasureTimeBased(measureId) {
+        return (measureKind[measureId] === 'FromUnassign' || measureKind[measureId] === 'FromAssign');
+    }
+
+})();
+
+///unitObjectives
+(function () {
+    edns.createNS('edns.unitObjectives');
+    var instPropKey = 'HideUnitObjectives';
+
+    var hideUnitObjectivesByInst = getCompositeCookie('Community', instPropKey);
+    var isHideUnitObjectivesByInst = !!(hideUnitObjectivesByInst && hideUnitObjectivesByInst === '1');
+
+    edns.unitObjectives.unitHasUnitObjectives = function (unit) {
+        return !isHideUnitObjectivesByInst && unit.Metadata.HasObjectives === '1';
+    }
+
+})();
+
+//
+(function () {
+    edns.createNS('edns.unitReflections');
+    var instPropKey = 'HideUnitReflections';
+    var HideUnitReflectionsByInst = getCompositeCookie('Community', instPropKey);
+    var isHideUnitReflectionsByInst = !!(HideUnitReflectionsByInst && HideUnitReflectionsByInst === '1');
+
+    edns.unitReflections.unitHasReflections = function (unit) {
+        return !isHideUnitReflectionsByInst && unit.Metadata.HasReflections === '1';
+    }
+
+    edns.unitReflections.isHideUnitReflectionsByInst = isHideUnitReflectionsByInst;
+})();
+
+(function () {
+    edns.createNS('edns.practice.userAnswers');
+    var keyName = 'loadedPracticeItems';
+
+    edns.practice.userAnswers = {
+        set: setUserAnswersforPractice
+        , get: getUserAnswersforPractice
+        , remove: remove
+        , onLessonload: maintainItemsOnlyInCurrentLesson
+        , report: report
+    };
+
+    function maintainItemsOnlyInCurrentLesson(lessonId) {
+        var allData = JSON.parse(sessionStorage.getItem(keyName));
+        var userId = JSON.parse(localStorage.getItem('Student')).StudentID;
+
+        if (!allData) {//null
+            allData = {};
+            allData.userId = userId;
+        } else if (allData.userId !== userId) {
+            allData.userId = userId;
+            delete allData.items;
+        } else if (allData && allData.lessonId && allData.lessonId !== lessonId) {
+            delete allData.items;
+        } 
+
+        allData.lessonId = lessonId;
+        setUserAnswersforPracticeToStorage(allData);
+    }
+
+    function getUserAnswersforPractice() {
+        var allData = getUserAnswersforPracticeFromStorage();
+        allData.items = allData.items ?  allData.items : {};
+        return allData.items;
+    }
+
+    function setUserAnswersforPractice(items) {
+        var allData = getUserAnswersforPracticeFromStorage();
+        allData.items = items;
+        setUserAnswersforPracticeToStorage(allData);
+    }
+
+    function getUserAnswersforPracticeFromStorage() {
+        return JSON.parse(sessionStorage.getItem(keyName)) || {};
+    }
+    function setUserAnswersforPracticeToStorage(allData) {
+        sessionStorage.setItem(keyName, JSON.stringify(allData));
+    }
+
+    function remove() {
+        sessionStorage.removeItem(keyName);
+    }
+    
+    function report(itemId, isAngular, UALength, code, itemType, itemSubType ) {
+        var params = { itemId: itemId, isAngular: isAngular, UALength: UALength, code: code, itemType: itemType, itemSubType: itemSubType };
+        var lsCourse = JSON.parse(localStorage.getItem('Course'));
+        if (lsCourse) {
+            params.courseId = lsCourse.CourseId;
+        }
+        edns.vendors.google.analytics.sendCustomEvent('keep_student_answers', params);
+    }
+
+})();
+
+function sendInfoToIISLog(params) {
+    $.get("/images/logInfo.gif?" + params, { "_": $.now() });
+}
+
+function getUrlVars() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+

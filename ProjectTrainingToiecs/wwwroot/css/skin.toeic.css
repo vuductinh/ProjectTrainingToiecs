@@ -1,0 +1,1168 @@
+﻿.layout__btnAction,
+a.layout__roundBtn.layout__action,
+.learning__nextItemLink,
+.notSupportedMobiles .learning__nextItemLink .learning__nextItemLink:hover,
+.notSupportedMobiles .magazine__navByDateLink:hover, .archivePagerModal--open .magazine__navByDateLink, .notSupportedMobiles .magazine__navByTopic:hover, .topicsPagerModal--open .magazine__navByTopic,
+.calpicker__goBtn,
+.topicpicker__topicItem--current, .notSupportedMobiles .topicpicker__topicItem:hover,
+.notSupportedMobiles .home__statusW       .home__units_lessonsContinue,
+.confirmPopup__main .buttonsDiv .okButton,
+.windowLightbox .buttonsDiv .okButton
+{ background-color: #005734;}
+
+/* buttons w/ border */
+.carouselStartBtnW .layout__btnAction { padding:11px 19px;}
+
+.home__statusW .home__units_lessonsContinue,
+.carouselStartBtnW .layout__btnAction { border: 2px solid #fff; }
+
+/* hover */
+.notSupportedMobiles .layout__btnAction:hover,
+.notSupportedMobiles a.layout__roundBtn.layout__action:hover,
+
+.notSupportedMobiles .magazine__navByDateLink:hover,
+.notSupportedMobiles .archivePagerModal--open .magazine__navByDateLink,
+.notSupportedMobiles .magazine__navByTopic:hover,
+.notSupportedMobiles .topicsPagerModal--open .magazine__navByTopic:hover,
+.notSupportedMobiles .calpicker__goBtn:hover,
+.notSupportedMobiles .topicpicker__topicItem--current:hover,
+.notSupportedMobiles .topicpicker__topicItem:hover,
+.notSupportedMobiles .windowLightbox .buttonsDiv .okButton:hover,
+.notSupportedMobiles .home__statusW:hover .home__units_lessonsContinue,
+.notSupportedMobiles .home__statusW:hover .home__units_lessonsContinue:hover, 
+.notSupportedMobiles .ProfileForm .hebBtn input.sendBtn:hover,
+.notSupportedMobiles .learning__nextItemLink:hover,
+.notSupportedMobiles .learning__submitTest:hover,
+.notSupportedMobiles .confirmPopup__main .buttonsDiv .okButton:hover,
+.notSupportedMobiles .windowLightbox .buttonsDiv .okButton:hover,
+.notSupportedMobiles .learning__dropDownList_viewResults:hover { background-color:#00472a;}
+
+
+/*my profile*/
+.ProfileForm .hebBtn input.sendBtn { background-color: #005734; }
+
+/*****************************************************/
+
+/* skin changes: */
+.magazine__navByDateLink, .magazine__navByTopic,
+.calpicker__year--current { border-color: #005734; }
+
+.modal-content h2.modal-title, .layout__titleForIframeContent,
+.confirmPopup__main .popupText h1,
+.idioms__idiomDetails_Title,
+.magazine__mainTitleIssue,
+.magazine__articleTitle,
+.magazine__mainTitleTopic,
+.learning__PATaskCounter{ color: #005734; }
+.magazine__navByTopic { background-image:   url(../images/General/skins/toeic/menuButtonIcoSprite.svg);}
+.magazine__navByDateLink { background-image: url(../images/General/skins/toeic/calendarIco.svg); }
+
+a.magazine__articleItemLink.layout__roundBtn.layout__action:hover { border-style:solid;}
+.notSupportedMobiles .magazine__articleItemW:hover { border-color: #005734; }
+
+.learning__prevItemLink,
+.notSupportedMobiles learning__prevItemLink:hover { border-color: #005734; }
+
+.assessments__titleCount,
+.idioms__listItemLink--selected,
+.notSupportedMobiles .idioms__listItemLink--selected:hover { background-color: #005734; }
+
+.home__units_lessonsTabHandle { background: linear-gradient(45deg, #B5BE0F, #005734); }
+/*LA*/
+.learning__main .learning__allToolsW .learning__nextItem { background-color: #005734; }
+
+.notSupportedMobiles .learning__tasksNav_task:hover,
+.notSupportedMobiles .learning__tasksNav_pager_intro:hover{border-color:#005734;}
+
+.notSupportedMobiles .learning__tasksNav_task:hover{border-color:#005734;}
+
+.learning__tasksNav_task--current,
+.notSupportedMobiles .learning__tasksNav_task--current:hover{border-color:#005734;} 
+
+.learning__prevItemLink{background-image: url(../Images/General/skins/toeic/BtnArrowsLeft.svg);}
+.notSupportedMobiles .learning__prevItemLink:hover{background-position: 46% -85px;}
+.notSupportedMobiles .magazine__practice .learning__prevItemLink:hover{background-position: 46% -65px;}
+.notSupportedMobiles .magazine__practice .learning__prevItemLink.disabled:hover{background-position: 46% -139px;}
+/*****/
+.layout__btnAction.home__gotoProgress,
+.assessments__viewResults--button,
+.notSupportedMobiles .layout__btnAction.home__gotoProgress:hover,
+.notSupportedMobiles .assessments__viewResults--button:hover {border:2px solid  #005734;}
+
+.layout__btnAction.home__gotoProgress,
+.assessments__viewResults--button { background-color: transparent;color:#005734;}
+.notSupportedMobiles .layout__btnAction.home__gotoProgress:hover,
+.notSupportedMobiles .assessments__viewResults--button:hover {background-color: #005734;color:#ffffff;}
+
+.assessments__viewFullReport--button {color: #005734; }
+.notSupportedMobiles .assessments__viewFullReport--button:hover {color: #00472a; }
+
+li.sitemenu__itemAboutUs a{background-image: url(../images/general/skins/toeic/productIcon_siteNav.svg);background-size: 50%;}
+.notSupportedMobiles li.sitemenu__itemAboutUs a:hover { background-position: 50% -73px; }
+
+.myProgress__unitArrow {background-image: url(../Images/General/skins/toeic/GreenArrow.svg); }
+.assessments__titleBtn .arrow { fill: #005734;}
+
+/*#region -  unit colors */
+
+
+/************ Unit 1, Subcolor 1 ****************/
+.utils__unitColors_Unit1_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit1_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit1_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit1_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit1_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit1_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit1_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit1_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit1_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit1_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit1_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub1 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit1_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 1, Subcolor 2 ****************/
+.utils__unitColors_Unit1_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit1_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit1_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit1_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit1_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit1_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit1_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit1_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit1_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit1_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit1_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit1_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 1, Subcolor 3 ****************/
+.utils__unitColors_Unit1_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit1_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit1_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit1_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit1_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit1_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit1_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit1_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit1_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit1_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit1_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit1_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 1, Subcolor 4 ****************/
+.utils__unitColors_Unit1_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit1_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit1_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit1_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit1_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit1_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit1_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit1_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit1_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit1_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit1_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit1_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit1_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 2, Subcolor 1 ****************/
+.utils__unitColors_Unit2_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit2_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit2_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit2_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit2_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit2_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit2_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit2_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit2_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit2_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit2_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit2_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 2, Subcolor 2 ****************/
+.utils__unitColors_Unit2_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit2_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit2_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit2_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit2_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit2_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit2_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit2_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit2_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit2_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit2_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit2_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 2, Subcolor 3 ****************/
+.utils__unitColors_Unit2_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit2_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit2_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit2_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit2_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit2_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit2_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit2_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit2_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit2_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit2_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit2_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 2, Subcolor 4 ****************/
+.utils__unitColors_Unit2_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit2_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit2_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit2_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit2_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit2_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit2_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit2_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit2_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit2_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit2_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit2_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit2_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 3, Subcolor 1 ****************/
+.utils__unitColors_Unit3_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit3_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit3_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit3_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit3_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit3_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit3_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit3_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit3_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit3_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit3_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit3_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 3, Subcolor 2 ****************/
+.utils__unitColors_Unit3_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit3_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit3_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit3_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit3_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit3_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit3_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit3_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit3_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit3_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit3_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit3_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 3, Subcolor 3 ****************/
+.utils__unitColors_Unit3_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit3_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit3_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit3_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit3_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit3_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit3_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit3_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit3_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit3_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit3_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit3_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 3, Subcolor 4 ****************/
+.utils__unitColors_Unit3_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit3_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit3_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit3_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit3_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit3_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit3_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit3_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit3_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit3_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit3_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit3_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit3_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 4, Subcolor 1 ****************/
+.utils__unitColors_Unit4_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit4_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit4_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit4_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit4_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit4_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit4_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit4_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit4_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit4_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit4_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit4_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 4, Subcolor 2 ****************/
+.utils__unitColors_Unit4_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit4_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit4_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit4_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit4_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit4_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit4_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit4_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit4_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit4_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit4_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit4_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 4, Subcolor 3 ****************/
+.utils__unitColors_Unit4_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit4_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit4_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit4_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit4_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit4_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit4_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit4_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit4_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit4_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit4_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit4_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 4, Subcolor 4 ****************/
+.utils__unitColors_Unit4_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit4_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit4_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit4_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit4_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit4_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit4_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit4_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit4_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit4_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit4_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit4_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit4_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 5, Subcolor 1 ****************/
+.utils__unitColors_Unit5_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit5_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit5_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit5_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit5_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit5_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit5_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit5_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit5_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit5_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit5_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit5_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 5, Subcolor 2 ****************/
+.utils__unitColors_Unit5_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit5_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit5_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit5_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit5_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit5_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit5_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit5_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit5_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit5_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit5_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit5_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 5, Subcolor 3 ****************/
+.utils__unitColors_Unit5_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit5_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit5_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit5_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit5_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit5_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit5_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit5_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit5_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit5_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit5_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit5_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 5, Subcolor 4 ****************/
+.utils__unitColors_Unit5_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit5_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit5_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit5_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit5_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit5_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit5_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit5_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit5_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit5_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit5_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit5_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit5_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 6, Subcolor 1 ****************/
+.utils__unitColors_Unit6_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit6_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit6_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit6_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit6_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit6_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit6_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit6_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit6_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit6_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit6_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit6_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 6, Subcolor 2 ****************/
+.utils__unitColors_Unit6_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit6_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit6_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit6_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit6_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit6_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit6_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit6_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit6_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit6_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit6_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit6_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 6, Subcolor 3 ****************/
+.utils__unitColors_Unit6_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit6_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit6_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit6_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit6_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit6_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit6_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit6_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit6_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit6_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit6_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit6_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 6, Subcolor 4 ****************/
+.utils__unitColors_Unit6_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit6_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit6_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit6_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit6_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit6_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit6_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit6_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit6_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit6_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit6_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit6_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit6_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 7, Subcolor 1 ****************/
+.utils__unitColors_Unit7_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit7_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit7_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit7_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit7_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit7_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit7_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit7_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit7_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit7_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit7_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit7_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 7, Subcolor 2 ****************/
+.utils__unitColors_Unit7_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit7_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit7_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit7_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit7_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit7_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit7_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit7_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit7_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit7_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit7_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit7_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 7, Subcolor 3 ****************/
+.utils__unitColors_Unit7_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit7_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit7_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit7_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit7_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit7_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit7_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit7_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit7_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit7_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit7_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit7_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 7, Subcolor 4 ****************/
+.utils__unitColors_Unit7_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit7_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit7_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit7_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit7_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit7_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit7_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit7_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit7_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit7_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit7_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit7_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit7_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 8, Subcolor 1 ****************/
+.utils__unitColors_Unit8_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit8_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit8_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit8_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit8_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit8_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit8_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit8_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit8_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit8_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit8_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit8_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 8, Subcolor 2 ****************/
+.utils__unitColors_Unit8_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit8_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit8_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit8_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit8_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit8_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit8_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit8_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit8_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit8_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit8_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit8_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 8, Subcolor 3 ****************/
+.utils__unitColors_Unit8_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit8_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit8_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit8_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit8_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit8_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit8_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit8_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit8_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit8_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit8_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit8_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 8, Subcolor 4 ****************/
+.utils__unitColors_Unit8_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit8_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit8_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit8_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit8_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit8_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit8_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit8_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit8_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit8_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit8_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit8_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit8_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 9, Subcolor 1 ****************/
+.utils__unitColors_Unit9_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit9_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit9_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit9_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit9_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit9_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit9_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit9_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit9_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit9_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit9_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit9_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 9, Subcolor 2 ****************/
+.utils__unitColors_Unit9_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit9_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit9_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit9_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit9_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit9_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit9_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit9_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit9_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit9_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit9_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit9_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 9, Subcolor 3 ****************/
+.utils__unitColors_Unit9_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit9_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit9_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit9_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit9_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit9_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit9_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit9_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit9_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit9_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit9_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit9_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 9, Subcolor 4 ****************/
+.utils__unitColors_Unit9_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit9_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit9_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit9_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit9_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit9_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit9_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit9_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit9_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit9_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit9_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit9_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit9_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 10, Subcolor 1 ****************/
+.utils__unitColors_Unit10_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit10_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit10_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit10_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit10_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit10_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit10_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit10_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit10_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit10_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit10_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit10_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 10, Subcolor 2 ****************/
+.utils__unitColors_Unit10_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit10_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit10_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit10_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit10_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit10_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit10_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit10_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit10_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit10_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit10_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit10_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 10, Subcolor 3 ****************/
+.utils__unitColors_Unit10_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit10_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit10_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit10_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit10_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit10_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit10_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit10_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit10_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit10_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit10_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit10_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 10, Subcolor 4 ****************/
+.utils__unitColors_Unit10_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit10_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit10_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit10_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit10_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit10_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit10_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit10_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit10_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit10_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit10_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit10_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit10_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 11, Subcolor 1 ****************/
+.utils__unitColors_Unit11_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit11_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit11_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit11_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit11_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit11_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit11_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit11_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit11_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit11_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit11_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit11_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 11, Subcolor 2 ****************/
+.utils__unitColors_Unit11_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit11_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit11_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit11_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit11_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit11_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit11_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit11_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit11_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit11_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit11_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit11_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 11, Subcolor 3 ****************/
+.utils__unitColors_Unit11_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit11_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit11_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit11_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit11_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit11_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit11_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit11_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit11_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit11_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit11_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit11_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 11, Subcolor 4 ****************/
+.utils__unitColors_Unit11_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit11_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit11_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit11_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit11_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit11_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit11_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit11_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit11_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit11_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit11_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit11_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit11_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 12, Subcolor 1 ****************/
+.utils__unitColors_Unit12_Sub1-bg, .notSupportedMobiles .utils__unitColors-Unit12_Sub1-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit12_Sub1-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit12_Sub1-color, .notSupportedMobiles .utils__unitColors-Unit12_Sub1-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit12_Sub1-border, .notSupportedMobiles .utils__unitColors-Unit12_Sub1-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit12_Sub1-fill, .notSupportedMobiles .utils__unitColors-Unit12_Sub1-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit12_Sub1-stroke, .notSupportedMobiles .utils__unitColors-Unit12_Sub1-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub1 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub1 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub1 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit12_Sub1 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 12, Subcolor 2 ****************/
+.utils__unitColors_Unit12_Sub2-bg, .notSupportedMobiles .utils__unitColors-Unit12_Sub2-bgHover:hover { background-color: #a7b612; }
+
+.utils__unitColors_Unit12_Sub2-bg15P { background-color: rgba(167, 182, 18, 0.15); }
+
+.utils__unitColors_Unit12_Sub2-color, .notSupportedMobiles .utils__unitColors-Unit12_Sub2-colorHover:hover { color: #a7b612; }
+
+.utils__unitColors_Unit12_Sub2-border, .notSupportedMobiles .utils__unitColors-Unit12_Sub2-borderHover:hover { border: #a7b612; }
+
+.utils__unitColors_Unit12_Sub2-fill, .notSupportedMobiles .utils__unitColors-Unit12_Sub2-fillHover:hover { fill: #a7b612; }
+
+.utils__unitColors_Unit12_Sub2-stroke, .notSupportedMobiles .utils__unitColors-Unit12_Sub2-strokeHover:hover { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub2 .home__courseListItem a:hover .outline { stroke: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub2 .home__courseListItem a:hover { color: #a7b612; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub2 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit12_Sub2 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #a7b612; }
+
+/************ Unit 12, Subcolor 3 ****************/
+.utils__unitColors_Unit12_Sub3-bg, .notSupportedMobiles .utils__unitColors-Unit12_Sub3-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit12_Sub3-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit12_Sub3-color, .notSupportedMobiles .utils__unitColors-Unit12_Sub3-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit12_Sub3-border, .notSupportedMobiles .utils__unitColors-Unit12_Sub3-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit12_Sub3-fill, .notSupportedMobiles .utils__unitColors-Unit12_Sub3-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit12_Sub3-stroke, .notSupportedMobiles .utils__unitColors-Unit12_Sub3-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub3 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub3 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub3 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit12_Sub3 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+/************ Unit 12, Subcolor 4 ****************/
+.utils__unitColors_Unit12_Sub4-bg, .notSupportedMobiles .utils__unitColors-Unit12_Sub4-bgHover:hover { background-color: #005734; }
+
+.utils__unitColors_Unit12_Sub4-bg15P { background-color: rgba(0, 87, 52, 0.15); }
+
+.utils__unitColors_Unit12_Sub4-color, .notSupportedMobiles .utils__unitColors-Unit12_Sub4-colorHover:hover { color: #005734; }
+
+.utils__unitColors_Unit12_Sub4-border, .notSupportedMobiles .utils__unitColors-Unit12_Sub4-borderHover:hover { border: #005734; }
+
+.utils__unitColors_Unit12_Sub4-fill, .notSupportedMobiles .utils__unitColors-Unit12_Sub4-fillHover:hover { fill: #005734; }
+
+.utils__unitColors_Unit12_Sub4-stroke, .notSupportedMobiles .utils__unitColors-Unit12_Sub4-strokeHover:hover { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub4 .home__courseListItem a:hover .outline { stroke: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub4 .home__courseListItem a:hover { color: #005734; }
+
+.notSupportedMobiles .utils__unitColors_Unit12_Sub4 .home__courseListItem a:hover .lessonIcon .progress,
+.notSupportedMobiles .utils__unitColors_Unit12_Sub4 .home__courseListItem a:hover .lessonIcon .lockSymbol { fill: #005734; }
+
+
+/*#endregion -  unit colors */
+
+.myProgress__unitW .utils__unitColors_Unit1_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit2_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit3_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit4_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit5_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit6_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit7_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit8_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit9_Sub2-border,
+.myProgress__unitW .utils__unitColors_Unit10_Sub2-border, 
+.myProgress__unitW .utils__unitColors_Unit12_Sub2-border {border-left:solid 4px #005734; }
+
+
+
+
+
+.home__unit.utils__unitColors_Unit1_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit1_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit2_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit2_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit3_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit3_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit4_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit4_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit5_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit5_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit6_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit6_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit7_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit7_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit8_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit8_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit9_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit9_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit10_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit10_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit11_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit11_Sub2-borderHover:hover,
+.home__unit.utils__unitColors_Unit12_Sub2-border, .notSupportedMobiles .home__unit.utils__unitColors-Unit12_Sub2-borderHover:hover {border-color:#005734; }
+
+.notSupportedMobiles .home__courseListItemsW .home__courseListItem a       {color:#d4d4d4; }
+.notSupportedMobiles .home__courseListItemsW .home__courseListItem a:hover {color:#fff;}
+
+.progressBar__main .utils__unitColors_Unit1_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit1_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit2_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit2_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit3_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit3_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit4_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit4_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit5_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit5_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit6_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit6_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit7_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit7_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit8_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit8_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit9_Sub2-fill,  .notSupportedMobiles .progressBar__main .utils__unitColors_Unit9_Sub2-fill:hover, 
+.progressBar__main .utils__unitColors_Unit10_Sub2-fill, .notSupportedMobiles .progressBar__main .utils__unitColors_Unit10_Sub2-fill:hover,
+.progressBar__main .utils__unitColors_Unit11_Sub2-fill, .notSupportedMobiles .progressBar__main .utils__unitColors_Unit11_Sub2-fill:hover,
+.progressBar__main .utils__unitColors_Unit12_Sub2-fill, .notSupportedMobiles .progressBar__main .utils__unitColors_Unit12_Sub2-fill:hover {fill:#005734; }
+
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit1_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit1_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit2_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit2_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit3_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit3_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit4_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit4_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit5_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit5_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit6_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit6_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit7_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit7_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit8_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit8_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit9_Sub2-fill,  .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit9_Sub2-fill:hover, 
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit10_Sub2-fill, .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit10_Sub2-fill:hover,
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit11_Sub2-fill, .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit11_Sub2-fill:hover,
+.myProgress__unitLesson_stepIW .utils__unitColors_Unit12_Sub2-fill, .notSupportedMobiles .myProgress__unitLesson_stepIW .utils__unitColors_Unit12_Sub2-fill:hover{fill:#005734; }
+
+.unitInfoUnitListW { border-right:4px solid #005734;}
+
+.unitInfoUnitListItemColor { border-color:#005734; }
+
+
+.unitObjectives__main .utils__unitColors_Unit1_Sub2-border, 
+.unitObjectives__main .utils__unitColors_Unit2_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit3_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit4_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit5_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit6_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit7_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit8_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit9_Sub2-border,
+.unitObjectives__main .utils__unitColors_Unit10_Sub2-border, 
+.unitObjectives__main .utils__unitColors_Unit12_Sub2-border {border-color: #005734; }
+
+.unitReflection__LessonRadio.utils__unitColors_Unit1_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit2_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit3_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit4_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit5_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit6_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit7_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit8_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit9_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit10_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit11_Sub2-bg,
+.unitReflection__LessonRadio.utils__unitColors_Unit12_Sub2-bg {background-color: #005734; }
+.unitReflection__LessonRadio.unitReflection__LessonRadio:not(:checked) {background-color: #fff; }
+
+.unitReflection__gotoMyProgress { color: #005734;}
+.notSupportedMobiles .unitReflection__gotoMyProgress:hover { color: #00472a;}
+
+.learning__dropDownListW { border-color:#005734; }
+.login__IW .siteLogin__header,
+.optIn__IW .siteLogin__header{ background-image:url(../Images/General/skins/toeic/defaultInstitutionHeader.jpg);}
+.institutionPage__main  .inst_header { background-image: url(../Images/General/skins/toeic/defaultInstitutionPageHeader.jpg);}
+/*.oed__headerImage { background-image: url(../Institutions/Default/community_def_banner.jpg); }*/

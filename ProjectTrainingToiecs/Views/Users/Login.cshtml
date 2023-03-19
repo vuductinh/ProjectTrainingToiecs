@@ -1,0 +1,54 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<html>
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/ProjectTrainingToiecs.styles.css" asp-append-version="true" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<style type="text/css">
+    .back-ground-login {
+        background-color: white;
+    }
+    .mg-t{
+        margin-top : 100px;
+    }
+    .back-ground-login-full{
+        background-color: #e9ecef;
+    }
+    .btn-login{
+        margin-top:10px;
+        float:right;
+    }
+</style>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+</head>
+<body class="back-ground-login-full">
+    <div class="container">
+        <div class="row mg-t">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 back-ground-login">
+                <h3 class="text-center">Login</h3>
+                <hr />
+                <form class="form-group">
+                    <label>User Name</label>
+                    <input class="form-control" type="text" id="user-name" placeholder="fill user name" />
+                    <label>Password</label>
+                    <input class="form-control" type="password" id="password" placeholder="fill password" />
+                    <div class="btn-login">
+                        <button class="btn btn-primary" id="on-login">Login</button>
+                    </div>
+                </form><br/><br/>
+                <span>Đăng ký nếu chưa có tài khoản </span> <a class="btn btn-link" href="#" onclick="onOpenFormRegister()">Register</a>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="~/js/account/account-controller.js"></script>

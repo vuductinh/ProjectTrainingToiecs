@@ -1,0 +1,98 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<html>
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/ProjectTrainingToiecs.styles.css" asp-append-version="true" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+<style type="text/css">
+    .back-ground-regsiter {
+        background-color: white;
+    }
+
+    .mg-t {
+        margin-top: 100px;
+    }
+
+    .back-ground-regsiter-full {
+        background-color: #e9ecef;
+    }
+
+    .btn-regsiter {
+        margin-top: 10px;
+        float: right;
+    }
+    #loading{
+        margin-left :180px;
+        display: none;
+    }
+    #view-code{
+        display: none;
+    }
+
+    #alert-msg {
+        padding: 20px;
+        right: 5px;
+        position: absolute;
+        top: 22px;
+    }
+</style>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Register</title>
+</head>
+<body class="back-ground-login-full">
+    <div class="container">
+        <div class="row mg-t">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 back-ground-regsiter">
+                <h3 class="text-center">Register</h3>
+                <hr />
+                <span class="spinner-border text-info" id="loading"></span>
+                <form class="form-group">
+                    <label>User Name <span class="text-danger">(*)</span></label>
+                    <input class="form-control" type="text" id="user-name" placeholder="fill user name" />
+                    <label>Password <span class="text-danger">(*)</span></label>
+                    <input class="form-control" type="password" id="password" placeholder="fill password" />
+                    <label>Re-Password <span class="text-danger">(*)</span></label>
+                    <input class="form-control" type="password" id="re-password" placeholder="fill re-password" />
+                    <label>Full Name <span class="text-danger">(*)</span></label>
+                    <input class="form-control" type="text" id="full-name" placeholder="fill full name" />
+                    <label>Email <span class="text-danger">(*)</span></label>
+                    <input class="form-control" type="email" id="email" placeholder="fill email" />
+                    <label>Phone</label>
+                    <input class="form-control" type="tel" id="phone" placeholder="fill phone" />
+                    <div id="view-code">
+                        <label>Mã xác thực</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="number-code" placeholder="fill number code" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2">Xác nhận</span>
+                            </div>
+                        </div>
+                        <p>Mã xác thực đã gửi qua mail vui lòng kiểm tra và nhập mã xác thực để hoàn thành đăng ký</p>
+                        <p class="text-success">Mã có hiệu lực trong <span id="count-down"></span></p>
+                    </div>
+                    <div class="btn-regsiter">
+                        <button class="btn btn-primary" id="on-register">Regsiter</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+    </div>
+    <div id="alert-msg">
+        <button class="btn btn-primary" onclick="onDirLogin()">Login<i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+    </div>
+    <input id="re-code-muber" style="display: none" type="text"/>
+    <input id="user-id" style="display: none" type="text" />
+</body>
+</html>
+<script src="~/js/account/account-controller.js"></script>

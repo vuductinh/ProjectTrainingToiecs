@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ProjectTrainingToiecs</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ProjectTrainingToiecs.styles.css" asp-append-version="true" />
+    <link href="~/css/layoutbase.css" rel="stylesheet" />
+    <link href="~/css/layoutgeneral.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-2">
+             <header>
+            <div class="site-mobile-menu site-navbar-target">
+                <div class="site-mobile-menu-header">
+                    <div class="site-mobile-menu-close mt-3">
+                        <span class="icon-close2 js-menu-toggle"></span>
+                    </div>
+                </div>
+                <div class="site-mobile-menu-body" style="margin-top: 40px;width: 100px;">
+                    <ul class="site-nav-wrap">
+                        <li class="active"><a href="#" class="nav-link" style="font-size: 30px;"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+                        <li><a href="#" class="nav-link" style="font-size: 30px; margin-top: 20px"><i class="fa fa-users" aria-hidden="true"></i></a></li>
+                        <li><a href="#" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
+                        <li><a href="#" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-book" aria-hidden="true"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        </div>
+        <div class="col-md-10">
+            <div class="container">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    </div>
+    <footer class="border-top footer text-muted" style="position:fixed;">
+        <div class="container">
+            &copy; 2023 - ProjectTrainingToiecs - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"  />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
