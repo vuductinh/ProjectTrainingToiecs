@@ -31,6 +31,7 @@ namespace ProjectTrainingToiecs.Service.Service.Impl
                     Port = 587,
                     Credentials = new NetworkCredential("hotronhathuoc@gmail.com", "ystnnbjdamfymjwi"),
                     EnableSsl = true,
+                    UseDefaultCredentials = true
                 };
                 var mailMessage = new MailMessage
                 {

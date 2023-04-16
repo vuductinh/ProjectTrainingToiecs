@@ -1,6 +1,6 @@
-﻿//$(document).ready(function () {
-//    setInterval();
-//});
+﻿$(document).ready(function () {
+    $('course-type').val(1);
+});
 $(function () {
     $('#on-login').click(function (e) {
         e.preventDefault();
@@ -21,7 +21,7 @@ $(function () {
             success: function (result) {
                 if (result.result == 1) {
                     var url = result.role == 1 ?
-                        window.location.protocol + "//" + window.location.host + '/Users/Index'
+                        window.location.protocol + "//" + window.location.host + '/Users/Index1'
                         :window.location.protocol + "//" + window.location.host + '/Home/Index';
                     location.href = url;
                 } else {
@@ -50,6 +50,7 @@ $(function () {
         var fullName = $('#full-name').val();
         var email = $('#email').val();
         var phone = $('#phone').val();
+        var type = $('#course-type').val();
         userName = userName == "" ? null : userName;
         password = password == "" ? null : password;
         rePassword = rePassword == "" ? null : rePassword;
@@ -70,7 +71,7 @@ $(function () {
             return true;
         }
         document.getElementById("loading").style.display = "block";
-        var data = { UserName: userName, Password: password, FullName: fullName, Email: email };
+        var data = { UserName: userName, Password: password, FullName: fullName, Email: email, TypeCourse: type };
         $.ajax({
             url: "/Users/RegsiterUser",
             type: "POST",
@@ -112,7 +113,7 @@ $(function () {
                 data: { userId: userId },
                 success: function (result) {
                     if (result.result) {
-                        alert('Đăng ký thành công giwof bạn có thể đăng nhập để trải nghiệm');
+                        alert('Đăng ký thành công giờ bạn có thể đăng nhập để trải nghiệm');
                         document.getElementById("view-code").style.display = "none";
                         document.getElementById("view-code").style.display = "none";
                     } else {

@@ -1,64 +1,81 @@
-﻿@model ProjectTrainingToiecs.Models.Users
-
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
 @{
-    Layout = null;
 }
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Edit</title>
-</head>
-<body>
-
-<h4>Users @Model.UserName</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Active" /> @Html.DisplayNameFor(model => model.Active)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+@using Newtonsoft.Json;
+<script>
+    $(document).ready(function () {
+        var model = @Html.Raw(JsonConvert.SerializeObject(ViewBag.model));
+        $('#active-user').val(model.Active);
+    });
+    $(function () {
+        $('#update-user').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var fname = $('#full-name').val();
+            var email = $('#email-user').val();
+            var active = $('#active-user').val();
+            var userName = $('#user-name').val();
+            var id = $('#id-user').val();
+            if (fname == null || fname == '') {
+                alert('Vui lòng nhập tên đầy đủ của người dùng');
+                return;
+            }if(email == '' || email == null){
+                alert('Vui lòng nhập email của người dùng');
+                return;
+            }
+            var data = { Id: id, UserName: userName, Email: email, FullName : fname, Active : active };
+            $.ajax({
+                url: "/Users/EditUser",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    if (result.data > 1) {
+                        var url = window.location.protocol + "//" + window.location.host + '/Users/Index1'
+                        location.href = url;
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+        });
+    });
+</script>
+<div class="container">
+    <div class="row" style="margin-top: 200px">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <label>Cập nhật thông tin người dùng</label>
+            <table class="table table-bordered">
+                <tr class="hidden">
+                    <td>Id</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.Id" id="id-user" /></td>
+                </tr>
+                <tr>
+                    <td>UserName</td>
+                    <td><input class="form-control" type="text" readonly value="@ViewBag.model.UserName" id="user-name" /></td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td><input class="form-control" type="email" value="@ViewBag.model.Email" id="email-user" /></td>
+                </tr>
+                <tr>
+                    <td>Fullname</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.FullName" id="full-name" /></td>
+                </tr>
+                <tr>
+                    <td>Active</td>
+                    <td><input type="checkbox" checked="@ViewBag.model.Active" id="active-user" /></td>
+                </tr>
+                <tr>
+                    <td><span class="btn btn-primary" id="update-user">Lưu</span></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-2"></div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
-</body>
-</html>

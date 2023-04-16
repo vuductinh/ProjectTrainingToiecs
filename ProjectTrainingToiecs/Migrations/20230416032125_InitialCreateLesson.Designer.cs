@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ProjectTrainingToiecs.Migrations
 {
     [DbContext(typeof(DbTrainingToiecsContext))]
-    partial class DbTrainingToiecsContextModelSnapshot : ModelSnapshot
+    [Migration("20230416032125_InitialCreateLesson")]
+    partial class InitialCreateLesson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,9 +122,6 @@ namespace ProjectTrainingToiecs.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TypeCourse")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")

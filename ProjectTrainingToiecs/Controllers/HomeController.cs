@@ -6,22 +6,26 @@ namespace ProjectTrainingToiecs.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly DbTrainingToiecsContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(DbTrainingToiecsContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
             var userName = HttpContext.Session.GetString("UserName");
+            
             if (string.IsNullOrEmpty(userName))
             {
                 return RedirectToAction("Login", "Users");
             }
             else
             {
+                var unit = _context.Units.OrderBy(x=>x.Id).FirstOrDefault();
+                ViewBag.lesson = _context.Lesson.FirstOrDefault(x => x.UnitId == unit.Id);
+                ViewBag.unit = unit;
                 ViewBag.userName = userName;
                 return View();
             }
