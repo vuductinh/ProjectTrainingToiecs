@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,7 +23,7 @@ namespace ProjectTrainingToiecs
         }
 
         // GET: Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index1()
         {
             var userName = HttpContext.Session.GetString("UserName");
             var role = HttpContext.Session.GetString("Role");
@@ -32,9 +33,27 @@ namespace ProjectTrainingToiecs
             }
             else
             {
-                return _context.Users != null ?
-                          View(await _context.Users.ToListAsync()) :
-                          Problem("Entity set 'DbTrainingToiecsContext.Users'  is null.");
+                var order = 0;
+                var users = _context.Users.ToList();
+                var process = _context.StatusStudies.GroupBy(x => x.UserId)
+                    .Select(x => new
+                    { x.Key, Value = x.Count() }).ToDictionary(x=>x.Key,x=>x.Value);
+                var total = _context.TestDetails.Count();
+                users.ForEach(x =>
+                {
+                    if (process.Any())
+                    {
+                        if (process.ContainsKey(x.Id))
+                        {
+                            x.Process = (process[x.Id] * 100) /total;
+                        }
+                    }
+                    x.Order = order+1;
+                    order++;
+                });
+                ViewBag.lst = users;
+                ViewBag.userName = userName;
+                return View();
             }
         }
 
@@ -79,19 +98,15 @@ namespace ProjectTrainingToiecs
         }
 
         // GET: Users/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public ActionResult Edit(int id)
         {
-            if (id == null || _context.Users == null)
+            var user = new Users();
+            if (id > 0)
             {
-                return NotFound();
+                user = _context.Users.FirstOrDefault(x => x.Id == id);
             }
-
-            var users = await _context.Users.FindAsync(id);
-            if (users == null)
-            {
-                return NotFound();
-            }
-            return View(users);
+            ViewBag.model = user;
+            return View();
         }
 
         // POST: Users/Edit/5
@@ -202,8 +217,10 @@ namespace ProjectTrainingToiecs
                     val = !model.Active ? "Tài khoản quả bạn đã bị khóa vui lòng liên hệ quản trị viên" : val;
                     if (model.Active)
                     {
-                        HttpContext.Session.SetString("UserName", String.IsNullOrEmpty(model.FullName) ? model.UserName : model.FullName);
+                        HttpContext.Session.SetString("UserName", string.IsNullOrEmpty(model.FullName) ? model.UserName : model.FullName);
                         HttpContext.Session.SetString("Role", model.RoleId == ESRole.Admin ? "Admin" : "User");
+                        HttpContext.Session.SetString("TypeCourse", model.TypeCourse == 1 ? "Basic" : "Advanced");
+                        HttpContext.Session.SetString("UserId", model.Id.ToString());
                         role = model.RoleId;
                     }
                 }
@@ -247,7 +264,8 @@ namespace ProjectTrainingToiecs
                         Email = user.Email,
                         Phone = user.Phone,
                         FullName = user.FullName,
-                        RoleId = ESRole.User
+                        RoleId = ESRole.User,
+                        TypeCourse = user.TypeCourse
                     };
                     _context.Add(newUser);
                     _context.SaveChanges();
@@ -292,6 +310,29 @@ namespace ProjectTrainingToiecs
         {
             HttpContext.Session.Remove("UserName");
             return  Json(new { result = 1 });
+        }
+        public JsonResult GetDataAccount(string key)
+        {
+            var data = _context.Users.Select(x => x);
+            if (!string.IsNullOrEmpty(key))
+            {
+                data = data.Where(x => x.FullName.Contains(key));
+            }
+            return Json(new { result = data, status = "OK" });
+        }
+        public JsonResult EditUser(Users data)
+        {
+            if (data.Id == 0)
+            {
+                _context.Add(data);
+                _context.SaveChanges();
+            }
+            else
+            {
+                _context.Update(data);
+                _context.SaveChangesAsync();
+            }
+            return Json(new { data = data.Id });
         }
     }
 }

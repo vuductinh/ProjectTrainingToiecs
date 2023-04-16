@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="angularjs" Version="1.8.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.15">
       <PrivateAssets>all</PrivateAssets>
@@ -18,6 +19,7 @@
   <ItemGroup>
     <Folder Include="Common\Enum\" />
     <Folder Include="Views\Account\" />
+    <Folder Include="wwwroot\upload\" />
   </ItemGroup>
 
 </Project>

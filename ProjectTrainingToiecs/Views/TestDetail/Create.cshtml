@@ -1,0 +1,202 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@using Newtonsoft.Json;
+<script>
+    $(document).ready(function () {
+        var model = @Html.Raw(JsonConvert.SerializeObject(ViewBag.model));
+        $('#type-document').val(model.DocumentId);
+        $('#item-order').val(model.ItemOrder);
+    });
+    $(function () {
+        $('#add-test').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var title = $('#title').val();
+            var answerA = $('#answera').val();
+            var answerB = $('#answerb').val();
+            var answerC = $('#answerc').val();
+            var answerD = $('#answerd').val();
+            var answerCorrect = $('#correct-answer').val();
+            var documentId = $('#type-document').val();
+            var data = { Title: title, 
+                AnswerA: answerA, 
+                AnswerB: answerB, 
+                AnswerC: answerC, 
+                AnswerD: answerD, 
+                CorrectAnswer: answerCorrect,
+                DocumentId : documentId,
+                LinkImage: $('#link-image').val(),
+                Id: $('#id-test').val(),
+                Audio: $('#link-audio').val(),
+                Description: $('#descripton').val(),
+                ItemOrder: $('#item-order').val()
+            };
+            $.ajax({
+                url: "/TestDetail/CreateTestDetail",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    debugger;
+                    if (result.data > 0) {
+                        var url = window.location.protocol + "//" + window.location.host + '/TestDetail/Index'
+                        location.href = url;
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+        });
+    });
+    function uploadFiles(inputId) {
+        var input = document.getElementById(inputId);
+        var files = input.files;
+        var formData = new FormData();
+        for (var i = 0; i != files.length; i++) {
+            formData.append("files", files[i]);
+        }
+
+        $.ajax(
+            {
+                url: "/TestDetail/UploadFiles",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    $('#link-image').val(data.fileName);
+
+                    $("#view-image").attr("src", data.fileName)
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    }
+    function uploadAudio(inputId) {
+        let input = document.getElementById(inputId);
+        var audios = input.files;
+        var formData = new FormData();
+        for (var i = 0; i != audios.length; i++) {
+            formData.append("audios", audios[i]);
+        }
+
+        $.ajax(
+            {
+                url: "/TestDetail/UploadAudio",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    $('#link-audio').val(data.fileName);
+                    $("#view-audio").attr("src", data.fileName)
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    }
+</script>
+<div class="container" style="margin-bottom : 100px;">
+    <div class="row" style="margin-top: 50px">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <label style="font-size: 20px">Thông tin câu hỏi</label>
+            <table class="table table-bordered">
+                <tr class="hidden">
+                    <td>Id</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.Id" id="id-test" /></td>
+                </tr>
+                <tr class="hidden">
+                    <td>ItemOrder</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.ItemOrder" id="item-order" /></td>
+                </tr>
+                <tr>
+                    <td>Lesson</td>
+                    <td>
+                        <select id="type-document" class="form-control">
+                            <option value="">Lựa chọn loại học</option>
+                            @foreach (var x in ViewBag.document)
+                            {
+                                <option value="@x.Id">@x.Title</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Title</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.Title" id="title" /></td>
+                </tr>
+                <tr>
+                    <td>AnswerA</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.AnswerA" id="answera" /></td>
+                </tr>
+                <tr>
+                    <td>AnswerB</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.AnswerB" id="answerb" /></td>
+                </tr>
+                <tr>
+                    <td>AnswerC</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.AnswerC" id="answerc" /></td>
+                </tr>
+                <tr>
+                    <td>AnswerD</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.AnswerD" id="answerd" /></td>
+                </tr>
+                <tr>
+                    <td>CorrectAnswer</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.CorrectAnswer" id="correct-answer" /></td>
+                </tr>
+                <tr>
+                    <td>Descripton</td>
+                    <td><textarea class="form-control" id="descripton" rows="5">
+                            @ViewBag.model.Description
+                    </textarea></td>
+                </tr>
+                <tr>
+                    <td><span>Image</span></td>
+                    <td>
+                        <input class="form-control" value="@ViewBag.model.LinkImage" id="link-image" />
+                        <img id="view-image" src="@ViewBag.model.LinkImage" width="300" height="300"/>
+                        <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                            <div class="buttons">
+                                <div class="upload-button">
+                                    <div class="label">Click me!</div>
+                                    <input id="files" name="files" type="file" size="1" multiple onchange="uploadFiles('files');" />
+                                </div>
+                            </div>
+                        </form>
+                        </td>
+                </tr>
+                <tr>
+                    <td><span>Audio</span></td>
+                    <td>
+                        <input class="form-control" value="@ViewBag.model.Audio" id="link-audio" />
+                        <audio controls autoplay>
+                            <source src="@ViewBag.model.Audio" id="view-audio" type="audio/ogg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                            <div class="buttons">
+                                <div class="upload-button">
+                                    <div class="label">Click me!</div>
+                                    <input id="link_audio" name="link_audio" type="file" size="1" multiple onchange="uploadAudio('link_audio');" />
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="btn btn-primary" id="add-test">Lưu</span></td>
+                    <td></td>
+                </tr>
+                
+            </table>
+            
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+</div>

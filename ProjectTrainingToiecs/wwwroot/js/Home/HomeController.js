@@ -12,3 +12,7 @@
         }
     });
 });
+$('#on-start').click(function () {
+    var url = window.location.protocol + "//" + window.location.host + '/Part/Part1'
+    location.href = url;
+})

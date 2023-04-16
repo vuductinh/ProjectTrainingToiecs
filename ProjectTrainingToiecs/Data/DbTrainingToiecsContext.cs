@@ -13,4 +13,10 @@ using ProjectTrainingToiecs.Models;
         }
 
         public DbSet<ProjectTrainingToiecs.Models.Users> Users { get; set; } = default!;
-    }
+        public DbSet<ProjectTrainingToiecs.Models.Course> Course { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.Units> Units { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.Lesson> Lesson { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.Document> Documents { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.TestDetail> TestDetails { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.StatusStudy> StatusStudies { get; set; } = default!;
+}

@@ -12,6 +12,47 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
+@{
+    var role = Context.Session.GetString("Role");
+}
+<script>
+    function onDirUser() {
+        var url = window.location.protocol + "//" + window.location.host + '/Users/Index1'
+        location.href = url;
+    }
+    function onDirCource() {
+        var url = window.location.protocol + "//" + window.location.host + '/Course/Index'
+        location.href = url;
+    }
+    function onDirUnit() {
+        var url = window.location.protocol + "//" + window.location.host + '/Unit/Index'
+        location.href = url;
+    }
+    function onDirLesson() {
+        var url = window.location.protocol + "//" + window.location.host + '/Lesson/Index'
+        location.href = url;
+    }
+    function onDirDocument() {
+        var url = window.location.protocol + "//" + window.location.host + '/Document/Index'
+        location.href = url;
+    }
+    function onDirQS() {
+        var url = window.location.protocol + "//" + window.location.host + '/TestDetail/Index'
+        location.href = url;
+    }
+    function onHome() {
+        var url = window.location.protocol + "//" + window.location.host + '/Home/Index'
+        location.href = url;
+    }
+    function onListPart() {
+        var url = window.location.protocol + "//" + window.location.host + '/Home/ListPart'
+        location.href = url;
+    }
+    function onListTest() {
+        var url = window.location.protocol + "//" + window.location.host + '/Home/ListTest'
+        location.href = url;
+    }
+</script>
 <body>
     <div class="row">
         <div class="col-md-2">
@@ -22,14 +63,26 @@
                         <span class="icon-close2 js-menu-toggle"></span>
                     </div>
                 </div>
-                <div class="site-mobile-menu-body" style="margin-top: 40px;width: 100px;">
-                    <ul class="site-nav-wrap">
-                        <li class="active"><a href="#" class="nav-link" style="font-size: 30px;"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-                        <li><a href="#" class="nav-link" style="font-size: 30px; margin-top: 20px"><i class="fa fa-users" aria-hidden="true"></i></a></li>
-                        <li><a href="#" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
-                        <li><a href="#" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-book" aria-hidden="true"></i></a></li>
-                    </ul>
-                </div>
+                @if(role == "Admin"){
+                    <div>
+                            <a href="#" onclick="onDirUser()">Users</a> &emsp;
+                            <a href="#" onclick="onDirCource()">Courses</a>&emsp;
+                            <a href="#" onclick="onDirUnit()">Units</a>&emsp;
+                            <a href="#" onclick="onDirLesson()">Lessons</a>&emsp;
+                            <a href="#" onclick="onDirDocument()">Documents</a>&emsp;
+                            <a href="#" onclick="onDirQS()">Test</a>
+                    </div>
+                }else{
+                        <div class="site-mobile-menu-body" style="margin-top: 40px;width: 100px;">
+                            <ul class="site-nav-wrap">
+                                <li class="active"><a href="#" onclick="onHome()" class="nav-link" style="font-size: 30px;"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+                                <li><a href="#"  class="nav-link" style="font-size: 30px; margin-top: 20px"><i class="fa fa-users" aria-hidden="true"></i></a></li>
+                                <li><a href="#" onclick="onListPart()" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
+                                <li><a href="#" onclick="onListTest()" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-book" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </div>
+                }
+                
             </div>
         </header>
         </div>

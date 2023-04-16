@@ -1,4 +1,6 @@
-﻿namespace ProjectTrainingToiecs.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ProjectTrainingToiecs.Models
 {
     public class Lesson
     {
@@ -8,5 +10,9 @@
         public string? Description { get; set; }
 
         public int UnitId { get; set; }
+        [NotMapped]
+        public int Order { get; set; }
+        [NotMapped]
+        public string NameUnit { get; set; }
     }
 }

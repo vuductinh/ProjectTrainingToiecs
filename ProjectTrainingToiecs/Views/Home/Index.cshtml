@@ -1,14 +1,31 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@using Newtonsoft.Json;
+<script>
+   function onStart (id) {
+        var url = window.location.protocol + "//" + window.location.host + '/Part/Part1?id='+id;
+        location.href = url;
+    }
+
+</script>
 <div class = "row">
-    <h2 class="text-center" style="position: absolute;right: 10px;top: 0;">
+    <p class="text-center" style="position: absolute;right: 10px;top: 0; font-size: 18px;">
     Welcome  @ViewBag.userName <span class="btn btn-link" id="sign-out"><i class="fa fa-sign-out"  title="sign out" aria-hidden="true"></i></span>
-    </h2>
+    </p>
+    <p class ="text-center" style="font-size: 30px; margin-top: 100px;">
+        Course: @Context.Session.GetString("TypeCourse")
+    </p>
+    <div class="progress" style="width: 700px;height: 50px;margin-top: 10px;margin-left: 300px;">
+        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@ViewBag.Process" aria-valuemin="0" aria-valuemax="100" style="width:@(ViewBag.Process)%; font-size: 20px; color : black;">
+            @(ViewBag.Process)% Complete (success)
+        </div>
+    </div>
     <p class="text-center" style="font-size: 30px; margin-top: 200px;">
         Module 2: Intermediate<br/>
-        Unit 2: Entertainment Museum Announcement<br />
-        <button class="btn btn-sucsess">Continue</button>
+        Unit: @ViewBag.unit.Name<br />
+        Lesson: @ViewBag.lesson.Name<br />
+        <button class="btn btn-sucsess" style="font-size : 20px" onclick="onStart(@ViewBag.idTest)">@ViewBag.btnLable</button>
     </p>
 </div>
 <script src="~/js/home/homecontroller.js"></script>

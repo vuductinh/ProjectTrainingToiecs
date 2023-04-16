@@ -1,0 +1,203 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@using Newtonsoft.Json;
+<style type="text/css">
+    .form-check label{
+        font-size: 20px;
+    }
+</style>
+<script>
+    var idNext = 0;
+    var idPre = 0;
+    var idBase = 0;
+    var saved = false;
+    var resultOption =false;
+    var optionOld = "";
+    var correctOld = "";
+    $(document).ready(function () {
+        idBase = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Id));
+        onGetDetail(idBase);
+    });
+    function onGetNext(){
+        var result = $('#correct-answer').val();
+        var radios = $('input:radio[name=optradio]:checked').val();
+        if(!saved && radios != undefined){
+            onSaveResult();
+        }
+        onGetDetail(idNext);
+    }
+    function onGetPre() {
+        var result = $('#correct-answer').val();
+        var radios = $('input:radio[name=optradio]:checked').val();
+        if (!saved && radios != undefined) {
+            onSaveResult();
+        }
+        onGetDetail(idPre);
+    }
+    function onSaveResult(){
+        var option = $('input:radio[name=optradio]:checked').val();
+        var data = { IdTest: idBase, Option: option, Result: resultOption };
+        $.ajax({
+            url: "/Part/SaveStatusStudy",
+            type: "POST",
+            data: data,
+            success: function (result) {
+                if (result.data) {
+                    saved = true;
+                } else {
+                    alert('Error');
+                }
+            }
+        });
+    }
+    function onGetDetail(id){
+        $.ajax({
+            url: "/Part/GetDetailPart",
+            type: "POST",
+            data: {id: id},
+            success: function (result) {
+                if(result.data){
+                    debugger;
+                    var model = result.data;
+                    document.getElementById('lable-quesion').innerHTML = 'Quesion' + model.itemOrder + ' ' + model.title;
+                    document.getElementById('lable-total-quesion').innerHTML = model.itemOrder + '/' + model.totalQuesion;
+                    $("#link-image").attr("src", model.linkImage);
+                    document.getElementById('as-A').innerHTML = "(A) " + model.answerA;
+                    document.getElementById('as-B').innerHTML = "(B) " + model.answerB;
+                    document.getElementById('as-C').innerHTML = "(C) " + model.answerC;
+                    document.getElementById('as-D').innerHTML = "(D) " + model.answerD;
+                    document.getElementById('description').innerHTML = model.description;
+                    $('#correct-answer').val(model.correctAnswer);
+                    $('#btn-pre').css('display', model.posiontFirst ? 'none' : 'block');
+                    $('#btn-next').css('display', model.posiontLast ? 'none' : 'block');
+                    idNext = model.idNext;
+                    idPre = model.idPre;
+                    idBase = model.id;
+                    saved = model.optionResult != "";
+                    var $radios = $('input:radio[name=optradio]');
+                    var audio = document.getElementById('audio');
+                    audio.src = model.audio;
+                    audio.load();
+                    //reset
+                    if ($radios.is(':checked') === true) {
+                        $radios.filter('[value=' + optionOld + ']').prop('checked', false);
+                    }
+                    $("#lable-" + optionOld).css("color", "black");
+                    $("#as-" + correctOld).css("color", "black");
+                    $('#label-icon-done-' + optionOld).css("display", "none");
+                    $('#label-icon-fail-' + optionOld).css("display", "none");
+                    $("#view-result").css("display", "none");
+                    count = 0;
+                    if(saved){
+                        $radios.filter('[value=' + model.optionResult + ']').prop('checked', true);
+                        onShowResult();
+                    }
+                } else {
+                    alert('Error');
+                }
+            }
+        });
+    }
+    var count = 0;
+    function onShowResult() {
+        if(count > 0) {
+            return ;
+        };
+        var result = $('#correct-answer').val();
+        var radios = $('input:radio[name=optradio]:checked').val();
+        if (radios == undefined) {
+            alert('please chose answer');
+            return;
+        }
+        if (radios == result) {
+            $("#lable-"+result).css("color", "#1afd0d");
+            $('#label-icon-done-'+result).css("display", "block");
+            resultOption = true;
+        }else{
+            $("#lable-"+radios).css("color", "red");
+            $('#label-icon-fail-' + radios).css("display", "block");
+        }
+       
+        $("#view-result").css("display", "block");
+        $("#as-"+result).css("color", "#1afd0d");
+        optionOld = radios;
+        correctOld = result;
+        //save result
+        if(!saved){
+            onSaveResult();
+        }
+    }
+</script>
+<p style="font-size: 30px; font-weight:500;" sty>Part1</p>
+<div class="row" style="margin-top : 100px; margin-bottom: 100px;">
+    <div class="col-md-7">
+        <div style="font-size:20px;">
+            <label id="lable-quesion"></label>
+            <label style="float: right;" id="lable-total-quesion"></label>
+        </div>
+        
+        <div>
+            <audio id="audio" controls style="width:50%">
+                <source id="link-audio" type="audio/ogg">
+            </audio>
+            <br/>
+            <img id="link-image" width="600" height="600" />
+            <div class="form-check">
+                <label class="form-check-label" id="lable-A">
+                    <input type="radio" id="check-A" value="A" class="form-check-input" name="optradio">A <label for="check-A">
+                        <i class="fa fa-check text-success" style="display: none" id="label-icon-done-A" aria-hidden="true"></i>
+                        <i style="display: none" id="label-icon-fail-A" class="fa fa-close text-danger"></i>
+                    </label>
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label" id="lable-B">
+                    <input type="radio" id="check-B" value="B" class="form-check-input" name="optradio">B
+                    <label for="check-B"><i class="fa fa-check text-success" id="label-icon-done-B" style="display: none" aria-hidden="true"></i>
+                        <i style="display: none" id="label-icon-fail-B" class="fa fa-close text-danger"></i>
+                    </label>
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label" id="lable-C">
+                    <input type="radio" id="check-C" value="C" class="form-check-input" name="optradio">C
+                    <label for="check-C">
+                        <i class="fa fa-check text-success" id="label-icon-done-C" style="display: none" aria-hidden="true"></i>
+                        <i style="display: none" id="label-icon-fail-C" class="fa fa-close text-danger"></i></label>
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label" id="lable-D">
+                    <input type="radio" id="check-d" value="D" class="form-check-input" name="optradio">D
+                    <label for="check-D">
+                        <i class="fa fa-check text-success"
+                       id="label-icon-done-D" style="display: none" aria-hidden="true"></i>
+                        <i style="display: none" id="label-icon-fail-D" class="fa fa-close text-danger"></i></label>
+                </label>
+            </div>
+        </div>
+        <button class="btn btn-default" id="btn-next" onclick="onGetNext()" style="float:right; margin-top: 10px; display: none;">Next <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+        <button class="btn btn-default" onclick="onGetPre()" id="btn-pre" style="float:right; margin-top: 10px; display:none;"><i class="fa fa-arrow-left" aria-hidden="true"></i> Pre</button>
+        
+    </div>
+    <div class="col-md-5">
+        <button style="margin-top : 10px;" class="btn btn-primary" onclick="onShowResult()">Show</button>
+        <div id="view-result" style="font-size: 20px; margin-top: 20px;display : none">
+            <div class="col-md-6">
+                <p id="as-A"></p>
+                <p id="as-B"></p>
+                <p id="as-C"></p>
+                <p id="as-D"></p>
+            </div>
+            <div class="col-md-6">
+                <b>Note</b>
+                <p id="description"></p>
+            </div>
+
+            <input class="hidden" type="text" id="correct-answer" />
+        </div>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@using Newtonsoft.Json;
+<script>
+    $(document).ready(function () {
+        var model = @Html.Raw(JsonConvert.SerializeObject(ViewBag.model));
+        $('#type-unit').val(model.UnitId);
+    });
+    $(function () {
+        $('#add-lesson').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var name = $('#name-lesson').val();
+            var type = $('#type-unit').val();
+            var description = $('#description-lesson').val();
+            var id = $('#id-lesson').val();
+            if (name == null || name == '') {
+                alert('Vui lòng nhập tên');
+                return;
+            }
+            if (type == 0) {
+                alert('Vui lòng chọn loại khóa học');
+                return;
+            }
+            var data = { Id: id, Name: name, Description: description, UnitId: type };
+            $.ajax({
+                url: "/Lesson/CreateLesson",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    if (result.data > 0) {
+                        var url = window.location.protocol + "//" + window.location.host + '/Lesson/Index'
+                        location.href = url;
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+        });
+    });
+</script>
+<div class="container">
+    <div class="row" style="margin-top: 200px">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <label>Thông tin chương học</label>
+            <table class="table table-bordered">
+                <tr class="hidden">
+                    <td>Id</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.Id" id="id-lesson" /></td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.Name" id="name-lesson" /></td>
+                </tr>
+                <tr>
+                    <td>Type</td>
+                    <td>
+                        <select id="type-unit" class="form-control">
+                            <option value="">Lựa chọn khóa học</option>
+                            @foreach (var x in ViewBag.types)
+                            {
+                                <option value="@x.Id">@x.Name</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td><input class="form-control" type="text" value="@ViewBag.model.Description" id="description-lesson" /></td>
+                </tr>
+                <tr>
+                    <td><span class="btn btn-primary" id="add-lesson">Lưu</span></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+</div>

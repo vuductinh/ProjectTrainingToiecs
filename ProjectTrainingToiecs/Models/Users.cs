@@ -14,6 +14,27 @@ namespace ProjectTrainingToiecs.Models
         public string ? Phone { get; set; }
         public bool Active { get; set; }
         public int RoleId { get; set; }
+        public int TypeCourse { get; set; }
         public string ? FullName { get; set; }
+        [NotMapped]
+        public int Process { get; set; }
+        [NotMapped]
+        public string ActiveTxt
+        {
+            get
+            {
+                return Active ? "Hoạt động" : "Chưa kích hoạt";
+            }
+        }
+        [NotMapped]
+        public int Order { get; set; }
+        [NotMapped]
+        public string TypeTxt
+        {
+            get
+            {
+                return TypeCourse == 1 ? "Cơ bản" : "Nâng cao";
+            }
+        }
     }
 }

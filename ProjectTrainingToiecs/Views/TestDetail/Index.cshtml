@@ -1,0 +1,90 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<script>
+    function addTestDetail(id) {
+        debugger;
+        var url = window.location.protocol + "//" + window.location.host + '/TestDetail/Create?id=' + id;
+        location.href = url;
+    }
+    var curentImage ;
+    function onOpenPoup(){
+        debugger;
+        $('#form-upload-image').modal('show');
+        //curentImage = $(elememt);
+        //var code = curentImage.closest('tr').find('#hndcode').val();
+        //$('#current-code').val(code);
+    }
+    function uploadImage(){
+        var uploadFile = $('#upload-image').get(0);
+        var files = uploadFile.files;
+        var fileData = new FormData();
+        var code = $('#current-code').val();
+        for(var i= 0 ;i<files.length ;i ++){
+            fileData.append(code,files[i]);
+        }
+        $.ajax({
+            url: 'TestDetail/UplaodImage',
+            type: 'POST',
+            data: fileData,
+            processData : false,
+            contentType : false,
+            success : function(result){
+                if(result == 'pass'){
+                    alert('Success');
+                }
+            },
+            error : function(){
+
+            }
+        })
+    }
+</script>
+
+<div class="container">
+    <div class="row">
+        <div col-md-12>
+            <label class="control-label align-content-center">Danh sách khóa học</label>
+            <div>
+                <button class="btn btn-primary" onclick="addTestDetail(0)">Thêm mới</button>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>STT</th>
+                        <th>Document</th>
+                        <th>Title</th>
+                        <th>QSA</th>
+                        <th>QSB</th>
+                        <th>QSC</th>
+                        <th>QSD</th>
+                        <th>AS</th>
+                    </tr>
+
+
+                    @foreach (var i in ViewBag.lst)
+                    {
+
+                        <tr>
+                            <td>@i.Order</td>
+                            <td>@i.NameLesson</td>
+                            <td>@i.Title</td>
+                            <td>@i.AnswerA</td>
+                            <td>@i.AnswerB</td>
+                            <td>@i.AnswerC</td>
+                            <td>@i.AnswerD</td>
+                            <td>@i.AnswerD</td>
+                            <td>@i.CorrectAnswer</td>
+                            <td>
+                                <span onclick="addTestDetail(@i.Id)">Sửa</span>
+                                <span>Chi tiết</span>
+                            </td>
+                        </tr>
+                    }
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+

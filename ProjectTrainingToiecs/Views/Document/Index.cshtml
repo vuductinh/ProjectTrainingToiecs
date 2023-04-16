@@ -1,0 +1,50 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    var order = 0;
+}
+<script>
+    function addDocument(id) {
+        var url = window.location.protocol + "//" + window.location.host + '/Document/Create?id=' + id;
+        location.href = url;
+    }
+</script>
+
+<div class="container">
+    <div class="row">
+        <div col-md-12>
+            <label class="control-label align-content-center">Danh sách khóa học</label>
+            <div>
+                <button class="btn btn-primary" onclick="addDocument(0)">Thêm mới</button>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>STT</th>
+                        <th>Title</th>
+                        <th>LinkImage</th>
+                        <th>LinkAudio</th>
+                        <th>#</th>
+                    </tr>
+
+
+                    @foreach (var i in ViewBag.lst)
+                    {
+
+                        <tr>
+                            <td>@i.Order</td>
+                            <td>@i.Title</td>
+                            <td>@i.Image</td>
+                            <td>@i.Audio</td>
+                            <td>
+                                <span onclick="addDocument(@i.Id)">Sửa</span>
+                                <span>Chi tiết</span>
+                            </td>
+                        </tr>
+                    }
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+</div>
