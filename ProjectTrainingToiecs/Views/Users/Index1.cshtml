@@ -1,62 +1,112 @@
 ﻿<script>
+     $(document).ready(function () {
+         getDataUser();
+    });
+    function refeshData() {
+        $('#search-key').val('');
+        $('#pading-list').val(10);
+        getDataUser();
+    }
+    function getDataUser(){
+        debugger;
+        var search = $('#search-key').val();
+        var pageSize = $('#pading-list').val();
+        $.ajax({
+            url: "/Users/GetUsers",
+            type: "Post",
+            data: { PageSize: pageSize, TextSearch : search },
+            success: function (result) {
+                if (result.data) {
+                    var div = document.getElementById('table-user');
+                    var html = '';
+                    for(var i= 0; i<result.data.length ; i ++){
+                        var item = result.data[i];
+                        html += '<tr><td> ' + item.order + '</td>' +
+                            '<td> '+ item.userName+'</td>'+
+                            '<td> '+ item.fullName+ '</td>' +
+                            '<td> '+ item.email + '</td>' +
+                            '<td class="' + item.processColor + '"> ' + item.process + '% </td>' +
+                            '<td> '+ item.activeTxt+  '</td>'+
+                            '<td> '+ item.typeTxt + '</td>'+
+                            '<td>'+
+                            '<span class="btn btn-link" onclick = "editUser('+item.id+')" title = "Edit info"> <i class="fa fa-pencil" aria-hidden="true"> </i></span>'+
+                                '<span class="btn btn-link" title = "Detail" > <i class="fa fa-info" aria-hidden="true"> </i></span>'+
+                                    '<span class="btn text-danger" onclick="deleteAccount('+item.id+')"> <i class="fa fa-trash" aria-hidden="true"> </i></span>'+
+                            '</td></tr>';
+                    }
+                    div.innerHTML = html;
+                }
+            }
+        });
+    }
     function editUser(id) {
         var url = window.location.protocol + "//" + window.location.host + '/Users/Edit?id=' + id;
         location.href = url;
     }
-   function signOutAdmin() {
-       debugger;
-        $.ajax({
-            url: "/Users/SignOut",
-            type: "GET",
-            success: function (result) {
-                if (result.result == 1) {
-                    var url = window.location.protocol + "//" + window.location.host + '/Users/Login';
-                    location.href = url;
-                }
-            }
-        });
-    };
-</script>   
-<div class="container"></div>
-    <div>
-    <h2 class="text-center" style="float:right;">
-        Welcome  @ViewBag.userName <span class="btn btn-link" onclick="signOutAdmin()"><i class="fa fa-sign-out" title="sign out" aria-hidden="true"></i></span>
-        </h2>
-    </div>
-    <div class="row">
-        <div col-md-12>
-            <label class="control-label align-content-center">Danh sách người dùng</label>
-            <div>
-                <table class="table table-bordered">
-                    <tr>
-                        <th>STT</th>
-                        <th>Username</th>
-                        <th>Fullname</th>
-                        <th>Email</th>
-                        <th>Process</th>
-                        <th>Active</th>
-                        <th>Type</th>
-                        <th>#</th>
-                    </tr>
-
-
-                    @foreach (var i in ViewBag.lst)
-                    {
-
-                        <tr>
-                            <td>@i.Order</td>
-                            <td>@i.UserName</td>
-                            <td>@i.FullName</td>
-                            <td>@i.Email</td>
-                            <td>@(i.Process) %</td>
-                            <td>@i.ActiveTxt</td>
-                            <td>@i.TypeTxt</td>
-                            <td>
-                                <span onclick="editUser(@i.Id)">Sửa</span>
-                                <span>Chi tiết</span>
-                            </td>
-                        </tr>
+    function deleteAccount(id) {
+        if (confirm("Bạn có chắc muốn xóa tài khoản này!") == true) {
+            $.ajax({
+                url: "/Users/DeleteAccount",
+                type: "Post",
+                data: { id: id },
+                success: function (result) {
+                    if (result.data) {
+                        var url = window.location.protocol + "//" + window.location.host + '/Home/Index1';
+                        location.href = url;
                     }
+                }
+            });
+        }
+    }
+</script>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 10px;">
+            <table>
+                <tr>
+                    <td width="70%"><span style="font-size: 20px; font-weight: 600">Users</span></td>
+                    <td>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="search username" id="search-key" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <button class="btn btn-outline-secondary" type="button" onclick="getDataUser()" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div>
+                <table>
+                    <tr>
+                        <td><b>Page</b></td>
+                        <td>
+                            <select class="form-control" id="pading-list" onchange="getDataUser()">
+                                <option selected value="10">10</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="-1">ALL</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span class="btn" onclick="refeshData()"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                        </td>
+                    </tr>
+                </table>
+                <hr />
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Username</th>
+                            <th>Fullname</th>
+                            <th>Email</th>
+                            <th>Process</th>
+                            <th>Active</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-user">
+
+                    </tbody>
                 </table>
 
             </div>

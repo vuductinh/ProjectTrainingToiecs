@@ -1,50 +1,83 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@{
-    var order = 0;
-}
 <script>
     function addUnit(id) {
         var url = window.location.protocol + "//" + window.location.host + '/Unit/Create?id=' + id;
         location.href = url;
     }
-</script>
-
-<div class="container">
-    <div class="row">
-        <div col-md-12>
-            <label class="control-label align-content-center">Danh sách bài học</label>
-            <div>
-                <button class="btn btn-primary" onclick="addUnit(0)">Thêm mới</button>
-                <table class="table table-bordered">
-                    <tr>
-                        <th>STT</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>#</th>
-                    </tr>
-
-
-                    @foreach (var i in ViewBag.lst)
-                    {
-
-                        <tr>
-                            <td>@i.Order</td>
-                            <td>@i.Name</td>
-                            <td>@i.Type</td>
-                            <td>@i.Description</td>
-                            <td>
-                                <span onclick="addUnit(@i.Id)">Sửa</span>
-                                <span>Chi tiết</span>
-                            </td>
-                        </tr>
+    function deleteCourse(id) {
+        if (confirm("Bạn có chắc muốn xóa khóa học lớn này!") == true) {
+            $.ajax({
+                url: "/Unit/DeleteUnit",
+                type: "Post",
+                data: { id: id },
+                success: function (result) {
+                    if (result.data) {
+                        var url = window.location.protocol + "//" + window.location.host + '/Unit/Index';
+                        location.href = url;
                     }
-                </table>
+                }
+            });
+        }
+    }
+</script>
+<div class="row">
+    <div class="col-md-12" style="margin-top: 10px;">
+        <table>
+            <tr>
+                <td width="70%"><span style="font-size: 20px; font-weight: 600">Danh sách bài học lớn</span></td>
+                <td>
+                    <div class="input-group mb-3">
+                        <button class="btn btn-primary" onclick="addUnit(0)">Thêm mới <i class="fa fa-plus" aria-hidden="true"></i></button> &emsp;
+                        <input type="text" class="form-control" placeholder="search unit" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <hr />
+        <div>
+            <table>
+                <tr>
+                    <td><b>Page</b></td>
+                    <td>
+                        <select class="form-control" id="pading-list">
+                            <option selected value="10">10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="-1">ALL</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table class="table table-bordered">
+                <tr>
+                    <th>STT</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>#</th>
+                </tr>
 
-            </div>
+
+                @foreach (var i in ViewBag.lst)
+                {
+
+                    <tr>
+                        <td>@i.Order</td>
+                        <td>@i.Name</td>
+                        <td>@i.Type</td>
+                        <td>@i.Description</td>
+                        <td>
+                            <span class="btn btn-link" onclick="addUnit(@i.Id)" title="Edit info"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+                            <span class="btn btn-link" title="Detail"><i class="fa fa-info" aria-hidden="true"></i></span>
+                            <span class="btn text-danger" onclick="deleteCourse(@i.Id)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                        </td>
+                    </tr>
+                }
+            </table>
+
         </div>
     </div>
-
 </div>

@@ -1,0 +1,50 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@using Newtonsoft.Json;
+<script>
+    var idBase = 0;
+    $(document).ready(function () {
+        idBase = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Id));
+        onGetDetail(idBase);
+    });
+    function onGetDetail(id){
+        $.ajax({
+            url: "/Part/GetDetailPart2",
+            type: "POST",
+            data: {id : id},
+            success: function (result) {
+                if (result.data) {
+                    var $radios = $('input:radio[name=optradio]');
+                    var audio = document.getElementById('audio');
+                    audio.src = result.audio;
+                    var data = result.data 
+                    var divLeft = '';
+                    var divRight = '';
+                    for(var i = 0 ;i < result.data.length ; i ++){
+                        if(i % 2 == 0){
+                            divLeft += '<div class="form-check">< label class="form-check-label" id = "lable-A" >' + data[i].answerA + '<input type="radio" id = "check-A" value = "A" class="form-check-input" name = "optradio"> A <label for= "check-A" ><i class= "fa fa-check text-success" style = "display: none" id = "label-icon-done-A" aria - hidden="true" > </i>< i style = "display: none" id = "label-icon-fail-A" class="fa fa-close text-danger" > </i>< /label>< /label> < /div>';
+                        }else{
+                            divRight += '<div class="form-check">< label class="form-check-label" id = "lable-A" >' + data[i].answerA + '<input type="radio" id = "check-A" value = "A" class="form-check-input" name = "optradio"> A <label for= "check-A" ><i class= "fa fa-check text-success" style = "display: none" id = "label-icon-done-A" aria - hidden="true" > </i>< i style = "display: none" id = "label-icon-fail-A" class="fa fa-close text-danger" > </i>< /label>< /label> < /div>';
+                        }
+                    }
+                    document.getElementById('div-left').innerHTML = divLeft;
+                    document.getElementById('div-right').innerHTML = divRight;
+                } else {
+                    alert('Error');
+                }
+            }
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <audio id="audio" controls style="width:50%">
+            <source id="link-audio" type="audio/ogg">
+        </audio>
+    </div>
+    <div class="col-md-6" id="div-left"></div>
+    <div class="col-md-6" id="div-right"></div>
+</div>

@@ -106,11 +106,12 @@ $(function () {
         var code = $('#number-code').val();
         var reCode = $('#re-code-muber').val();
         var userId = $('#user-id').val();
+        var data = { UserName: userName, Password: password, FullName: fullName, Email: email, TypeCourse: type };
         if (code.length == 6 && code == reCode) {
             $.ajax({
                 url: "/Users/ValidateCode",
                 type: "POST",
-                data: { userId: userId },
+                data: data,
                 success: function (result) {
                     if (result.result) {
                         alert('Đăng ký thành công giờ bạn có thể đăng nhập để trải nghiệm');

@@ -71,8 +71,9 @@
                     <input class="form-control" type="tel" id="phone" placeholder="fill phone" />
                     <label>Khóa học</label>
                     <select class="form-control" id="course-type">
-                        <option value="1">Cơ bản</option>
-                        <option value="1">Nâng cao</option>
+                        @foreach(var x in ViewBag.course){
+                            <option value="@x.Id">@x.Name</option>
+                        }
                     </select>
                     <div id="view-code">
                         <label>Mã xác thực</label>

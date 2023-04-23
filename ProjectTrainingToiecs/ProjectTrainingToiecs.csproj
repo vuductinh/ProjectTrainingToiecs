@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Enum\" />
     <Folder Include="Views\Account\" />
     <Folder Include="wwwroot\upload\" />
   </ItemGroup>

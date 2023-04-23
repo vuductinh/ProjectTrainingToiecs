@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectTrainingToiecs.Common.Enum;
 using ProjectTrainingToiecs.Models;
 using System.Net.WebSockets;
 
@@ -15,15 +16,19 @@ namespace ProjectTrainingToiecs.Controllers
         public IActionResult Index()
         {
             var order = 0;
-            var course = from i in _context.Course
-                         join c in _context.Units
-                         on i.Id equals c.CourseId
+            var course = (from i in _context.Course
+                         where i.RecordStatusId ==(int)ERecordStatus.Actived
                          select new Course()
                          {
-                             Id = c.Id,
-                             Name = c.Name,
-                             Description = c.Description
-                         };
+                             Id = i.Id,
+                             Name = i.Name,
+                             Description = i.Description
+                         }).ToList();
+            course.ForEach(x =>
+            {
+                x.Order = order + 1;
+                order++;
+            });
             ViewBag.lst = course;
             return View();
         }
@@ -51,6 +56,19 @@ namespace ProjectTrainingToiecs.Controllers
                 _context.SaveChangesAsync();
             }
             return Json(new {data = data.Id});
+        }
+        public JsonResult DeleteCourse(int id)
+        {
+            var val = false;
+            var user = _context.Course.FirstOrDefault(x => x.Id == id);
+            if (user != null)
+            {
+                user.RecordStatusId = (int)ERecordStatus.Deleted;
+                _context.Update(user);
+                _context.SaveChanges();
+                val = true;
+            }
+            return Json(new { Data = val });
         }
     }
 }

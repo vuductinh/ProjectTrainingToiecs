@@ -8,6 +8,10 @@
         var url = window.location.protocol + "//" + window.location.host + '/Part/Part1?id=0';
         location.href = url;
     }
+    function onDirPart2() {
+        var url = window.location.protocol + "//" + window.location.host + '/Part/Part2?id=0';
+        location.href = url;
+    }
 </script>
 <style type="text/css">
     .div-part{
@@ -26,7 +30,7 @@
 <div class="row" style="margin-top : 200px">
     <div class="col-md-12" style="font-size: 30px">List Course</div>
     <div class="col-md-3 div-part"><label onclick="onDirPart1()">Part 1</label></div>
-    <div class="col-md-3 div-part"><label>Part 2</label></div>
+    <div class="col-md-3 div-part"><label onclick="onDirPart2()">Part 2</label></div>
     <div class="col-md-3 div-part"><label>Part 3</label></div>
     <div class="col-md-3 div-part"><label>Part 4</label></div>
     <div class="col-md-3 div-part"><label>Part 5</label></div>

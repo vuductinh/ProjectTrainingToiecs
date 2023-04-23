@@ -41,49 +41,90 @@
             }
         })
     }
+    function deleteTest(id) {
+        if (confirm("Bạn có chắc muốn xóa câu hỏi này!") == true) {
+            $.ajax({
+                url: "/TestDetail/DeleteTest",
+                type: "Post",
+                data: { id: id },
+                success: function (result) {
+                    if (result.data) {
+                        var url = window.location.protocol + "//" + window.location.host + '/TestDetail/Index';
+                        location.href = url;
+                    }
+                }
+            });
+        }
+    }
 </script>
 
-<div class="container">
-    <div class="row">
-        <div col-md-12>
-            <label class="control-label align-content-center">Danh sách khóa học</label>
-            <div>
-                <button class="btn btn-primary" onclick="addTestDetail(0)">Thêm mới</button>
-                <table class="table table-bordered">
+<div class="row" style="margin-bottom: 100px;">
+    <div class="col-md-12" style="margin-top: 10px">
+        <table>
+            <tr>
+                <td width="70%"><span style="font-size: 20px; font-weight: 600">Danh sách câu hỏi</span></td>
+                <td>
+                    <div class="input-group mb-3">
+                        <button class="btn btn-primary" onclick="addTestDetail(0)">Thêm mới <i class="fa fa-plus" aria-hidden="true"></i></button> &emsp;
+                        <input type="text" class="form-control" placeholder="search quesion" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <hr/>
+        <div>
+            <table>
+                <tr>
+                    <td><b>Page</b></td>
+                    <td>
+                        <select class="form-control" id="pading-list">
+                            <option selected value="10">10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="-1">ALL</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                @foreach (var i in ViewBag.lst)
+                {
+
                     <tr>
-                        <th>STT</th>
-                        <th>Document</th>
-                        <th>Title</th>
-                        <th>QSA</th>
-                        <th>QSB</th>
-                        <th>QSC</th>
-                        <th>QSD</th>
-                        <th>AS</th>
+                        <td width="50%">
+                            <p>
+                                <u>@i.NameLesson / Quesion @i.Order </u><span class="btn btn-link" onclick="addTestDetail(@i.Id)" title="Edit info"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+                            <span class="btn text-danger" onclick="deleteTest(@i.Id)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                            </p>
+                            <p>Title : @i.Title</p>
+                            <p>
+                                A : @i.AnswerA <br/>
+                                B : @i.AnswerB <br/>
+                                C : @i.AnswerC <br />
+                                D : @i.AnswerD <br />
+                            </p>
+                            <p>
+                                Answer @i.CorrectAnswer <br/>
+                                Description : @i.Description
+                            </p>
+                        </td>
+                        <td>
+                            <div col-md-6>
+                                <img src="@i.LinkImage" width="100" height="100" />
+                            </div>
+                            <div class="col-md-6">
+                                <audio controls>
+                                    <source src="@i.Audio" type="audio/ogg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                            
+                        </td>
                     </tr>
+                }
+            </table>
 
-
-                    @foreach (var i in ViewBag.lst)
-                    {
-
-                        <tr>
-                            <td>@i.Order</td>
-                            <td>@i.NameLesson</td>
-                            <td>@i.Title</td>
-                            <td>@i.AnswerA</td>
-                            <td>@i.AnswerB</td>
-                            <td>@i.AnswerC</td>
-                            <td>@i.AnswerD</td>
-                            <td>@i.AnswerD</td>
-                            <td>@i.CorrectAnswer</td>
-                            <td>
-                                <span onclick="addTestDetail(@i.Id)">Sửa</span>
-                                <span>Chi tiết</span>
-                            </td>
-                        </tr>
-                    }
-                </table>
-
-            </div>
         </div>
     </div>
 </div>

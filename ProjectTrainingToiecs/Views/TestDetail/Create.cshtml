@@ -92,7 +92,9 @@
                 type: "POST",
                 success: function (data) {
                     $('#link-audio').val(data.fileName);
-                    $("#view-audio").attr("src", data.fileName)
+                   var $radios = $('input:radio[name=optradio]');
+                    var audio = document.getElementById('view-audio');
+                    audio.src = data.fileName;
                     alert("Files Uploaded!");
                 }
             }

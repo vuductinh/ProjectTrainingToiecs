@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectTrainingToiecs.Common.Enum;
 using ProjectTrainingToiecs.Models;
 
 namespace ProjectTrainingToiecs.Controllers
@@ -13,7 +14,7 @@ namespace ProjectTrainingToiecs.Controllers
         }
         public IActionResult Index()
         {
-            var coures = _context.Units.ToList();
+            var coures = _context.Units.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).ToList();
             var order = 0;
             coures.ForEach(x =>
             {
@@ -52,6 +53,19 @@ namespace ProjectTrainingToiecs.Controllers
                 _context.SaveChangesAsync();
             }
             return Json(new { data = data.Id });
+        }
+        public JsonResult DeleteUnit(int id)
+        {
+            var val = false;
+            var user = _context.Units.FirstOrDefault(x => x.Id == id);
+            if (user != null)
+            {
+                user.RecordStatusId = (int)ERecordStatus.Deleted;
+                _context.Update(user);
+                _context.SaveChanges();
+                val = true;
+            }
+            return Json(new { Data = val });
         }
     }
 }

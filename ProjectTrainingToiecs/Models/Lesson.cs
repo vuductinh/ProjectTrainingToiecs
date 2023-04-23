@@ -13,6 +13,7 @@ namespace ProjectTrainingToiecs.Models
         [NotMapped]
         public int Order { get; set; }
         [NotMapped]
-        public string NameUnit { get; set; }
+        public string? NameUnit { get; set; }
+        public int RecordStatusId { get; set; }
     }
 }

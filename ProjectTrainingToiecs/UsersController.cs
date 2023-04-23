@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProjectTrainingToiecs.Common;
+using ProjectTrainingToiecs.Common.Enum;
 using ProjectTrainingToiecs.Models;
 using ProjectTrainingToiecs.Service.Service;
 using ProjectTrainingToiecs.Service.Service.Impl;
@@ -33,30 +34,45 @@ namespace ProjectTrainingToiecs
             }
             else
             {
-                var order = 0;
-                var users = _context.Users.ToList();
-                var process = _context.StatusStudies.GroupBy(x => x.UserId)
-                    .Select(x => new
-                    { x.Key, Value = x.Count() }).ToDictionary(x=>x.Key,x=>x.Value);
-                var total = _context.TestDetails.Count();
-                users.ForEach(x =>
-                {
-                    if (process.Any())
-                    {
-                        if (process.ContainsKey(x.Id))
-                        {
-                            x.Process = (process[x.Id] * 100) /total;
-                        }
-                    }
-                    x.Order = order+1;
-                    order++;
-                });
-                ViewBag.lst = users;
-                ViewBag.userName = userName;
                 return View();
             }
         }
-
+        public JsonResult GetUsers(FilterModel filter)
+        {
+            var order = 0;
+            var users = _context.Users.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).ToList();
+            if (!string.IsNullOrEmpty(filter.TextSearch))
+            {
+                filter.TextSearch = filter.TextSearch.ToLower();
+                users = users.Where(x => x.UserName.ToLower().Contains(filter.TextSearch) 
+                || x.FullName.ToLower().Contains(filter.TextSearch)
+                || x.Email.ToLower().Contains(filter.TextSearch)).ToList();
+            }
+            users = users.Take(filter.PageSize).ToList();
+            var userIds = users.Select(x => x.Id);
+            var process = new Dictionary<int, int>();
+            if (userIds.Any())
+            {
+                process = _context.StatusStudies.Where(x => userIds.Contains(x.UserId)).GroupBy(x => x.UserId)
+               .Select(x => new
+               { x.Key, Value = x.Count() }).ToDictionary(x => x.Key, x => x.Value);
+            }
+           
+            var total = _context.TestDetails.Where(x=>x.RecordStatusId == (int)ERecordStatus.Actived).Count();
+            users.ForEach(x =>
+            {
+                x.Order = order + 1;
+                if (process.Any())
+                {
+                    if (process.ContainsKey(x.Id))
+                    {
+                        x.Process = (process[x.Id] * 100) / total;
+                    }
+                }
+                order++;
+            });
+            return Json(new { data = users });
+        }
         // GET: Users/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -199,6 +215,8 @@ namespace ProjectTrainingToiecs
         }
         public async Task<IActionResult> Register()
         {
+            var course = _context.Course.Where(x=>x.RecordStatusId == (int)ERecordStatus.Actived).ToList();
+            ViewBag.course = course;
             return View("Register");
         }
         public JsonResult LoginUser(AccountModel user)
@@ -238,24 +256,43 @@ namespace ProjectTrainingToiecs
         public JsonResult RegsiterUser(AccountModel user)
         {
             var service =  new AccountService();
-            //var data = service.CheckLogin(user , _context);
             var val = string.Empty;
             var newUserId = 0;
             try
             {
-                var checkMail = _context.Users.Any(x =>x.Email == user.Email);
-                var checkUser = _context.Users.Any(x => x.UserName == user.UserName);
+                var checkMail = _context.Users.Any(x => (x.Email == user.Email || x.UserName == user.UserName)
+                    && x.RecordStatusId == (int)ERecordStatus.Actived && x.Active);
+                
                 if (!checkMail)
                 {
-                    val = "Email này đã được đăng ký vui lòng điền email khác";
-                }else if (checkUser)
+                    val = "Email hoặc tên tài khoản này đã được đăng ký vui lòng điền email khác";
+                }
+                else
                 {
-                    val = "Tài khoản này đã tồn tại vui lòng thử tài khoản khác";
+                    //gửi mail xác thực
+                    val = service.SendEmailDigitNumber(user);
+                }
+            }
+            catch (Exception ex)
+            {
+                val = "Gặp lỗi trong quá trình tạo tài khoản";
+            }
+            return Json(new { result = 1, data = val , userId = newUserId });
+        }
+        public JsonResult ValidateCode(AccountModel user)
+        {
+            var val = true;
+            try
+            {
+                if (user != null)
+                {
+                    val = false;
                 }
                 else
                 {
                     //Thêm người dùng vào hệ thống;
                     //mã hóa mật khẩu
+                    var service = new AccountService();
                     user.Password = service.DeCodePassword(user.Password);
                     var newUser = new Users()
                     {
@@ -265,39 +302,12 @@ namespace ProjectTrainingToiecs
                         Phone = user.Phone,
                         FullName = user.FullName,
                         RoleId = ESRole.User,
-                        TypeCourse = user.TypeCourse
+                        TypeCourse = user.TypeCourse,
+                        Created = DateTime.Now
                     };
                     _context.Add(newUser);
                     _context.SaveChanges();
-                    newUserId = newUser.Id;
-                    //gửi mail xác thực
-                    val = service.SendEmailDigitNumber(user);
-                }
-            }
-            catch (Exception ex)
-            {
-                val = "Gặp lỗi trong quá trình đăng nhập";
-            }
-            return Json(new { result = 1, data = val , userId = newUserId });
-        }
-        public JsonResult ValidateCode(string userId)
-        {
-            var val = true;
-            try
-            {
-                if (string.IsNullOrEmpty(userId))
-                {
-                    val = false;
-                }
-                else
-                {
-                    var user = _context.Users.FirstOrDefault(x => x.Id == Convert.ToInt32(userId));
-                    if(user != null)
-                    {
-                        user.Active = true;
-                        _context.Update(user);
-                        _context.SaveChanges();
-                    }
+                    val = newUser.Id > 0;
                 }
             }
             catch (Exception ex)
@@ -333,6 +343,19 @@ namespace ProjectTrainingToiecs
                 _context.SaveChangesAsync();
             }
             return Json(new { data = data.Id });
+        }
+        public JsonResult DeleteAccount(int id)
+        {
+            var val = false;
+            var user = _context.Users.FirstOrDefault(x => x.Id == id);
+            if(user != null)
+            {
+                user.RecordStatusId = (int)ERecordStatus.Deleted;
+                _context.Update(user);
+                _context.SaveChanges();
+                val = true;
+            }
+            return Json(new { Data = val });
         }
     }
 }

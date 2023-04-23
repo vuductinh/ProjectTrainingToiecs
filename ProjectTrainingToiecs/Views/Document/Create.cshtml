@@ -8,6 +8,7 @@
     $(document).ready(function () {
         var model = @Html.Raw(JsonConvert.SerializeObject(ViewBag.model));
         $('#type-lesson').val(model.LessonId);
+
     });
     $(function () {
         $('#add-document').click(function (e) {
@@ -15,7 +16,10 @@
             e.stopPropagation();
             var title  = $('#title').val();
             var lessonId = $('#type-lesson').val();
-            var data = {Title : title, LessonId : lessonId};
+            var audio = $('#link-audio').val();
+            var image = $('#link-image').val();
+            var id = $('#id-document').val();
+            var data = {Title : title, LessonId : lessonId, Audio : audio, Image: image,Id : id};
             $.ajax({
                 url: "/Document/CreateDocument",
                 type: "POST",
@@ -31,6 +35,56 @@
             });
         });
     });
+    function uploadFiles(inputId) {
+        var input = document.getElementById(inputId);
+        var files = input.files;
+        var formData = new FormData();
+        for (var i = 0; i != files.length; i++) {
+            formData.append("files", files[i]);
+        }
+
+        $.ajax(
+            {
+                url: "/TestDetail/UploadFiles",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    $('#link-image').val(data.fileName);
+
+                    $("#view-image").attr("src", data.fileName)
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    }
+    function uploadAudio(inputId) {
+        let input = document.getElementById(inputId);
+        var audios = input.files;
+        var formData = new FormData();
+        for (var i = 0; i != audios.length; i++) {
+            formData.append("audios", audios[i]);
+        }
+
+        $.ajax(
+            {
+                url: "/TestDetail/UploadAudio",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    $('#link-audio').val(data.fileName);
+                    var $radios = $('input:radio[name=optradio]');
+                    var audio = document.getElementById('view-audio');
+                    audio.src = data.fileName;
+                    audio.load();
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    }
 </script>
 <div class="container">
     <div class="row" style="margin-top: 200px">
@@ -59,12 +113,37 @@
                     <td><input class="form-control" type="text" value="@ViewBag.model.Title" id="title" /></td>
                 </tr>
                 <tr>
-                    <td>Audio</td>
-                    <td><input class="form-control" type="file" value="@ViewBag.model.Audio" id="audio" /></td>
+                    <td><span>Audio</span></td>
+                    <td>
+                        <input class="form-control" value="@ViewBag.model.Audio" id="link-audio" />
+                        <audio controls autoplay>
+                            <source src="@ViewBag.model.Audio" id="view-audio" type="audio/ogg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                            <div class="buttons">
+                                <div class="upload-button">
+                                    <div class="label">Click me!</div>
+                                    <input id="link_audio" name="link_audio" type="file" size="1" multiple onchange="uploadAudio('link_audio');" />
+                                </div>
+                            </div>
+                        </form>
+                    </td>
                 </tr>
                 <tr>
-                    <td>Image</td>
-                    <td><input class="form-control" type="file" value="@ViewBag.model.Image" id="image" /></td>
+                    <td><span>Image</span></td>
+                    <td>
+                        <input class="form-control" value="@ViewBag.model.Image" id="link-image" />
+                        <img id="view-image" src="@ViewBag.model.Image" width="300" height="300" />
+                        <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                            <div class="buttons">
+                                <div class="upload-button">
+                                    <div class="label">Click me!</div>
+                                    <input id="files" name="files" type="file" size="1" multiple onchange="uploadFiles('files');" />
+                                </div>
+                            </div>
+                        </form>
+                    </td>
                 </tr>
                 <tr>
                     <td><span class="btn btn-primary" id="add-document">Lưu</span></td>

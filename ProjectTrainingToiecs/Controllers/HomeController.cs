@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectTrainingToiecs.Common.Enum;
 using ProjectTrainingToiecs.Models;
 using System.Diagnostics;
 
@@ -34,20 +35,20 @@ namespace ProjectTrainingToiecs.Controllers
                 if (started.Any())
                 {
                     idTest = started.OrderByDescending(x => x.Id).FirstOrDefault().IdTest;
-                    idDocument = _context.TestDetails.FirstOrDefault(x => x.Id == idTest).DocumentId;
-                    idLesson = _context.Documents.FirstOrDefault(x => x.Id == idDocument).LessonId;
-                    unitId = _context.Lesson.FirstOrDefault(x => x.Id == idLesson).UnitId;
+                    idDocument = _context.TestDetails.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idTest).DocumentId;
+                    idLesson = _context.Documents.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idDocument).LessonId;
+                    unitId = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idLesson).UnitId;
                     btnLable = "Continue";
                 }
-                var unit = unitId > 0 ? _context.Units.FirstOrDefault(x=>x.Id == unitId) 
+                var unit = unitId > 0 ? _context.Units.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x=>x.Id == unitId) 
                     : _context.Units.OrderBy(x=>x.Id).FirstOrDefault();
-                ViewBag.lesson = _context.Lesson.FirstOrDefault(x => x.UnitId == unit.Id);
+                ViewBag.lesson = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.UnitId == unit.Id);
                 ViewBag.unit = unit;
                 ViewBag.userName = userName;
                 ViewBag.btnLable = btnLable;
                 ViewBag.idTest = idTest;
                 //tính trạng thái hoàn thành
-                var total = _context.TestDetails.Count();
+                var total = _context.TestDetails.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).Count();
                 var totalDoing = _context.StatusStudies.Where(x => x.UserId == userId).Count();
                 ViewBag.Process = (totalDoing *100)/total;
 

@@ -24,5 +24,6 @@ namespace ProjectTrainingToiecs.Models
         public int Order { get; set; }
         [NotMapped]
         public string? NameLesson { get; set; }
+        public int RecordStatusId { get; set; }
     }
 }

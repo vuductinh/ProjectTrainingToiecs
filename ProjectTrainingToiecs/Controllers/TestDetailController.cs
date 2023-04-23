@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using ProjectTrainingToiecs.Common.Enum;
 using ProjectTrainingToiecs.Models;
 
 namespace ProjectTrainingToiecs.Controllers
@@ -16,6 +17,7 @@ namespace ProjectTrainingToiecs.Controllers
             var lst = (from i in _context.TestDetails
                        join c in _context.Documents
                        on i.DocumentId equals c.Id
+                       where i.RecordStatusId == (int)ERecordStatus.Actived
                        select new TestDetail()
                        {
                            Id = i.Id,
@@ -27,12 +29,16 @@ namespace ProjectTrainingToiecs.Controllers
                            NameLesson = c.Title,
                            Description = i.Description,
                            Title = i.Title,
+                           LinkImage = i.LinkImage,
+                           Audio = i.Audio
                        }).ToList();
             
             var order = 0;
             lst.ForEach(x =>
             {
                 x.Order = order + 1;
+                x.Description = !string.IsNullOrEmpty(x.Description) ? x.Description.Replace("\n", " ") : x.Description;
+                x.LinkImage = String.IsNullOrEmpty(x.LinkImage) ? "/upload_files/ImageNone.jpg" : x.LinkImage;
                 order++;
             });
             ViewBag.lst = lst;
@@ -124,6 +130,19 @@ namespace ProjectTrainingToiecs.Controllers
             var response = new { FileName = fileName };
 
             return Ok(response);
+        }
+        public JsonResult DeleteTest(int id)
+        {
+            var val = false;
+            var user = _context.TestDetails.FirstOrDefault(x => x.Id == id);
+            if (user != null)
+            {
+                user.RecordStatusId = (int)ERecordStatus.Deleted;
+                _context.Update(user);
+                _context.SaveChanges();
+                val = true;
+            }
+            return Json(new { Data = val });
         }
     }
 }

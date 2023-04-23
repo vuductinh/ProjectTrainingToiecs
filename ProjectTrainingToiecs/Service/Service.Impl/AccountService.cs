@@ -29,13 +29,13 @@ namespace ProjectTrainingToiecs.Service.Service.Impl
                 var smtpClient = new SmtpClient("smtp.gmail.com")
                 {
                     Port = 587,
-                    Credentials = new NetworkCredential("hotronhathuoc@gmail.com", "ystnnbjdamfymjwi"),
+                    Credentials = new NetworkCredential("vuductinh97@gmail.com", "nrqpiuogvgdgxtdk"),
                     EnableSsl = true,
                     UseDefaultCredentials = true
                 };
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("hotronhathuoc@gmail.com"),
+                    From = new MailAddress("vuductinh97@gmail.com"),
                     Subject = "Mã xác thực tạo thành công tài khoản khóa học",
                     Body = String.Format("<h1>Vui lòng điền mã xác thực này {0} để hoàn thành đăng ký</h1>" +
                     "<p style= 'color : red'>Mã có hiệu lực trong 1 phút(lưu ý không chia sẻ mã này với ai)</p>",code),

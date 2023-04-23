@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectTrainingToiecs.Common.Enum;
 using ProjectTrainingToiecs.Models;
 
 namespace ProjectTrainingToiecs.Controllers
@@ -16,6 +17,7 @@ namespace ProjectTrainingToiecs.Controllers
             var lessons = (from i in _context.Lesson
                           join u in _context.Units
                           on i.UnitId equals u.Id
+                          where i.RecordStatusId == (int)ERecordStatus.Actived
                           select new Lesson()
                           {
                               Id = i.Id,
@@ -61,6 +63,19 @@ namespace ProjectTrainingToiecs.Controllers
                 _context.SaveChangesAsync();
             }
             return Json(new { data = data.Id });
+        }
+        public JsonResult DeleteLesson(int id)
+        {
+            var val = false;
+            var user = _context.Lesson.FirstOrDefault(x => x.Id == id);
+            if (user != null)
+            {
+                user.RecordStatusId = (int)ERecordStatus.Deleted;
+                _context.Update(user);
+                _context.SaveChanges();
+                val = true;
+            }
+            return Json(new { Data = val });
         }
     }
 }

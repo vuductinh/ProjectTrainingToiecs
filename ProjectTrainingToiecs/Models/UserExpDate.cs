@@ -6,5 +6,6 @@
         public int UserId { get; set; }
         public DateTime ExpDate { get; set; }
         public DateTime SignDate { get; set; }
+        public int RecordStatusId { get; set; }
     }
 }
