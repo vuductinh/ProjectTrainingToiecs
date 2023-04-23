@@ -21,6 +21,9 @@
             @(ViewBag.Process)% Complete (success)
         </div>
     </div>
+    <p class ="text-center" style="font-size: 30px; margin-top: 100px;">
+        Course: @Context.Session.GetString("TypeCourse")
+    </p>
     <p class="text-center" style="font-size: 30px; margin-top: 200px;">
         Module 2: Intermediate<br/>
         Unit: @ViewBag.unit.Name<br />

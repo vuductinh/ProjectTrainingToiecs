@@ -45,7 +45,6 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Course");
                 });
-
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -73,7 +72,6 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Documents");
                 });
-
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -98,7 +96,6 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Lesson");
                 });
-
             modelBuilder.Entity("ProjectTrainingToiecs.Models.StatusStudy", b =>
                 {
                     b.Property<int>("Id")
@@ -181,7 +178,6 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("TestDetails");
                 });
-
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Units", b =>
                 {
                     b.Property<int>("Id")

@@ -48,8 +48,6 @@ namespace ProjectTrainingToiecs
                             x.Process = (process[x.Id] * 100) /total;
                         }
                     }
-                    x.Order = order+1;
-                    order++;
                 });
                 ViewBag.lst = users;
                 ViewBag.userName = userName;
