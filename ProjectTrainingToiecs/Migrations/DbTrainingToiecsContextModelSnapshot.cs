@@ -48,7 +48,10 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Course");
                 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -79,7 +82,10 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Documents");
                 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -107,7 +113,10 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Lesson");
                 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.StatusStudy", b =>
                 {
                     b.Property<int>("Id")
@@ -193,7 +202,10 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("TestDetails");
                 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Units", b =>
                 {
                     b.Property<int>("Id")

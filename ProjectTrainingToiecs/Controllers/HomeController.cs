@@ -42,7 +42,11 @@ namespace ProjectTrainingToiecs.Controllers
                 }
                 var unit = unitId > 0 ? _context.Units.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x=>x.Id == unitId) 
                     : _context.Units.OrderBy(x=>x.Id).FirstOrDefault();
+<<<<<<< HEAD
                 ViewBag.lesson = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.UnitId == unit.Id);
+=======
+                ViewBag.lesson = _context.Lesson.FirstOrDefault(x => x.UnitId == unit.Id);
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
                 ViewBag.unit = unit;
                 ViewBag.userName = userName;
                 ViewBag.btnLable = btnLable;

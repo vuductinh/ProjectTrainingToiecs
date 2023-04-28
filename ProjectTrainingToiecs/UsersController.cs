@@ -34,6 +34,27 @@ namespace ProjectTrainingToiecs
             }
             else
             {
+<<<<<<< HEAD
+=======
+                var order = 0;
+                var users = _context.Users.ToList();
+                var process = _context.StatusStudies.GroupBy(x => x.UserId)
+                    .Select(x => new
+                    { x.Key, Value = x.Count() }).ToDictionary(x=>x.Key,x=>x.Value);
+                var total = _context.TestDetails.Count();
+                users.ForEach(x =>
+                {
+                    if (process.Any())
+                    {
+                        if (process.ContainsKey(x.Id))
+                        {
+                            x.Process = (process[x.Id] * 100) /total;
+                        }
+                    }
+                });
+                ViewBag.lst = users;
+                ViewBag.userName = userName;
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
                 return View();
             }
         }

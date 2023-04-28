@@ -43,6 +43,7 @@
         var url = window.location.protocol + "//" + window.location.host + '/Users/Edit?id=' + id;
         location.href = url;
     }
+<<<<<<< HEAD
     function deleteAccount(id) {
         if (confirm("Bạn có chắc muốn xóa tài khoản này!") == true) {
             $.ajax({
@@ -53,6 +54,61 @@
                     if (result.data) {
                         var url = window.location.protocol + "//" + window.location.host + '/Home/Index1';
                         location.href = url;
+=======
+   function signOutAdmin() {
+       debugger;
+        $.ajax({
+            url: "/Users/SignOut",
+            type: "GET",
+            success: function (result) {
+                if (result.result == 1) {
+                    var url = window.location.protocol + "//" + window.location.host + '/Users/Login';
+                    location.href = url;
+                }
+            }
+        });
+    };
+</script>   
+<div class="container"></div>
+    <div>
+    <h2 class="text-center" style="float:right;">
+        Welcome  @ViewBag.userName <span class="btn btn-link" onclick="signOutAdmin()"><i class="fa fa-sign-out" title="sign out" aria-hidden="true"></i></span>
+        </h2>
+    </div>
+    <div class="row">
+        <div col-md-12>
+            <label class="control-label align-content-center">Danh sách người dùng</label>
+            <div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>STT</th>
+                        <th>Username</th>
+                        <th>Fullname</th>
+                        <th>Email</th>
+                        <th>Process</th>
+                        <th>Active</th>
+                        <th>Type</th>
+                        <th>#</th>
+                    </tr>
+
+
+                    @foreach (var i in ViewBag.lst)
+                    {
+
+                        <tr>
+                            <td>@i.Order</td>
+                            <td>@i.UserName</td>
+                            <td>@i.FullName</td>
+                            <td>@i.Email</td>
+                            <td>@(i.Process) %</td>
+                            <td>@i.ActiveTxt</td>
+                            <td>@i.TypeTxt</td>
+                            <td>
+                                <span onclick="editUser(@i.Id)">Sửa</span>
+                                <span>Chi tiết</span>
+                            </td>
+                        </tr>
+>>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
                     }
                 }
             });
