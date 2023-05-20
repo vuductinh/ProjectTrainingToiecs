@@ -34,27 +34,8 @@ namespace ProjectTrainingToiecs
             }
             else
             {
-<<<<<<< HEAD
-=======
-                var order = 0;
-                var users = _context.Users.ToList();
-                var process = _context.StatusStudies.GroupBy(x => x.UserId)
-                    .Select(x => new
-                    { x.Key, Value = x.Count() }).ToDictionary(x=>x.Key,x=>x.Value);
-                var total = _context.TestDetails.Count();
-                users.ForEach(x =>
-                {
-                    if (process.Any())
-                    {
-                        if (process.ContainsKey(x.Id))
-                        {
-                            x.Process = (process[x.Id] * 100) /total;
-                        }
-                    }
-                });
-                ViewBag.lst = users;
-                ViewBag.userName = userName;
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
+                ViewBag.activeUser = true;
+                HttpContext.Session.SetString("Active", "user");
                 return View();
             }
         }
@@ -62,6 +43,14 @@ namespace ProjectTrainingToiecs
         {
             var order = 0;
             var users = _context.Users.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).ToList();
+            if (filter.FromDate.HasValue)
+            {
+                users = users.Where(x => x.Created >= filter.FromDate.Value.AddHours(0)).ToList();
+            }
+            if (filter.ToDate.HasValue)
+            {
+                users = users.Where(x => x.Created <= filter.ToDate.Value.AddHours(23)).ToList();
+            }
             if (!string.IsNullOrEmpty(filter.TextSearch))
             {
                 filter.TextSearch = filter.TextSearch.ToLower();
@@ -72,22 +61,35 @@ namespace ProjectTrainingToiecs
             users = users.Take(filter.PageSize).ToList();
             var userIds = users.Select(x => x.Id);
             var process = new Dictionary<int, int>();
+            var course = new Dictionary<int, string>();
             if (userIds.Any())
             {
                 process = _context.StatusStudies.Where(x => userIds.Contains(x.UserId)).GroupBy(x => x.UserId)
                .Select(x => new
                { x.Key, Value = x.Count() }).ToDictionary(x => x.Key, x => x.Value);
             }
-           
-            var total = _context.TestDetails.Where(x=>x.RecordStatusId == (int)ERecordStatus.Actived).Count();
+            var courseIds = users.Select(x => x.TypeCourse).Distinct();
+            if (courseIds.Any())
+            {
+                course = _context.Course.Where(x => courseIds.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Name);
+            }
             users.ForEach(x =>
             {
+
+                var total = _context.Units.Where(xx => xx.CourseId == x.TypeCourse).Sum(xx => xx.Count);
                 x.Order = order + 1;
                 if (process.Any())
                 {
-                    if (process.ContainsKey(x.Id))
+                    if (process.ContainsKey(x.Id) && total > 0)
                     {
                         x.Process = (process[x.Id] * 100) / total;
+                    }
+                }
+                if (course.Any())
+                {
+                    if (course.ContainsKey(x.TypeCourse))
+                    {
+                        x.TypeTxt = course[x.TypeCourse];
                     }
                 }
                 order++;
@@ -145,7 +147,20 @@ namespace ProjectTrainingToiecs
             ViewBag.model = user;
             return View();
         }
-
+        [HttpPost]
+        public JsonResult UserInfo(int id)
+        {
+            var user = new Users();
+            if (id > 0)
+            {
+                user = _context.Users.FirstOrDefault(x => x.Id == id);
+                if(user.TypeCourse > 0) {
+                    var course = _context.Course.FirstOrDefault(x => x.Id == user.TypeCourse).Name;
+                    user.TypeTxt = course;
+                }
+            }
+            return Json(new {data = user}); 
+        }
         // POST: Users/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -180,7 +195,16 @@ namespace ProjectTrainingToiecs
             }
             return View(users);
         }
-
+        public JsonResult UpdateUser(Users user)
+        {
+            var  userOld = _context.Users.FirstOrDefault(x => x.Id == user.Id);
+            userOld.Phone = user.Phone;
+            userOld.Email = user.Email;
+            userOld.FullName = user.FullName;
+            _context.Update(userOld);
+            _context.SaveChanges();
+            return Json(new {data = true});
+        }
         // GET: Users/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -242,7 +266,7 @@ namespace ProjectTrainingToiecs
         }
         public JsonResult LoginUser(AccountModel user)
         {
-            var service =  new AccountService();
+            IAccountService service = new AccountService();
             //var data = service.CheckLogin(user , _context);
             var val = string.Empty;
             var role = 0;
@@ -260,6 +284,7 @@ namespace ProjectTrainingToiecs
                         HttpContext.Session.SetString("Role", model.RoleId == ESRole.Admin ? "Admin" : "User");
                         HttpContext.Session.SetString("TypeCourse", model.TypeCourse == 1 ? "Basic" : "Advanced");
                         HttpContext.Session.SetString("UserId", model.Id.ToString());
+                        HttpContext.Session.SetString("Active", String.Empty);
                         role = model.RoleId;
                     }
                 }
@@ -298,14 +323,14 @@ namespace ProjectTrainingToiecs
             {
                 val = "Gặp lỗi trong quá trình tạo tài khoản";
             }
-            return Json(new { result = 1, data = val , userId = newUserId });
+            return Json(new { data = string.IsNullOrEmpty(val) ? 0 : 1, code = val});
         }
         public JsonResult ValidateCode(AccountModel user)
         {
             var val = true;
             try
             {
-                if (user != null)
+                if (user == null)
                 {
                     val = false;
                 }
@@ -324,7 +349,8 @@ namespace ProjectTrainingToiecs
                         FullName = user.FullName,
                         RoleId = ESRole.User,
                         TypeCourse = user.TypeCourse,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Active = true
                     };
                     _context.Add(newUser);
                     _context.SaveChanges();

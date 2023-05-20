@@ -15,22 +15,32 @@ namespace ProjectTrainingToiecs.Controllers
         }
         public IActionResult Index()
         {
+            HttpContext.Session.SetString("Active", "course");
+            ViewBag.link = "<i class=\"fa fa-home\" aria-hidden=\"true\"></i><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i> <b>Course</b>";
+            return View();
+        }
+        public JsonResult GetCourse(FilterModel filter)
+        {
             var order = 0;
             var course = (from i in _context.Course
-                         where i.RecordStatusId ==(int)ERecordStatus.Actived
-                         select new Course()
-                         {
-                             Id = i.Id,
-                             Name = i.Name,
-                             Description = i.Description
-                         }).ToList();
+                          where i.RecordStatusId == (int)ERecordStatus.Actived
+                          select new Course()
+                          {
+                              Id = i.Id,
+                              Name = i.Name,
+                              Description = i.Description,
+                              LastUpdate = i.LastUpdate
+                          }).ToList();
+            if (!string.IsNullOrEmpty(filter.TextSearch))
+            {
+                course = course.Where(x => x.Name.ToLower().Contains(filter.TextSearch.ToLower())).ToList();
+            }
             course.ForEach(x =>
             {
                 x.Order = order + 1;
                 order++;
             });
-            ViewBag.lst = course;
-            return View();
+            return Json(new { data = course });
         }
         public IActionResult Create(int? id = null)
         {
@@ -69,6 +79,30 @@ namespace ProjectTrainingToiecs.Controllers
                 val = true;
             }
             return Json(new { Data = val });
+        }
+        [HttpPost]
+        public JsonResult GetInfoCourse(int id)
+        {
+            var course = _context.Course.FirstOrDefault(x => x.Id == id);
+            return Json(new { data = course });
+        }
+        [HttpPost]
+        public JsonResult UpdateCourse(Course model)
+        {
+            if(model.Id > 0)
+            {
+                var courseOld = _context.Course.FirstOrDefault(x => x.Id == model.Id);
+                courseOld.Name = model.Name;
+                courseOld.LastUpdate = DateTime.Now;
+                courseOld.Description = model.Description;
+                _context.Update(courseOld);
+            }
+            else
+            {
+                _context.Add(model);
+            }
+            _context.SaveChanges();
+            return Json(new { data = model.Id > 0 });
         }
     }
 }

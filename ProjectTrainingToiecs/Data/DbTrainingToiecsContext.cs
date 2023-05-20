@@ -19,4 +19,6 @@ using ProjectTrainingToiecs.Models;
         public DbSet<ProjectTrainingToiecs.Models.Document> Documents { get; set; } = default!;
         public DbSet<ProjectTrainingToiecs.Models.TestDetail> TestDetails { get; set; } = default!;
         public DbSet<ProjectTrainingToiecs.Models.StatusStudy> StatusStudies { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.Question> Questions { get; set; } = default!;
+        public DbSet<ProjectTrainingToiecs.Models.AuditLog> AuditLogs { get; set; } = default!;
 }

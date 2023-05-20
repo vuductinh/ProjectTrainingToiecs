@@ -21,6 +21,31 @@ namespace ProjectTrainingToiecs.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("ProjectTrainingToiecs.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AdressAccess")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PageAccess")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Course", b =>
                 {
                     b.Property<int>("Id")
@@ -31,6 +56,9 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -48,10 +76,7 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Course");
                 });
-<<<<<<< HEAD
 
-=======
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -82,10 +107,7 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Documents");
                 });
-<<<<<<< HEAD
 
-=======
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -113,10 +135,50 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.ToTable("Lesson");
                 });
-<<<<<<< HEAD
 
-=======
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
+            modelBuilder.Entity("ProjectTrainingToiecs.Models.Question", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CorrectAnswer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IdQS")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QS")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QSA")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QSB")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QSC")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QSD")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RecordStatusId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Questions");
+                });
+
             modelBuilder.Entity("ProjectTrainingToiecs.Models.StatusStudy", b =>
                 {
                     b.Property<int>("Id")
@@ -133,6 +195,9 @@ namespace ProjectTrainingToiecs.Migrations
 
                     b.Property<bool>("Result")
                         .HasColumnType("bit");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -192,20 +257,26 @@ namespace ProjectTrainingToiecs.Migrations
                     b.Property<int>("RecordStatusId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Scription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<int>("TypeDetail")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("TestDetails");
                 });
-<<<<<<< HEAD
 
-=======
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
             modelBuilder.Entity("ProjectTrainingToiecs.Models.Units", b =>
                 {
                     b.Property<int>("Id")
@@ -214,11 +285,17 @@ namespace ProjectTrainingToiecs.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");

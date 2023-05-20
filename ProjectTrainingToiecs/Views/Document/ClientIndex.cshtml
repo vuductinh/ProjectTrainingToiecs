@@ -1,0 +1,705 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<style>
+ .show-rs-p5{
+     display: none;
+ }
+</style>
+<script>
+    var typeQuesion = 1;
+    var typeQuesionDetail = 1;
+    var countQuesionQA = 1;
+    var countQuesionC = 1;
+    var countQuesionT = 1;
+    var countQuesionRD = 1;
+    var countQuesionRC = 1;
+    var countCheck = 0;
+    function onDircourse(id){
+        var url = window.location.protocol + "//" + window.location.host + '/Unit/UnitClient?courseId=' + id;
+        location.href = url;
+    }
+    $(document).ready(function () {
+        onGetDataQuesion();
+    });
+    function addDocument(id) {
+        var url = window.location.protocol + "//" + window.location.host + '/Document/Create?id=' + id;
+        location.href = url;
+    }
+    function refeshData() {
+        $('#search-key').val('');
+        onGetDataQuesion();
+    }
+    function deleteQuesion(id) {
+        if (confirm("Bạn có chắc muốn xóa câu hỏi này!") == true) {
+            $.ajax({
+                url: "/TestDetail/DeleteTest",
+                type: "Post",
+                data: { id: id },
+                success: function (result) {
+                    if (result.data) {
+                        alert('Xóa thành công');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình xóa');
+                    }
+                }
+            });
+        }
+    }
+    function deleteDetailQuesion(id) {
+        if (confirm("Bạn có chắc muốn xóa câu hỏi con này!") == true) {
+            $.ajax({
+                url: "/TestDetail/DeleteTestDetail",
+                type: "Post",
+                data: { id: id },
+                success: function (result) {
+                    if (result.data) {
+                        alert('Xóa thành công');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình xóa');
+                    }
+                }
+            });
+        }
+    }
+    function updateQuesionDetail(idDetail, id, type) {
+        var val = $('#conrect-answer-'+type+'-' + idDetail + '-' + id).val();
+        var title = $('#title-'+type+'-' + idDetail + '-' + id).val();
+        var qsa = $('#qs-a-'+type+'-' + idDetail + '-' + id).val();
+        var qsb = $('#qs-b-'+type+'-' + idDetail + '-' + id).val();
+        var qsc = $('#qs-c-'+type+'-' + idDetail + '-' + id).val();
+        var qsd = $('#qs-d-'+type+'-' + idDetail + '-' + id).val();
+        var ds = $('#model-description-'+type+'-' + idDetail + '-' + id).val();
+        if (!val || (typeQuesionDetail != 2 && (!title || !qsa || !qsb || !qsc || !qsd))){
+            alert('Vui lòng nhập câu trả lời');
+            return;
+        }
+        $.ajax({
+            url: "/TestDetail/UpdateInfoQuesion",
+            type: "Post",
+            data: { Id: idDetail, CorrectAnswer: val, QS :title, QSA : qsa, QSB : qsb, QSC : qsc, QSD : qsd,Description : ds },
+            success: function (result) {
+                if (result.data) {
+                    alert('Cập nhật thành công');
+                    onGetDataQuesion();
+                } else {
+                    alert('Gặp lỗi trong quá trình cập nhật');
+                }
+            }
+        });
+    }
+    function typeActive(type) {
+        if (type == "listening") {
+            $('#lable-listening').css('font-weight', '600');
+            $('#lable-listening').css('color', 'black');
+            $('#lable-reading').css('font-weight', '0');
+            $('#lable-reading').css('color', '#ADB5BD');
+            typeQuesion = 1;
+            $('#option-listening').css('display', 'block');
+            $('#option-reading').css('display', 'none');
+            $('#image-description').css('background-color', '#8976ED');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#E7E7FB');
+            typeQuesionDetail = 1;
+        } else {
+            $('#lable-reading').css('font-weight', '600');
+            $('#lable-reading').css('color', 'black');
+            $('#lable-listening').css('font-weight', '0');
+            $('#lable-listening').css('color', '#ADB5BD');
+            typeQuesion = 2;
+            $('#option-listening').css('display', 'none');
+            $('#option-reading').css('display', 'block');
+            $('#complete-sentence').css('background-color', '#8976ED');
+            $('#complete-paragraph').css('background-color', '#E7E7FB');
+            typeQuesionDetail = 5;
+        }
+        onGetDataQuesion();
+    }
+    function typeActiveDetail(type) {
+        if (type == "image" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#8976ED');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#E7E7FB');
+            $('#short-talk').css('background-color', '#E7E7FB');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 1;
+        } else if (type == "qa" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#E7E7FB');
+            $('#q-a').css('background-color', '#8976ED');
+            $('#convention').css('background-color', '#E7E7FB');
+            $('#short-talk').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 2;
+        } else if (type == "conversation" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#E7E7FB');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#8976ED');
+            $('#short-talk').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+
+            typeQuesionDetail = 3;
+        }
+        else if (type == "shorttalk" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#E7E7FB');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#E7E7FB');
+            $('#short-talk').css('background-color', '#8976ED');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 4;
+        }
+        else if (type == "completesentence" && typeQuesion == 2) {
+            $('#complete-sentence').css('background-color', '#8976ED');
+            $('#complete-paragraph').css('background-color', '#E7E7FB');
+            $('#reading-comprehen').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 5;
+        }
+        else if (type == "completeparagraph" && typeQuesion == 2) {
+            $('#complete-sentence').css('background-color', '#E7E7FB');
+            $('#complete-paragraph').css('background-color', '#8976ED');
+            $('#reading-comprehen').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 6;
+        }
+        else if (type == "readingcomprehen" && typeQuesion == 2) {
+            $('#complete-sentence').css('background-color', '#E7E7FB');
+            $('#complete-paragraph').css('background-color', '#E7E7FB');
+            $('#reading-comprehen').css('background-color', '#8976ED');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            typeQuesionDetail = 7;
+        }
+        onGetDataQuesion();
+    }
+    function onGetDataQuesion() {
+        var search = $('#search-key').val();
+        var unitId = $('#unit-id').val();
+        $.ajax({
+            url: "/Document/GetDocument",
+            type: "Post",
+            data: { TextSearch: search, UnitId: unitId, TypeQuesion: typeQuesion, TypeQuesionDetail: typeQuesionDetail },
+            success: function (result) {
+                if (result.data) {
+                    var div = document.getElementById('table-quesion');
+                    var countQuesion = document.getElementById('count-quesion');
+                    var correctQuesion = document.getElementById('correct-quesion');
+                    countQuesion.innerHTML = result.countQs;
+                    correctQuesion.innerHTML = '<span>' + result.correct + '/' + result.countQs + '</span>'
+                    var unitId = $('#unit-id').val();
+                    var html = typeQuesionDetail == 5  ? '<div class="col-md-3"></div><div class="col-md-6">' :'';
+                    for (var i = 0; i < result.data.length; i++) {
+                        var item = result.data[i];
+                        if (typeQuesionDetail == 1) {
+                            html += '<div class="col-md-12" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;">' +
+                                '<div class="col-md-5">' +
+                                '<input id="id-test-'+typeQuesionDetail+'-'+item.id+'" class ="hidden" value = "' + item.id + '"/>' +
+                                '<input id="correct-answer-' + typeQuesionDetail + '-' + item.id + '" class ="hidden" value = "' + item.correctAnswer + '"/>' +
+                                '<label style="width: 100%;">Quesion ' + item.itemOrder + '.</label>' +
+                                '<div style="background-color :#E9ECEF">' +
+                                '<audio style="width: 100%;height: 22px;" id="run-audio-1-' + item.id + '" controls><source src="' + item.audio + '" id="view-audio-1-' + item.id + '" type="audio/ogg"></audio>' +
+                                '<div class="form-check">'+
+                                '<label class="form-check-label" id="lable-A-'+typeQuesionDetail+'-'+item.id+'">'+
+                                '<input '+(item.option == 'A' ? 'checked' : '') +' '+ (item.marked ? 'disabled' : '') + ' type="radio" id="check-A-' + typeQuesionDetail + '-' + item.id + '" value="A" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '">A <label for="check-A-' + typeQuesionDetail + '-' + item.id + '">' +
+                                '<i class="fa fa-check text-success" style="display: '+(item.correctAnswer == 'A' && item.marked  ? 'display' : 'none')+'" id="label-icon-done-A-'+typeQuesionDetail+'-'+item.id+'" aria-hidden="true"></i>'+
+                                '<i style="display: ' + (item.option == 'A' && item.option != item.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-A-' + typeQuesionDetail + '-' + item.id + '" class="fa fa-close text-danger"></i>' +
+                                '</label>'+
+                                '</label>'+
+                                '</div>'+
+                                '<div class="form-check">'+
+                                '<label class="form-check-label" id="lable-B-'+typeQuesionDetail+'-'+item.id+'">'+
+                                '<input '+(item.option == 'B' ? 'checked' : '')+' '+ (item.marked ? 'disabled' : '') + ' type="radio" id="check-B-'+typeQuesionDetail+'-'+item.id+'" value="B" class="form-check-input" name="optradio-'+typeQuesionDetail+'-'+item.id+'">B'+
+                                '<label for="check-B-'+typeQuesionDetail+'-'+item.id+'"><i class="fa fa-check text-success" id="label-icon-done-B-'+typeQuesionDetail+'-'+item.id+'" style="display: '+(item.correctAnswer == 'B' && item.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                '<i style="display: '+(item.option == 'B' && item.option != item.correctAnswer ? 'display' : 'none')+'" id="label-icon-fail-B-'+typeQuesionDetail+'-'+item.id+'" class="fa fa-close text-danger"></i>'+
+                                '</label>'+
+                                '</label>'+
+                                '</div>'+
+                                '<div class="form-check">'+
+                                '<label class="form-check-label" id="lable-C-'+typeQuesionDetail+'-'+item.id+'">'+
+                                '<input '+(item.option == 'C' ? 'checked' : '')+' '+ (item.marked ? 'disabled' : '') + ' type="radio" id="check-C-'+typeQuesionDetail+'-'+item.id+'" value="C" class="form-check-input" name="optradio-'+typeQuesionDetail+'-'+item.id+'">C'+
+                                '<label for="check-C-'+typeQuesionDetail+'-'+item.id+'">'+
+                                '<i class="fa fa-check text-success" id="label-icon-done-C-'+typeQuesionDetail+'-'+item.id+'" style="display: '+(item.correctAnswer == 'C' && item.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                '<i style="display: '+(item.option == 'C' && item.option != item.correctAnswer ? 'display' : 'none')+'" id="label-icon-fail-C-'+typeQuesionDetail+'-'+item.id+'" class="fa fa-close text-danger"></i></label>'+
+                                '</label>'+
+                                '</div>'+
+                                '<div class="form-check">'+
+                                '<label class="form-check-label" id="lable-D-'+typeQuesionDetail+'-'+item.id+'">'+
+                                '<input ' + (item.option == 'D' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-d-' + typeQuesionDetail + '-' + item.id + '" value="D" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '">D' +
+                                '<label for="check-D-'+typeQuesionDetail+'-'+item.id+'">'+
+                                '<i class="fa fa-check text-success" id="label-icon-done-D-'+typeQuesionDetail+'-'+item.id+'" style="display: '+(item.correctAnswer == 'D' && item.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                '<i style="display: '+(item.option == 'D' && item.option != item.correctAnswer  ? 'display' : 'none')+'" id="label-icon-fail-D-'+typeQuesionDetail+'-'+item.id+'" class="fa fa-close text-danger"></i></label>'+
+                                '</label>'+
+                                '</div>'+
+                                '</div>' +
+                                '</div><div class="col-md-3"><label style="width: 100%">Image</label><img id="view-image-1-' + item.id + '" src="' + item.linkImage + '" width="65%"; height ="150px;" /></div>' +
+                                '<div class="col-md-4"><label onclick="onShowResult('+typeQuesionDetail+', '+item.id+')">Check</label>' +
+                                '<div id = "show-result-'+typeQuesionDetail+'-'+item.id+'" style = "display : '+(item.marked ? 'display' : 'none')+'"><label>Script</label>'+
+                                '<textarea id="model-script-1-' + item.id + '" placeholder="Type your request" class="form-control" readonly rows="7">' + item.scription + '</textarea>' +
+                                '</div>'+
+                                '</div></div>';
+                        } else if (typeQuesionDetail == 2) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;"><div style="background-color :#E9ECEF">' +
+                                '<label>Quesion : ' + (i + 1) + '</label>' +
+                                '<audio style="width: 100%;height: 22px;" id="run-audio-2-' + item.id + '" controls>' +
+                                '<source src="' + item.audio + '" id="view-audio-2-' + item.id + '">' +
+                                '</audio></div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder + '</p>'+
+                                    '<input id="id-detail-'+typeQuesionDetail+'-'+ item.id + '-'+ ii +'" class ="hidden" value = "' + detail.id + '"/>' +
+                                    '<input id="correct-answer-' + typeQuesionDetail + '-' + item.id + '-'+ ii + '" class ="hidden" value = "' + detail.correctAnswer + '"/>' +
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-A-'+typeQuesionDetail+'-'+detail.id+'">'+
+                                    '<input '+(detail.option == 'A' ? 'checked' : '') +' '+ (detail.marked ? 'disabled' : '') + ' type="radio" id="check-A-' + typeQuesionDetail + '-' 
+                                    + '-' + detail.id +'" value="A" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">A <label for="check-A-' + typeQuesionDetail + '-' + item.id + '-' + ii  + '">' +
+                                    '<i class="fa fa-check text-success" style="display: '+(detail.correctAnswer == 'A' && detail.marked  ? 'display' : 'none')+'" id="label-icon-done-A-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(detail.option == 'A' && detail.option != detail.correctAnswer  ? 'display' : 'none')+'" id="label-icon-fail-A-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" class="fa fa-close text-danger"></i>'+
+                                    '</label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-B-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">'+
+                                    '<input '+(detail.option == 'B' ? 'checked' : '')+' '+ (detail.marked ? 'disabled' : '') + ' type="radio" id="check-B-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" value="B" class="form-check-input" name="optradio-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">B'+
+                                    '<label for="check-B-'+typeQuesionDetail+'-'+detail.id+'"><i class="fa fa-check text-success" id="label-icon-done-B-'+typeQuesionDetail+'-'+detail.id+'" style="display: '+(detail.correctAnswer == 'B' && detail.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(detail.option == 'B' && detail.option != detail.correctAnswer  ? 'display' : 'none')+'" id="label-icon-fail-B-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" class="fa fa-close text-danger"></i>'+
+                                    '</label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-C-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">'+
+                                    '<input '+(detail.option == 'C' ? 'checked' : '')+' '+ (item.marked ? 'disabled' : '') + ' type="radio" id="check-C-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" value="C" class="form-check-input" name="optradio-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">C'+
+                                    '<label for="check-C-'+typeQuesionDetail+'-'+detail.id+'">'+
+                                    '<i class="fa fa-check text-success" id="label-icon-done-C-'+typeQuesionDetail+'-'+detail.id+'" style="display: '+(detail.correctAnswer == 'C' && detail.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                        '<i style="display: ' + (detail.option == 'C' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                    '</label>'+
+                                    '</div>'
+                                }
+                            }
+                            html += '</div><div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">' +
+                                '<label onclick="onShowResultDetail('+typeQuesionDetail+','+item.questionsDetail.length+','+item.id+')">Check</label>'+
+                                '<div id = "show-result-'+typeQuesionDetail+'-'+item.id+'" style = "display : '+(item.marked ? 'display' : 'none')+'"><label>Script</label>'+
+                                '<textarea id="model-script-2-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 4) + '">' + item.scription + '</textarea>' +
+                                '</div></div>';
+
+                        } else if (typeQuesionDetail == 3) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;"><div style="background-color :#E9ECEF">' +
+                                '<label>Quesion : ' + (i + 1) + '</label>' +
+                                '<audio style="width: 100%;height: 22px;" id="run-audio-3-' + item.id + '" controls>' +
+                                '<source src="' + item.audio + '" id="view-audio-3-' + item.id + '">' +
+                                '</audio></div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder +'</p>' +
+                                    '<input id="id-detail-'+typeQuesionDetail+'-'+ item.id + '-'+ ii +'" class ="hidden" value = "' + detail.id + '"/>' +
+                                    '<input id="correct-answer-' + typeQuesionDetail + '-' + item.id + '-'+ ii + '" class ="hidden" value = "' + detail.correctAnswer + '"/>' +
+                                     '<input readonly value="' + detail.qs + '" type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-3-' + detail.id + '-' + item.id + '" class="form-control"/>' +
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-A-'+typeQuesionDetail+'-'+detail.id+'">'+
+                                    '<input '+(detail.option == 'A' ? 'checked' : '') +' '+ (detail.marked ? 'disabled' : '') + ' type="radio" id="check-A-' + typeQuesionDetail + '-' 
+                                    + '-' + detail.id +'" value="A" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">A '+detail.qsa+' <label for="check-A-' + typeQuesionDetail + '-' + item.id + '-' + ii  + '">' +
+                                    '<i class="fa fa-check text-success" style="display: '+(detail.correctAnswer == 'A' && detail.marked  ? 'display' : 'none')+'" id="label-icon-done-A-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(detail.option == 'A' && detail.option != detail.correctAnswer  ? 'display' : 'none')+'" id="label-icon-fail-A-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" class="fa fa-close text-danger"></i>'+
+                                    '</label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-B-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">'+
+                                    '<input '+(detail.option == 'B' ? 'checked' : '')+' '+ (detail.marked ? 'disabled' : '') + ' type="radio" id="check-B-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" value="B" class="form-check-input" name="optradio-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">B '+ detail.qsb +
+                                    '<label for="check-B-'+typeQuesionDetail+'-'+detail.id+'"><i class="fa fa-check text-success" id="label-icon-done-B-'+typeQuesionDetail+'-'+detail.id+'" style="display: '+(detail.correctAnswer == 'B' && detail.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(detail.option == 'B' && detail.option != detail.correctAnswer  ? 'display' : 'none')+'" id="label-icon-fail-B-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" class="fa fa-close text-danger"></i>'+
+                                    '</label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-C-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">'+
+                                    '<input '+(detail.option == 'C' ? 'checked' : '')+' '+ (item.marked ? 'disabled' : '') + ' type="radio" id="check-C-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" value="C" class="form-check-input" name="optradio-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">C'+ detail.qsc +
+                                    '<label for="check-C-'+typeQuesionDetail+'-'+detail.id+'">'+
+                                    '<i class="fa fa-check text-success" id="label-icon-done-C-'+typeQuesionDetail+'-'+detail.id+'" style="display: '+(detail.correctAnswer == 'C' && detail.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                        '<i style="display: ' + (detail.option == 'C' && detail.option != detail.correctAnswer  ? 'display' : 'none') + '" id="label-icon-fail-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-D-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">'+
+                                    '<input '+(detail.option == 'D' ? 'checked' : '')+' '+ (item.marked ? 'disabled' : '') + ' type="radio" id="check-D-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'" value="D" class="form-check-input" name="optradio-'+typeQuesionDetail+ '-' + item.id + '-' + ii +'">D'+ detail.qsd +
+                                    '<label for="check-D-'+typeQuesionDetail+'-'+detail.id+'">'+
+                                    '<i class="fa fa-check text-success" id="label-icon-done-D-'+typeQuesionDetail+'-'+detail.id+'" style="display: '+(detail.correctAnswer == 'D' && detail.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                        '<i style="display: ' + (detail.option == 'D' && detail.option != detail.correctAnswer  ? 'display' : 'none') + '" id="label-icon-fail-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                    '</label>'+
+                                    '</div>';
+                                }
+                            }
+                            html += '</div><div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">' +
+                                '<label onclick="onShowResultDetail('+typeQuesionDetail+','+item.questionsDetail.length+','+item.id+')">Check</label>'+
+                                '<div id = "show-result-'+typeQuesionDetail+'-'+item.id+'" style = "display : '+(item.marked ? 'display' : 'none')+'"><label>Script</label>'+
+                                '<textarea id="model-script-3-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 4) + '">' + item.scription + '</textarea>' +
+                                '</div></div>';
+
+                        }
+                        else if (typeQuesionDetail == 4) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;"><div style="background-color :#E9ECEF">' +
+                                '<label>Quesion : ' + (i + 1) + '</label>' +
+                                '<audio style="width: 100%;height: 22px;" id="run-audio-4-' + item.id + '" controls>' +
+                                '<source src="' + item.audio + '" id="view-audio-4-' + item.id + '">' +
+                                '</audio>' +
+                                '</div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder + '</p>' +
+                                        '<input id="id-detail-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class ="hidden" value = "' + detail.id + '"/>' +
+                                        '<input id="correct-answer-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class ="hidden" value = "' + detail.correctAnswer + '"/>' +
+                                        '<input readonly value="' + detail.qs + '" type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-3-' + detail.id + '-' + item.id + '" class="form-control"/>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-A-' + typeQuesionDetail + '-' + detail.id + '">' +
+                                        '<input ' + (detail.option == 'A' ? 'checked' : '') + ' ' + (detail.marked ? 'disabled' : '') + ' type="radio" id="check-A-' + typeQuesionDetail + '-'
+                                        + '-' + detail.id + '" value="A" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">A ' + detail.qsa + ' <label for="check-A-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<i class="fa fa-check text-success" style="display: ' + (detail.correctAnswer == 'A' && detail.marked ? 'display' : 'none') + '" id="label-icon-done-A-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'A' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-A-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i>' +
+                                        '</label>' +
+                                        '</label>' +
+                                        '</div>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-B-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<input ' + (detail.option == 'B' ? 'checked' : '') + ' ' + (detail.marked ? 'disabled' : '') + ' type="radio" id="check-B-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" value="B" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">B ' + detail.qsb +
+                                        '<label for="check-B-' + typeQuesionDetail + '-' + detail.id + '"><i class="fa fa-check text-success" id="label-icon-done-B-' + typeQuesionDetail + '-' + detail.id + '" style="display: ' + (detail.correctAnswer == 'B' && detail.marked ? 'display' : 'none') + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'B' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-B-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i>' +
+                                        '</label>' +
+                                        '</label>' +
+                                        '</div>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<input ' + (detail.option == 'C' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" value="C" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">C' + detail.qsc +
+                                        '<label for="check-C-' + typeQuesionDetail + '-' + detail.id + '">' +
+                                        '<i class="fa fa-check text-success" id="label-icon-done-C-' + typeQuesionDetail + '-' + detail.id + '" style="display: ' + (detail.correctAnswer == 'C' && detail.marked ? 'display' : 'none') + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'C' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                        '</label>' +
+                                        '</div>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<input ' + (detail.option == 'D' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" value="D" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">D' + detail.qsd +
+                                        '<label for="check-D-' + typeQuesionDetail + '-' + detail.id + '">' +
+                                        '<i class="fa fa-check text-success" id="label-icon-done-D-' + typeQuesionDetail + '-' + detail.id + '" style="display: ' + (detail.correctAnswer == 'D' && detail.marked ? 'display' : 'none') + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'D' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                        '</label>' +
+                                        '</div>';
+                                }
+                            }
+                            html += '</div><div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">' +
+                                '<label onclick="onShowResultDetail('+typeQuesionDetail+','+item.questionsDetail.length+','+item.id+')">Check</label>'+
+                                '<label style="width: 100%">Image</label><img src="'+item.linkImage+'" id="view-image-4-'+item.id+'" width="100%" />'+
+                                '<div id = "show-result-'+typeQuesionDetail+'-'+item.id+'" style = "display : '+(item.marked ? 'display' : 'none')+'"><label>Script</label>'+
+                                '<textarea id="model-script-3-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 4) + '">' + item.scription + '</textarea>' +
+                                '</div>'+
+                                '</div>';
+
+                        }else if(typeQuesionDetail == 5){
+                            html += '<div style="background-color:#f2f4f7;padding: 12px; width : 100%;margin-bottom: 10px;">' +
+                                    '<input id="id-test-'+typeQuesionDetail+'-' + item.unitId + '-' + i+'" class ="hidden" value = "' + item.id + '"/>' +
+                                    '<input id="correct-answer-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '" class ="hidden" value = "' + item.correctAnswer + '"/>' +
+                                    '<p>Quesion: '+item.itemOrder+'</p>'+
+                                    '<input type="text" value="'+item.question+'" style="background-color: white; border-color:white" id="title-5-'+item.id+'" placeholder="Type your Question" class="form-control" />'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-A-'+typeQuesionDetail+'-'+item.id+'">'+
+                                    '<input ' + (item.option == 'A' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-A-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '" value="A" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '">A ' + item.answerA + ' <label for="check-A-' + typeQuesionDetail + '-' + item.id + '">' +
+                                    '<i class="fa fa-check text-success" style="display: '+(item.correctAnswer == 'A' && item.marked  ? 'display' : 'none')+'" id="label-icon-done-A-'+typeQuesionDetail+'-'+item.id+'" aria-hidden="true"></i>'+
+                                    '<i style="display: ' + (item.option == 'A' && item.option != item.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-A-' + typeQuesionDetail + '-' + item.id + '" class="fa fa-close text-danger"></i>' +
+                                    '</label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-B-'+typeQuesionDetail+'-'+item.id+'">'+
+                                    '<input ' + (item.option == 'B' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-B-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '" value="B" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '">B ' + item.answerB + '' +
+                                    '<label for="check-B-'+typeQuesionDetail+'-'+item.id+'"><i class="fa fa-check text-success" id="label-icon-done-B-'+typeQuesionDetail+'-'+item.id+'" style="display: '+(item.correctAnswer == 'B' && item.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(item.option == 'B' && item.option != item.correctAnswer ? 'display' : 'none')+'" id="label-icon-fail-B-'+typeQuesionDetail+'-'+item.id+'" class="fa fa-close text-danger"></i>'+
+                                    '</label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-C-'+typeQuesionDetail+'-'+item.id+'">'+
+                                    '<input ' + (item.option == 'C' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-C-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '" value="C" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '">C ' + item.answerC + '' +
+                                    '<label for="check-C-'+typeQuesionDetail+'-'+item.id+'">'+
+                                    '<i class="fa fa-check text-success" id="label-icon-done-C-'+typeQuesionDetail+'-'+item.id+'" style="display: '+(item.correctAnswer == 'C' && item.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(item.option == 'C' && item.option != item.correctAnswer ? 'display' : 'none')+'" id="label-icon-fail-C-'+typeQuesionDetail+'-'+item.id+'" class="fa fa-close text-danger"></i></label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                    '<div class="form-check">'+
+                                    '<label class="form-check-label" id="lable-D-'+typeQuesionDetail+'-'+item.id+'">'+
+                                    '<input ' + (item.option == 'D' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-d-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '" value="D" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.unitId + '-' + i + '">D ' + item.answerD + '' +
+                                    '<label for="check-D-'+typeQuesionDetail+'-'+item.id+'">'+
+                                    '<i class="fa fa-check text-success" id="label-icon-done-D-'+typeQuesionDetail+'-'+item.id+'" style="display: '+(item.correctAnswer == 'D' && item.marked ? 'display' : 'none')+'" aria-hidden="true"></i>'+
+                                    '<i style="display: '+(item.option == 'D' && item.option != item.correctAnswer  ? 'display' : 'none')+'" id="label-icon-fail-D-'+typeQuesionDetail+'-'+item.id+'" class="fa fa-close text-danger"></i></label>'+
+                                    '</label>'+
+                                    '</div>'+
+                                '<div class="' + (!item.marked ? 'show-rs-p5' : '') + '"><div class="input-group">' +
+                                    '<span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>'+
+                                '<textarea style="background-color: white; border-color: white;" id="model-description-5-' + item.id + '" class="form-control">' + item.scription + '</textarea>' +
+                                    '</div></div></div>';
+                        }
+                        else if (typeQuesionDetail == 6 || typeQuesionDetail == 7) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;">' +
+                                '<label style="width : 100%">Quesion : ' + (i + 1) + '</label>' +
+                                '<label style="width: 100%">Conversation/ Paragraph:</label>' +
+                                 (item.linkImage != null ? ('<img src="'+item.linkImage+'" id="view-image-'+typeQuesionDetail+'-'+item.id+'" width="60%" />') : '')+
+                                
+                                '<textarea style = "display : '+(item.scription ? 'block' : 'none' )+'" id="model-script-'+typeQuesionDetail+'-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 7) + '">' + item.scription + '</textarea>' +
+                                '</div>'+
+                                '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;"><div style="background-color :#E9ECEF">' +
+                                
+                                '</div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<label onclick="onShowResultDetail(' + typeQuesionDetail + ',' + item.questionsDetail.length + ',' + item.id + ')">Check</label>' +
+                                        '<p>Quesion: ' + detail.itemOrder + '</p>' +
+                                        '<input id="id-detail-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class ="hidden" value = "' + detail.id + '"/>' +
+                                        '<input id="correct-answer-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class ="hidden" value = "' + detail.correctAnswer + '"/>' +
+                                        '<label style="background-color: white; border-color:white" >' + detail.qs + '</label>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-A-' + typeQuesionDetail + '-' + detail.id + '">' +
+                                        '<input ' + (detail.option == 'A' ? 'checked' : '') + ' ' + (detail.marked ? 'disabled' : '') + ' type="radio" id="check-A-' + typeQuesionDetail + '-'
+                                        + '-' + detail.id + '" value="A" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">A ' + detail.qsa + ' <label for="check-A-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<i class="fa fa-check text-success" style="display: ' + (detail.correctAnswer == 'A' && detail.marked ? 'display' : 'none') + '" id="label-icon-done-A-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'A' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-A-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i>' +
+                                        '</label>' +
+                                        '</label>' +
+                                        '</div>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-B-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<input ' + (detail.option == 'B' ? 'checked' : '') + ' ' + (detail.marked ? 'disabled' : '') + ' type="radio" id="check-B-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" value="B" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">B ' + detail.qsb +
+                                        '<label for="check-B-' + typeQuesionDetail + '-' + detail.id + '"><i class="fa fa-check text-success" id="label-icon-done-B-' + typeQuesionDetail + '-' + detail.id + '" style="display: ' + (detail.correctAnswer == 'B' && detail.marked ? 'display' : 'none') + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'B' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-B-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i>' +
+                                        '</label>' +
+                                        '</label>' +
+                                        '</div>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<input ' + (detail.option == 'C' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" value="C" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">C' + detail.qsc +
+                                        '<label for="check-C-' + typeQuesionDetail + '-' + detail.id + '">' +
+                                        '<i class="fa fa-check text-success" id="label-icon-done-C-' + typeQuesionDetail + '-' + detail.id + '" style="display: ' + (detail.correctAnswer == 'C' && detail.marked ? 'display' : 'none') + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'C' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-C-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                        '</label>' +
+                                        '</div>' +
+                                        '<div class="form-check">' +
+                                        '<label class="form-check-label" id="lable-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">' +
+                                        '<input ' + (detail.option == 'D' ? 'checked' : '') + ' ' + (item.marked ? 'disabled' : '') + ' type="radio" id="check-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" value="D" class="form-check-input" name="optradio-' + typeQuesionDetail + '-' + item.id + '-' + ii + '">D' + detail.qsd +
+                                        '<label for="check-D-' + typeQuesionDetail + '-' + detail.id + '">' +
+                                        '<i class="fa fa-check text-success" id="label-icon-done-D-' + typeQuesionDetail + '-' + detail.id + '" style="display: ' + (detail.correctAnswer == 'D' && detail.marked ? 'display' : 'none') + '" aria-hidden="true"></i>' +
+                                        '<i style="display: ' + (detail.option == 'D' && detail.option != detail.correctAnswer ? 'display' : 'none') + '" id="label-icon-fail-D-' + typeQuesionDetail + '-' + item.id + '-' + ii + '" class="fa fa-close text-danger"></i></label>' +
+                                        '</label>' +
+                                        '</div>'+
+                                         '<div class="input-group">'+
+                                        '<div id = "show-part-'+typeQuesionDetail+'-"'+item.id+' style = "display :'+(detail.marked ? 'block' : 'none')+'">'+
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>'+
+                                        '<textarea readonly style="background-color: white; border-color: white; width : 100%" id="model-description-' + typeQuesionDetail + '-' + detail.id + '-' + item.id + 'class="form-control">' + detail.description + '</textarea>' +
+                                        '</div></div>';
+                                }
+                            }
+                            html += '</div>';
+
+                        }
+                    }
+                    div.innerHTML = typeQuesionDetail == 5 ? html +  '<button onclick="onShowResultDetail('+typeQuesionDetail+','+result.data.length+','+unitId+')" class= "btn btn-primary">Submit</button></div><div class="col-md-3"></div>' : html;
+                }
+            }
+        });
+    }
+    
+    function onShowResult(type, id) {
+        if(countCheck > 0) {
+            return ;
+        };
+        var result = $('#correct-answer' + '-' + type + '-' + id).val();
+        var radios = $('input:radio[name=optradio' + '-' + type + '-' + id +']:checked').val();
+        if (radios == undefined) {
+            alert('please chose answer');
+            return;
+        }
+        if (radios == result) {
+            $("#lable-"+result + '-' + type + '-' + id).css("color", "#1afd0d");
+            $('#label-icon-done-'+result+ '-' + type + '-' + id).css("display", "block");
+            resultOption = true;
+        }else{
+            $("#lable-"+radios + '-' + type + '-' + id).css("color", "red");
+            $('#label-icon-fail-' + radios + '-' + type + '-' + id).css("display", "block");
+            $('#label-icon-done-'+result+ '-' + type + '-' + id).css("display", "block");
+            $("#lable-" + result + '-' + type + '-' + id).css("color", "#1afd0d");
+        }
+       
+        $('#show-result'+ '-' + type + '-' + id).css("display", "block");
+        onSaveResult(radios,id,result == radios);
+    }
+    function onSaveResult(option, id, result){
+        var unitId = $('#unit-id').val();
+        var data = { IdTest: id, Option: option, Result: result, UnitId : unitId};
+        $.ajax({
+            url: "/Part/SaveStatusStudy",
+            type: "POST",
+            data: data,
+            success: function (result) {
+                if (result.data) {
+                    saved = true;
+                } else {
+                    alert('Error');
+                }
+            }
+        });
+    }
+    function onSaveResultDetail(result){
+        var data = {lst : result};
+        $.ajax({
+            url: "/Part/SaveDetailStatusStudy",
+            type: "POST",
+            data: data,
+            success: function (result) {
+                if (result.data) {
+                    saved = true;
+                } else {
+                    alert('Error');
+                }
+            }
+        });
+    }
+    function onShowResultDetail(type, lenght, id) {
+         var unitId = $('#unit-id').val();
+        var data = [];
+        for(var i = 0; i< lenght ; i++){
+            var result = $('#correct-answer' + '-' + type + '-'+ id + '-'+ i).val();
+        var radios = $('input:radio[name=optradio' + '-' + type + '-'+ id + '-' + i +']:checked').val();
+        if (radios == undefined) {
+            alert('please chose answer');
+            return;
+        }
+        if (radios == result) {
+            $('#lable-'+result + '-' + type +'-'+ id + '-'+ i).css("color", "#1afd0d");
+            $('#label-icon-done-'+result+ '-' + type + '-'+ i).css("display", "block");
+            resultOption = true;
+        }else{
+            $("#lable-"+radios + '-' + type +'-'+ id + '-'+ i).css("color", "red");
+            $('#label-icon-fail-' + radios + '-' + type +'-'+ id +'-'+ i).css("display", "block");
+            $('#label-icon-done-'+result+ '-' + type +'-'+ id + '-'+ i).css("display", "block");
+            $("#lable-" + result + '-' + type +'-'+ id + '-'+ i).css("color", "#1afd0d");
+        }
+        var idDetail = typeQuesionDetail == 5 ? $('#id-test-'+ type +'-'+ id + '-' + i).val() : $('#id-detail-'+ type +'-'+ id + '-' + i).val();
+        var item = {IdTest : idDetail , Option : radios , Result : radios == result, UnitId : unitId};
+        data.push(item);
+        }
+        if(typeQuesionDetail == 5){
+            $('.show-rs-p5' + '-' + type + '-' + id).css("display", "block");
+        } if(typeQuesionDetail > 5){
+            $('#show-part-'+ '-' + type + '-' + id).css("display", "block");
+        }
+        else{
+            $('#show-result' + '-' + type + '-' + id).css("display", "block");
+        }
+        
+        onSaveResultDetail(data);
+    }
+     $(function () {
+        $('#reset-result-data').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var unitId = $('#unit-id').val();
+            var data = {unitId : unitId, typeQuesion : typeQuesionDetail};
+            
+             if (confirm("Bạn có chắc muốn reset bài học con này!") == true) {
+            $.ajax({
+                url: "/Part/ResetStatusStudy",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    if (result.data) {
+                        saved = true;
+                        onGetDataQuesion();
+                    } else {
+                        alert('Error');
+                    }
+                }
+             });
+         }
+        });
+     });
+</script>
+
+<div style="margin-bottom: 100px;">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 10px; padding: 0">
+            <input type="text" class="hidden" value="@ViewBag.idUnit" id="unit-id" />
+            <p>@Html.Raw(ViewBag.link)</p>
+            <span class="btn" style="font-size: 20px; font-weight: 600" id="lable-listening" onclick="typeActive('listening')">Listening</span>
+            &emsp;<span class="btn" onclick="typeActive('reading')" id="lable-reading" style="font-size: 20px; color:#ADB5BD; font-weight: 600">Reading</span>
+        </div>
+        <div class="col-md-12" style="padding: 0">
+            <div id="option-listening" style="display: block">
+                <button onclick="typeActiveDetail('image')" class="btn btn-default" id="image-description" style="background-color:#8976ED;border-radius: 100px;">Image description</button>&emsp;
+                <button onclick="typeActiveDetail('qa')" id="q-a" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Q&A</button>&emsp;
+                <button onclick="typeActiveDetail('conversation')" id="convention" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Conversation</button>
+                <button onclick="typeActiveDetail('shorttalk')" id="short-talk" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Short talk</button>
+            </div>
+            <div id="option-reading" style="display : none">
+                <button onclick="typeActiveDetail('completesentence')" class="btn btn-default" id="complete-sentence" style="background-color:#8976ED;border-radius: 100px;">Complete sentence</button>&emsp;
+                <button onclick="typeActiveDetail('completeparagraph')" id="complete-paragraph" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Complete paragraph</button>&emsp;
+                <button onclick="typeActiveDetail('readingcomprehen')" id="reading-comprehen" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">ReadingComprehen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12" style="padding: 0">
+            <div class="col-md-6" style="padding: 0">
+                <span style="font-size: 18px; font-weight: 600;"><span id="count-quesion"></span>/@ViewBag.count Quesion</span>
+                <span class="btn" onclick="refeshData()"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                <span class="btn" id="reset-result-data"><i class="fa fa-refresh" aria-hidden="true"></i> Reset result</span>
+                <span style="font-size: 18px; font-weight: 600;">Correct <span id="correct-quesion"></span></span>
+            </div>
+            <div class="col-md-6" style="padding: 0">
+                <div class="input-group mb-3" style="display: flex">
+                    <input style="width: 57%" type="text" id="search-key" class="form-control" placeholder="search quesion" aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <button class="btn btn-default btn-outline-secondary" type="button" id="button-addon2" onclick="onGetDataQuesion()"><i class="fa fa-search" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+        @*Danh sách câu hỏi*@
+        <div class="row" id="table-quesion">
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

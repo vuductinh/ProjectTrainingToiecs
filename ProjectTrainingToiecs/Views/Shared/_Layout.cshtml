@@ -15,6 +15,7 @@
 @{
     var role = Context.Session.GetString("Role");
     var userName = Context.Session.GetString("UserName");
+    var activePage = Context.Session.GetString("Active");
 }
 <script>
     function onDirUser() {
@@ -53,7 +54,6 @@
         var url = window.location.protocol + "//" + window.location.host + '/Home/ListTest'
         location.href = url;
     }
-<<<<<<< HEAD
     function signOutAdmin() {
         debugger;
         $.ajax({
@@ -67,64 +67,54 @@
             }
         });
     };
-=======
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
 </script>
 <body>
-    <div class="row" style="width : 100%">
-        <div class="col-md-12">
-             <header>
-            <div class="site-mobile-menu site-navbar-target">
-                <div class="site-mobile-menu-header">
-                    <div class="site-mobile-menu-close mt-3">
-                        <span class="icon-close2 js-menu-toggle"></span>
-                    </div>
-                </div>
-                @if(role == "Admin"){
-<<<<<<< HEAD
-                        <div style="background-color:#7b00e6; height: 50px;">
-                            <table>
-                                <tr>
-                                    <td style="width: 87%">
-                                        <span class="btn" style="color: white" onclick="onDirUser()">Users</span> &emsp;
-                                        <span class="btn" style="color: white" onclick="onDirCource()">Courses</span>&emsp;
-                                        <span class="btn" style="color: white" onclick="onDirUnit()">Units</span>&emsp;
-                                        <span class="btn" style="color: white" onclick="onDirLesson()">Lessons</span>&emsp;
-                                        <span class="btn" style="color: white" onclick="onDirDocument()">Documents</span>&emsp;
-                                        <span class="btn" style="color: white" onclick="onDirQS()">Quesion</span>
-                                    </td>
-                                    <td>
-                                        <span class="btn" style="color: white">
-                                            Welcome  @userName <span class="btn btn-link" onclick="signOutAdmin()"><i class="fa fa-sign-out" title="sign out" aria-hidden="true"></i></span>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-=======
-                    <div>
-                            <a href="#" onclick="onDirUser()">Users</a> &emsp;
-                            <a href="#" onclick="onDirCource()">Courses</a>&emsp;
-                            <a href="#" onclick="onDirUnit()">Units</a>&emsp;
-                            <a href="#" onclick="onDirLesson()">Lessons</a>&emsp;
-                            <a href="#" onclick="onDirDocument()">Documents</a>&emsp;
-                            <a href="#" onclick="onDirQS()">Test</a>
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
-                    </div>
-                }else{
-                        <div class="site-mobile-menu-body" style="margin-top: 40px;width: 100px;">
-                            <ul class="site-nav-wrap">
-                                <li class="active"><a href="#" onclick="onHome()" class="nav-link" style="font-size: 30px;"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-                                <li><a href="#"  class="nav-link" style="font-size: 30px; margin-top: 20px"><i class="fa fa-users" aria-hidden="true"></i></a></li>
-                                <li><a href="#" onclick="onListPart()" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
-                                <li><a href="#" onclick="onListTest()" class="nav-link" style="font-size: 30px;margin-top: 20px"><i class="fa fa-book" aria-hidden="true"></i></a></li>
-                            </ul>
+    <div>
+        <div >
+            <header>
+                <div class="site-mobile-menu site-navbar-target">
+                    <div class="site-mobile-menu-header">
+                        <div class="site-mobile-menu-close mt-3">
+                            <span class="icon-close2 js-menu-toggle"></span>
                         </div>
-                }
-                
-            </div>
-        </header>
+                    </div>
+                    <div style="background-color:#7749F8; height: 50px; padding-top: 5px;">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+
+                                <span class="btn" style="color: white; font-weight: 800" onclick="onDirUser()">TEG</span> &emsp;
+                                @if (role == "Admin")
+                                {
+                                    @if (activePage == "user")
+                                    {
+                                        <span class="btn" style="color: white;font-weight: 800" onclick="onDirUser()">Users</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn" style="color: white;" onclick="onDirUser()">Users</span>
+                                    }
+                                    @if (activePage == "course")
+                                    {
+                                        <span class="btn" style="color: white;font-weight: 800" onclick="onDirCource()">Course</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn" style="color: white;" onclick="onDirCource()">Course</span>
+                                    }
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <span class="btn" style="color: white; float:right;">
+                                    Welcome  @userName <span class="btn btn-link" onclick="signOutAdmin()"><i class="fa fa-sign-out" title="sign out" aria-hidden="true"></i></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
         </div>
-        <div class="col-md-12">
+        <div>
             <div class="container">
                 <main role="main" class="pb-3">
                     @RenderBody()
@@ -138,7 +128,7 @@
         </div>
     </footer>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"  />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

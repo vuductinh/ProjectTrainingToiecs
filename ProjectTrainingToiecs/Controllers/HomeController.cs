@@ -24,39 +24,36 @@ namespace ProjectTrainingToiecs.Controllers
             }
             else
             {
-                //kiểm tra trại thái học
-                var idLesson = 0;
-                var idDocument = 0;
-                var unitId = 0;
-                var idTest = 0;
-                var started = _context.StatusStudies.Where(x => x.UserId == userId);
-                var btnLable = "Start";
+                ////kiểm tra trại thái học
+                //var idLesson = 0;
+                //var idDocument = 0;
+                //var unitId = 0;
+                //var idTest = 0;
+                //var started = _context.StatusStudies.Where(x => x.UserId == userId);
+                //var btnLable = "Start";
                 
-                if (started.Any())
-                {
-                    idTest = started.OrderByDescending(x => x.Id).FirstOrDefault().IdTest;
-                    idDocument = _context.TestDetails.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idTest).DocumentId;
-                    idLesson = _context.Documents.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idDocument).LessonId;
-                    unitId = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idLesson).UnitId;
-                    btnLable = "Continue";
-                }
-                var unit = unitId > 0 ? _context.Units.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x=>x.Id == unitId) 
-                    : _context.Units.OrderBy(x=>x.Id).FirstOrDefault();
-<<<<<<< HEAD
-                ViewBag.lesson = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.UnitId == unit.Id);
-=======
-                ViewBag.lesson = _context.Lesson.FirstOrDefault(x => x.UnitId == unit.Id);
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
-                ViewBag.unit = unit;
-                ViewBag.userName = userName;
-                ViewBag.btnLable = btnLable;
-                ViewBag.idTest = idTest;
-                //tính trạng thái hoàn thành
-                var total = _context.TestDetails.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).Count();
-                var totalDoing = _context.StatusStudies.Where(x => x.UserId == userId).Count();
-                ViewBag.Process = (totalDoing *100)/total;
-
-                return View();
+                //if (started.Any())
+                //{
+                //    idTest = started.OrderByDescending(x => x.Id).FirstOrDefault().IdTest;
+                //    idDocument = _context.TestDetails.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idTest).DocumentId;
+                //    idLesson = _context.Documents.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idDocument).LessonId;
+                //    unitId = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.Id == idLesson).UnitId;
+                //    btnLable = "Continue";
+                //}
+                //var unit = unitId > 0 ? _context.Units.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x=>x.Id == unitId) 
+                //    : _context.Units.OrderBy(x=>x.Id).FirstOrDefault();
+                //ViewBag.lesson = _context.Lesson.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).FirstOrDefault(x => x.UnitId == unit.Id);
+                //ViewBag.unit = unit;
+                //ViewBag.userName = userName;
+                //ViewBag.btnLable = btnLable;
+                //ViewBag.idTest = idTest;
+                ////tính trạng thái hoàn thành
+                //var total = _context.TestDetails.Where(x => x.RecordStatusId == (int)ERecordStatus.Actived).Count();
+                //var totalDoing = _context.StatusStudies.Where(x => x.UserId == userId).Count();
+                //ViewBag.Process = (totalDoing *100)/total;
+                // check khóa học user
+                var courseId = _context.Users.FirstOrDefault(x=>x.Id == userId).TypeCourse;
+                return RedirectToAction("UnitClient", "Unit",new {courseId = courseId});
             }
         }
         public IActionResult ListPart()

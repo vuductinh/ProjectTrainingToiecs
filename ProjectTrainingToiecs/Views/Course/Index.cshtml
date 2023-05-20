@@ -2,10 +2,9 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 <script>
-    function addCourse(id) {
-        var url = window.location.protocol + "//" + window.location.host + '/Course/Create?id='+id;
-        location.href = url;
-    }
+    $(document).ready(function () {
+        getDataCourse();
+    });
     function deleteCourse(id) {
         if (confirm("Bạn có chắc muốn xóa khóa học này!") == true) {
             $.ajax({
@@ -14,70 +13,178 @@
                 data: { id: id },
                 success: function (result) {
                     if (result.data) {
-                        var url = window.location.protocol + "//" + window.location.host + '/Course/Index';
-                        location.href = url;
+                       getDataCourse();
                     }
                 }
             });
         }
     }
+    function getDataCourse() {
+        debugger;
+        var search = $('#search-key').val();
+        var pageSize = $('#pading-list').val();
+        $.ajax({
+            url: "/Course/GetCourse",
+            type: "Post",
+            data: { PageSize: pageSize, TextSearch: search },
+            success: function (result) {
+                if (result.data) {
+                    var div = document.getElementById('table-course');
+                    var html = '';
+                    for (var i = 0; i < result.data.length; i++) {
+                        var item = result.data[i];
+                        html += '<tr><td> ' + item.order + '</td>' +
+                            '<td> <a href="#" onclick="onUnit('+item.id+')">' + item.name + '</a></td>' +
+                            '<td> ' + item.description + '</td>' +
+                            '<td> ' + item.lastUpdateTxt + '</td>' +
+                            '<td>' +
+                            '<span class="btn btn-link" onclick = "getInfoCourse(' + item.id + ')" title = "Edit info"> <i class="fa fa-pencil" aria-hidden="true"> </i></span>' +
+                            '<span class="btn text-danger" onclick="deleteCourse(' + item.id + ')"> <i class="fa fa-trash" aria-hidden="true"> </i></span>' +
+                            '</td></tr>';
+                    }
+                    div.innerHTML = html;
+                }
+            }
+        });
+    }
+    function refeshData(){
+        $('#search-key').val('');
+        $('#pading-list').val(10);
+        getDataCourse();
+    }
+    function getInfoCourse(id){
+        $.ajax({
+            url: "/Course/GetInfoCourse",
+            type: "Post",
+            data: { id: id },
+            success: function (result) {
+                if (result.data) {
+                    debugger;
+                    $('#model-name').val(result.data.name);
+                    $('#model-description').val(result.data.description);
+                    $('#model-last').val(result.data.lastUpdateTxt);
+                    $('#model-id').val(result.data.id);
+                    $("#infor-course").modal('show');
+                }
+            }
+        });
+    }
+    $(function () {
+        $('#update-course').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var name = $('#model-name').val();
+            var description = $('#model-description').val();
+            var id = $('#model-id').val();
+            if (name == null || name == '') {
+                alert('Vui lòng nhập tên khóa học');
+                return;
+            }
+            var data = { Id: id, Name: name, Description: description};
+            $.ajax({
+                url: "/Course/UpdateCourse",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    if (result.data) {
+                        $("#infor-course").modal('hide');
+                        getDataCourse();
+                    } else {
+                    }
+                }
+            });
+        });
+    });
+    function addCourse(){
+        $('#model-name').val('');
+        $('#model-description').val('');
+        $('#model-last').val('');
+        $('#model-id').val(0);
+        $("#infor-course").modal('show');
+    }
+    function onUnit(id) {
+        var url = window.location.protocol + "//" + window.location.host + '/Unit/Index?courseId=' + id;
+        location.href = url;
+    }
 </script>
-<div class="row" style="margin-top : 10px;">
-    <div class="col-md-12">
-        <table>
-            <tr>
-                <td width="70%"><span style="font-size: 20px; font-weight: 600">Danh sách khóa học</span></td>
-                <td>
-                    <div class="input-group mb-3">
-                        <button class="btn btn-primary" onclick="addCourse(0)">Thêm mới <i class="fa fa-plus" aria-hidden="true"></i></button> &emsp;
-                        <input type="text" class="form-control" placeholder="search course" aria-label="Recipient's username" aria-describedby="button-addon2">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <hr/>
-        <div>
-            <table>
-                <tr>
-                    <td><b>Page</b></td>
-                    <td>
-                        <select class="form-control" id="pading-list">
-                            <option selected value="10">10</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                            <option value="-1">ALL</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-            <table class="table table-bordered">
-                <tr>
-                    <th>STT</th>
-                    <th>Name</th>
-                    <th>Process</th>
-                    <th>Description</th>
-                    <th>#</th>
-                </tr>
-
-
-                @foreach (var i in ViewBag.lst)
-                {
-
+<div>
+    <div class="row" style="margin-top: 10px;">
+        <p>@Html.Raw(ViewBag.link)</p>
+        <div class="col-md-6"><span style="font-size: 20px; font-weight: 600">Courses</span></div>
+        <div class="col-md-6" style="padding: 0">
+            <div class="input-group mb-3" style="display: flex;">
+                <input style="width : 53%" type="text" id="search-key" class="form-control" placeholder="search course" aria-label="Recipient's username" aria-describedby="button-addon2">
+                <button class="btn btn-default btn-outline-secondary" type="button" id="button-addon2" onclick="getDataCourse()"><i class="fa fa-search" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" onclick="addCourse()">Add Course </button> &emsp;
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <hr />
+            <div>
+                <table>
                     <tr>
-                        <td>@i.Order</td>
-                        <td>@i.Name</td>
-                        <td>@i.Process</td>
-                        <td>@i.Description</td>
+                        <td><b>Page</b></td>
                         <td>
-                            <span class="btn btn-link" onclick="addCourse(@i.Id)" title="Edit info"><i class="fa fa-pencil" aria-hidden="true"></i></span>
-                            <span class="btn btn-link" title="Detail"><i class="fa fa-info" aria-hidden="true"></i></span>
-                            <span class="btn text-danger" onclick="deleteCourse(@i.Id)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                            <select class="form-control" id="pading-list" onchange="getDataUser()">
+                                <option selected value="10">10</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="-1">ALL</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span class="btn" onclick="refeshData()"><i class="fa fa-refresh" aria-hidden="true"></i></span>
                         </td>
                     </tr>
-                }
-            </table>
+                </table>
+                <table class="table table-striped">
+                    <tr>
+                        <th>STT</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>LastUpdate</th>
+                        <th>Action</th>
+                    </tr>
+                    <tbody id="table-course">
+                    </tbody>
+                </table>
 
+            </div>
         </div>
     </div>
 </div>
+<div class="modal fade" id="infor-course" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Course</h4>
+            </div>
+            <div>
+                <img src="~/home/bgupdtecourse.png" width="430px" />
+            </div>
+            <div class="modal-body">
+                <input class="form-control hidden" type="text" id="model-id">
+                <label>Name</label>
+                <input class="form-control" type="text" id="model-name">
+                <label>Description</label>
+                <input class="form-control" id="model-description" type="text" />
+                <label>Last Update</label>
+                <input class="form-control" readonly id="model-last" type="text" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="update-course">Save change</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+

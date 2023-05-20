@@ -29,9 +29,8 @@ namespace ProjectTrainingToiecs.Service.Service.Impl
                 var smtpClient = new SmtpClient("smtp.gmail.com")
                 {
                     Port = 587,
-                    Credentials = new NetworkCredential("vuductinh97@gmail.com", "nrqpiuogvgdgxtdk"),
-                    EnableSsl = true,
-                    UseDefaultCredentials = true
+                    Credentials = new NetworkCredential("vuductinh97@gmail.com", "todhlbrlenfhqfrc"),
+                    EnableSsl = true
                 };
                 var mailMessage = new MailMessage
                 {

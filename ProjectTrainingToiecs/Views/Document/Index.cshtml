@@ -1,82 +1,1499 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+<style>
+
+</style>
 <script>
+    var typeQuesion = 1;
+    var typeQuesionDetail = 1;
+    var countQuesionQA = 1;
+    var countQuesionC = 1;
+    var countQuesionT = 1;
+    var countQuesionRD = 1;
+    var countQuesionRC = 1;
+    $(document).ready(function () {
+        onGetDataQuesion();
+    });
     function addDocument(id) {
         var url = window.location.protocol + "//" + window.location.host + '/Document/Create?id=' + id;
         location.href = url;
     }
-    function deleteDocument(id) {
-        if (confirm("Bạn có chắc muốn xóa bài học con này!") == true) {
+    function refeshData() {
+        $('#search-key').val('');
+        onGetDataQuesion();
+    }
+    function deleteQuesion(id) {
+        if (confirm("Bạn có chắc muốn xóa câu hỏi này!") == true) {
             $.ajax({
-                url: "/Document/DeleteDocument",
+                url: "/TestDetail/DeleteTest",
                 type: "Post",
                 data: { id: id },
                 success: function (result) {
                     if (result.data) {
-                        var url = window.location.protocol + "//" + window.location.host + '/Document/Index';
-                        location.href = url;
+                        alert('Xóa thành công');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình xóa');
                     }
                 }
             });
         }
     }
+    function deleteDetailQuesion(id) {
+        if (confirm("Bạn có chắc muốn xóa câu hỏi con này!") == true) {
+            $.ajax({
+                url: "/TestDetail/DeleteTestDetail",
+                type: "Post",
+                data: { id: id },
+                success: function (result) {
+                    if (result.data) {
+                        alert('Xóa thành công');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình xóa');
+                    }
+                }
+            });
+        }
+    }
+    function updateQuesionDetail(idDetail, id, type) {
+        var val = $('#conrect-answer-'+type+'-' + idDetail + '-' + id).val();
+        var title = $('#title-'+type+'-' + idDetail + '-' + id).val();
+        var qsa = $('#qs-a-'+type+'-' + idDetail + '-' + id).val();
+        var qsb = $('#qs-b-'+type+'-' + idDetail + '-' + id).val();
+        var qsc = $('#qs-c-'+type+'-' + idDetail + '-' + id).val();
+        var qsd = $('#qs-d-'+type+'-' + idDetail + '-' + id).val();
+        var ds = $('#model-description-'+type+'-' + idDetail + '-' + id).val();
+        if (!val || (typeQuesionDetail != 2 && (!title || !qsa || !qsb || !qsc || !qsd))){
+            alert('Vui lòng nhập câu trả lời');
+            return;
+        }
+        $.ajax({
+            url: "/TestDetail/UpdateInfoQuesion",
+            type: "Post",
+            data: { Id: idDetail, CorrectAnswer: val, QS :title, QSA : qsa, QSB : qsb, QSC : qsc, QSD : qsd,Description : ds },
+            success: function (result) {
+                if (result.data) {
+                    alert('Cập nhật thành công');
+                    onGetDataQuesion();
+                } else {
+                    alert('Gặp lỗi trong quá trình cập nhật');
+                }
+            }
+        });
+    }
+    function typeActive(type) {
+        if (type == "listening") {
+            $('#lable-listening').css('font-weight', '600');
+            $('#lable-listening').css('color', 'black');
+            $('#lable-reading').css('font-weight', '0');
+            $('#lable-reading').css('color', '#ADB5BD');
+            typeQuesion = 1;
+            $('#option-listening').css('display', 'block');
+            $('#option-reading').css('display', 'none');
+            $('#image-description').css('background-color', '#8976ED');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#E7E7FB');
+            typeQuesionDetail = 1;
+        } else {
+            $('#lable-reading').css('font-weight', '600');
+            $('#lable-reading').css('color', 'black');
+            $('#lable-listening').css('font-weight', '0');
+            $('#lable-listening').css('color', '#ADB5BD');
+            typeQuesion = 2;
+            $('#option-listening').css('display', 'none');
+            $('#option-reading').css('display', 'block');
+            $('#complete-sentence').css('background-color', '#8976ED');
+            $('#complete-paragraph').css('background-color', '#E7E7FB');
+            typeQuesionDetail = 5;
+        }
+        onGetDataQuesion();
+    }
+    function typeActiveDetail(type) {
+        if (type == "image" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#8976ED');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#E7E7FB');
+            $('#short-talk').css('background-color', '#E7E7FB');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 1;
+        } else if (type == "qa" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#E7E7FB');
+            $('#q-a').css('background-color', '#8976ED');
+            $('#convention').css('background-color', '#E7E7FB');
+            $('#short-talk').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 2;
+        } else if (type == "conversation" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#E7E7FB');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#8976ED');
+            $('#short-talk').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+
+            typeQuesionDetail = 3;
+        }
+        else if (type == "shorttalk" && typeQuesion == 1) {
+            $('#image-description').css('background-color', '#E7E7FB');
+            $('#q-a').css('background-color', '#E7E7FB');
+            $('#convention').css('background-color', '#E7E7FB');
+            $('#short-talk').css('background-color', '#8976ED');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 4;
+        }
+        else if (type == "completesentence" && typeQuesion == 2) {
+            $('#complete-sentence').css('background-color', '#8976ED');
+            $('#complete-paragraph').css('background-color', '#E7E7FB');
+            $('#reading-comprehen').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 5;
+        }
+        else if (type == "completeparagraph" && typeQuesion == 2) {
+            $('#complete-sentence').css('background-color', '#E7E7FB');
+            $('#complete-paragraph').css('background-color', '#8976ED');
+            $('#reading-comprehen').css('background-color', '#E7E7FB');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-reading-comprehen').css('display', 'none');
+            typeQuesionDetail = 6;
+        }
+        else if (type == "readingcomprehen" && typeQuesion == 2) {
+            $('#complete-sentence').css('background-color', '#E7E7FB');
+            $('#complete-paragraph').css('background-color', '#E7E7FB');
+            $('#reading-comprehen').css('background-color', '#8976ED');
+            $('#form-add-infor-image').css('display', 'none');
+            $('#form-add-infor-convertaion').css('display', 'none');
+            $('#form-add-infor-qa').css('display', 'none');
+            $('#form-add-infor-talk-short').css('display', 'none');
+            $('#form-add-infor-complete-sentence').css('display', 'none');
+            $('#form-add-infor-read').css('display', 'none');
+            typeQuesionDetail = 7;
+        }
+        onGetDataQuesion();
+    }
+    function onGetDataQuesion() {
+        var search = $('#search-key').val();
+        var unitId = $('#unit-id').val();
+        $.ajax({
+            url: "/Document/GetDocument",
+            type: "Post",
+            data: { TextSearch: search, UnitId: unitId, TypeQuesion: typeQuesion, TypeQuesionDetail: typeQuesionDetail },
+            success: function (result) {
+                if (result.data) {
+                    var div = document.getElementById('table-quesion');
+                    var countQuesion = document.getElementById('count-quesion');
+                    countQuesion.innerHTML = result.countQs;
+                    var html = typeQuesionDetail == 5  ? '<div class="col-md-3"></div><div class="col-md-6">' :'';
+                    for (var i = 0; i < result.data.length; i++) {
+                        var item = result.data[i];
+                        if (typeQuesionDetail == 1) {
+                            html += '<div class="col-md-12" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;">' +
+                                '<div class="col-md-5">' +
+                                '<input id="id-test-' + item.id + '" class ="hidden" value = ' + item.id + '/>' +
+                                '<label style="width: 100%;">Quesion ' + item.itemOrder + '.</label>' +
+                                '<div style="background-color :#E9ECEF">' +
+                                '<audio style="width: 90%;height: 22px;" id="run-audio-1-' + item.id + '" controls><source src="' + item.audio + '" id="view-audio-1-' + item.id + '" type="audio/ogg"></audio>' +
+                                '<div style="float:right; margin-top: 3px;">' +
+                                '<i title="audio"  onclick="onUpload(1,1,' + item.id + ')" class="fa fa-file-audio" aria-hidden="true">' +
+                                '</i>&emsp;<i title="image" class="fa fa-file" onclick="onUpload(2,1,' + item.id + ')" aria-hidden="true"></i>' +
+                                '</div></div>' +
+                                '<input class="form-control hidden" value="' + item.audio + '" id="link-audio-1-' + item.id + '"/>' +
+                                '<form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">' +
+                                '<div class="buttons"><div class="upload-button">' +
+                                '<input class="hidden" id="link_audio_1_' + item.id + '" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(1,' + item.id + ',);" />' +
+                                '</div></div></form>' +
+                                '<input class="form-control hidden" value="' + item.linkImage + '" id="link-image-1-' + item.id + '"/>' +
+                                '<form id="form" name ="form" action = "/uploader" enctype = "multipart/form-data" method="post">' +
+                                '<div class="buttons"><div class="upload-button">' +
+                                '<input id="files_1_' + item.id + '" hidden name="files" type="file" size="1" multiple onchange="uploadFiles(1,' + item.id + ');" />' +
+                                '</div></div></form>' +
+                                '<p>Quesion :</p>' +
+                                '<div class="input-group">' +
+                                '<span style="background-color: #D1E7DD" class="input-group-addon">Conrect Answer</span>' +
+                                '<input style="background-color: #D1E7DD; border-color: #D1E7DD;" type="text" id="conrect-answer-1-' + item.id + '" value="' + item.correctAnswer + '" class="form-control"></div>' +
+                                '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                '<span style="background-color: white" class="input-group-addon">Description</span>' +
+                                '<input style="background-color: white; border-color: white;" type="text" id="model-description-1-' + item.id + '" value ="' + item.description + '" placeholder="Description" class="form-control"></div>' +
+                                '</div><div class="col-md-3"><label style="width: 100%">Image</label><img id="view-image-1-' + item.id + '" src="' + item.linkImage + '" width="65%"; height ="150px;" /></div>' +
+                                '<div class="col-md-4"><label>Script</label>' +
+                                '<label style="float:right;"><i class="fa fa-pencil" onclick="updateQuesion(' + item.id + ',1)" aria-hidden="true"></i>&ensp;' +
+                                '<i class="fa fa-trash" onclick="deleteQuesion(' + item.id + ')" aria-hidden="true"></i></label><textarea id="model-script-1-' + item.id + '" placeholder="Type your request" class="form-control" rows="7">' + item.scription + '</textarea>' +
+                                '</div></div>';
+                        } else if (typeQuesionDetail == 2) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;"><div style="background-color :#E9ECEF">' +
+                                '<label>Quesion : ' + (i + 1) + '</label>' +
+                                '<audio style="width: 90%;height: 22px;" id="run-audio-2-' + item.id + '" controls>' +
+                                '<source src="' + item.audio + '" id="view-audio-2-' + item.id + '">' +
+                                '</audio>' +
+                                '<div style="float:right; margin-top: 3px;">' +
+                                '<i title="audio" onclick="onUpload(1,2,' + item.id + ')" class="fa fa-file-audio" aria-hidden="true"></i>' +
+                                '</div>' +
+                                '<input class="form-control hidden" value="' + item.audio + '" id="link-audio-2-' + item.id + '" />' +
+                                '<form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">' +
+                                '<div class="buttons">' +
+                                '<div class="upload-button">' +
+                                '<input class="hidden" id="link_audio_2_' + item.id + '" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(2,' + item.id + ');" />' +
+                                '</div></div></form></div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder + '<label style = "float:right;"> <i class="fa fa-pencil" onclick = "updateQuesionDetail(' + detail.id + ',' + item.id + ',2)" aria-hidden="true"></i>&ensp;' +
+                                        '<i class="fa fa-trash" onclick="deleteDetailQuesion(' + detail.id + ')" aria-hidden="true"></i></label></p>' +
+                                        '<div class="input-group">' +
+                                        '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+                                        '<input style="background-color: #D1E7DD; border-color: #D1E7DD;" value = "' + detail.correctAnswer + '" id="conrect-answer-2-' + detail.id + '-' + item.id + '" type="text" class="form-control">' +
+                                        '</div>';
+                                }
+                            }
+                            html += '</div><div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">' +
+                                '<label>Script</label><span style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesion(' + item.id + ',2)" aria-hidden="true"></i>&ensp;<i class="fa fa-trash" onclick="deleteQuesion(' + item.id + ')" aria-hidden="true"></i></span></label>' +
+                                '<textarea id="model-script-2-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 4) + '">' + item.scription + '</textarea>' +
+                                '</div>';
+
+                        } else if (typeQuesionDetail == 3) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;"><div style="background-color :#E9ECEF">' +
+                                '<label>Quesion : ' + (i + 1) + '</label>' +
+                                '<audio style="width: 90%;height: 22px;" id="run-audio-3-' + item.id + '" controls>' +
+                                '<source src="' + item.audio + '" id="view-audio-3-' + item.id + '">' +
+                                '</audio>' +
+                                '<div style="float:right; margin-top: 3px;">' +
+                                '<i title="audio" onclick="onUpload(1,3,' + item.id + ')" class="fa fa-file-audio" aria-hidden="true"></i>' +
+                                '</div>' +
+                                '<input class="form-control hidden" value="' + item.audio + '" id="link-audio-3-' + item.id + '" />' +
+                                '<form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">' +
+                                '<div class="buttons">' +
+                                '<div class="upload-button">' +
+                                '<input class="hidden" id="link_audio_3_' + item.id + '" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(3,' + item.id + ');" />' +
+                                '</div></div></form></div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder + '<label style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesionDetail(' + detail.id + ',' + item.id + ',3)" aria-hidden="true"></i>&ensp;' +
+                                        '<i class="fa fa-trash" onclick="deleteDetailQuesion(' + detail.id + ')" aria-hidden="true"></i></label></p>' +
+                                        '<input value="' + detail.qs + '" type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-3-' + detail.id + '-' + item.id + '" class="form-control"/>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>' +
+                                        '<input value="'+detail.qsa+'" style="background-color: white; border-color: white;" type="text" id="qs-a-3-' + detail.id +'-'+ item.id+ '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white; border-color:white" class="input-group-addon">B.</span>' +
+                                        '<input value="'+detail.qsb+'" style="background-color: white; border-color: white;" type="text" id="qs-b-3-' + detail.id +'-'+ item.id+ '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>' +
+                                        '<input value="'+detail.qsc+'" style="background-color: white; border-color: white;" type="text" id="qs-c-3-' + detail.id +'-'+ item.id+ '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>' +
+                                        '<input value="'+detail.qsd+'" style="background-color: white; border-color: white;" type="text" id="qs-d-3-' + detail.id +'-'+ item.id+ '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group">' +
+                                        '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+                                        '<input value = "' + detail.correctAnswer + '" style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-3-' + detail.id + '-' + item.id + '" type="text" class="form-control">' +
+                                        '</div><div id="add-detail-quesion-3-' + detail.id + '"></div>';
+                                }
+                            }
+                            html += '</div><div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">' +
+                                '<label>Script</label><span style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesion(' + item.id + ',3)" aria-hidden="true"></i>&ensp;<i class="fa fa-trash" onclick="deleteQuesion(' + item.id + ')" aria-hidden="true"></i></span></label>' +
+                                '<textarea id="model-script-3-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 4) + '">' + item.scription + '</textarea>' +
+                                '</div>';
+
+                        }
+                        else if (typeQuesionDetail == 4) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;"><div style="background-color :#E9ECEF">' +
+                                '<label>Quesion : ' + (i + 1) + '</label>' +
+                                '<audio style="width: 90%;height: 22px;" id="run-audio-4-' + item.id + '" controls>' +
+                                '<source src="' + item.audio + '" id="view-audio-4-' + item.id + '">' +
+                                '</audio>' +
+                                '<div style="float:right; margin-top: 3px;">' +
+                                '<i title="audio" onclick="onUpload(1,4,' + item.id + ')" class="fa fa-file-audio" aria-hidden="true"></i>&emsp;' +
+                                '<i title="image" onclick="onUpload(2,4,' + item.id + ')" class="fa fa-file" aria-hidden="true"></i>'+
+                                '</div>' +
+                                '<input class="form-control hidden" value="' + item.audio + '" id="link-audio-4-' + item.id + '" />' +
+                                '<form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">' +
+                                '<div class="buttons">' +
+                                '<div class="upload-button">' +
+                                '<input class="hidden" id="link_audio_4_' + item.id + '" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(4,' + item.id + ');" />' +
+                                '</div></div></form>'+
+                                '<input class="form-control hidden" value="" id="link-image-4-'+item.id+'" />'+
+                                '<form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">'+
+                                '<div class="buttons">'+
+                                '<div class="upload-button">'+
+                                '<input id="files_4_'+item.id+'" hidden name="files" type="file" size="1" multiple onchange="uploadFiles(4,'+item.id+');" />'+
+                                '</div>'+
+                                '</div>'+
+                                '</form>'+
+                                '</div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder + '<label style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesionDetail(' + detail.id + ',' + item.id + ',4)" aria-hidden="true"></i>&ensp;' +
+                                        '<i class="fa fa-trash" onclick="deleteDetailQuesion(' + detail.id + ')" aria-hidden="true"></i></label></p>' +
+                                        '<input value="' + detail.qs + '" type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-4-' + detail.id + '-' + item.id + '" class="form-control"/>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>' +
+                                        '<input value="' + detail.qsa + '" style="background-color: white; border-color: white;" type="text" id="qs-a-4-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white; border-color:white" class="input-group-addon">B.</span>' +
+                                        '<input value="' + detail.qsb + '" style="background-color: white; border-color: white;" type="text" id="qs-b-4-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>' +
+                                        '<input value="' + detail.qsc + '" style="background-color: white; border-color: white;" type="text" id="qs-c-4-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>' +
+                                        '<input value="' + detail.qsd + '" style="background-color: white; border-color: white;" type="text" id="qs-d-4-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group">' +
+                                        '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+                                        '<input value = "' + detail.correctAnswer + '" style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-4-' + detail.id + '-' + item.id + '" type="text" class="form-control">' +
+                                        '</div><div id="add-detail-quesion-4-' + detail.id + '"></div>';
+                                }
+                            }
+                            html += '</div><div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">' +
+                                '<label style="width: 100%">Image</label><img src="'+item.linkImage+'" id="view-image-4-'+item.id+'" width="100%" />'+
+                                '<label style="width: 100%">Script</label><span style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesion(' + item.id + ',3)" aria-hidden="true"></i>&ensp;<i class="fa fa-trash" onclick="deleteQuesion(' + item.id + ')" aria-hidden="true"></i></span></label>' +
+                                '<textarea id="model-script-3-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 4) + '">' + item.scription + '</textarea>' +
+                                '</div>';
+
+                        }else if(typeQuesionDetail == 5){
+                            html += '<div style="background-color:#f2f4f7;padding: 12px; width : 100%;margin-bottom: 10px;">' +
+                                    '<p>Quesion: '+item.itemOrder+'<label class="pull-right"><i class="fa fa-pencil" onclick = "updateCompleteSentence(' + item.id +')" aria-hidden="true"></i>&ensp;' +
+                                    '<i class="fa fa-trash" onclick="deleteQuesion(' + item.id + ')" aria-hidden="true"></i></label></p>'+
+                                    '<input type="text" value="'+item.question+'" style="background-color: white; border-color:white" id="title-5-'+item.id+'" placeholder="Type your Question" class="form-control" />'+
+                                    '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">'+
+                                    '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>'+
+                                    '<input value="'+item.answerA+'" style="background-color: white; border-color: white;" type="text" id="qs-a-5-'+item.id+'" placeholder="Type your Answer" class="form-control">'+
+                                    '</div>'+
+                                    '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">'+
+                                    '<span style="background-color: white;border-color:white" class="input-group-addon">B.</span>'+
+                                    '<input value="'+item.answerB+'" style="background-color: white; border-color: white;" type="text" id="qs-b-5-'+item.id+'" placeholder="Type your Answer" class="form-control">'+
+                                    '</div>'+
+                                    '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">'+
+                                    '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>'+
+                                    '<input value="'+item.answerC+'" style="background-color: white; border-color: white;" type="text" id="qs-c-5-'+item.id+'" placeholder="Type your Answer" class="form-control">'+
+                                    '</div>'+
+                                    '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">'+
+                                    '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>'+
+                                    '<input value="'+item.answerD+'" style="background-color: white; border-color: white;" type="text" id="qs-d-5-'+item.id+'" placeholder="Type your Answer" class="form-control">'+
+                                    '</div>'+
+                                    '<div class="input-group">'+
+                                    '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>'+
+                                    '<input value="'+item.correctAnswer+'" style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-5-'+item.id+'" type="text" class="form-control">'+
+                                    '</div>'+
+                                    '<div class="input-group">'+
+                                    '<span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>'+
+                                    '<input value="'+item.scription+'" style="background-color: white; border-color: white;" id="model-description-5-'+item.id+'" type="text" class="form-control">'+
+                                    '</div></div>';
+                        }
+                        else if (typeQuesionDetail == 6 || typeQuesionDetail == 7) {
+                            html += '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 12px;">' +
+                                 (item.linkImage != null ? ('<img src="'+item.linkImage+'" id="view-image-'+typeQuesionDetail+'-'+item.id+'" width="60%" />') : '')+
+                                 '<label style="width : 100%">Quesion : ' + (i + 1) + '</label>' +
+                                '<div style="float:right; margin-top: 3px;">' +
+                                '<i title="image" onclick="onUpload(2,'+typeQuesionDetail+',' + item.id + ')" class="fa fa-file" aria-hidden="true"></i>'+
+                                '</div>' +
+                                '<label style="width: 100%">Conversation/ Paragraph:</label><span style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesion(' + item.id + ','+typeQuesionDetail+')" aria-hidden="true"></i>&ensp;<i class="fa fa-trash" onclick="deleteQuesion(' + item.id + ')" aria-hidden="true"></i></span></label>' +
+                                '<textarea id="model-script-'+typeQuesionDetail+'-' + item.id + '" placeholder="Type your Require" class="form-control" rows="' + (item.questionsDetail.length * 7) + '">' + item.scription + '</textarea>' +
+                                '</div>'+
+                                '<div class="col-md-6" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;"><div style="background-color :#E9ECEF">' +
+                                
+                                '<input class="form-control hidden" value="" id="link-image-'+typeQuesionDetail+'-'+item.id+'" />'+
+                                '<form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">'+
+                                '<div class="buttons">'+
+                                '<div class="upload-button">'+
+                                '<input id="files_'+typeQuesionDetail+'_'+item.id+'" hidden name="files" type="file" size="1" multiple onchange="uploadFiles('+typeQuesionDetail+','+item.id+');" />'+
+                                '</div>'+
+                                '</div>'+
+                                '</form>'+
+                                '</div>';
+                            if (item.questionsDetail.length > 0) {
+                                for (var ii = 0; ii < item.questionsDetail.length; ii++) {
+                                    var detail = item.questionsDetail[ii];
+                                    html += '<p>Quesion: ' + detail.itemOrder + '<label style = "float:right;"><i class="fa fa-pencil" onclick = "updateQuesionDetail(' + detail.id + ',' + item.id + ','+typeQuesionDetail+')" aria-hidden="true"></i>&ensp;' +
+                                        '<i class="fa fa-trash" onclick="deleteDetailQuesion(' + detail.id + ')" aria-hidden="true"></i></label></p>' +
+                                        '<input value="' + detail.qs + '" type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" class="form-control"/>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>' +
+                                        '<input value="' + detail.qsa + '" style="background-color: white; border-color: white;" type="text" id="qs-a-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white; border-color:white" class="input-group-addon">B.</span>' +
+                                        '<input value="' + detail.qsb + '" style="background-color: white; border-color: white;" type="text" id="qs-b-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>' +
+                                        '<input value="' + detail.qsc + '" style="background-color: white; border-color: white;" type="text" id="qs-c-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>' +
+                                        '<input value="' + detail.qsd + '" style="background-color: white; border-color: white;" type="text" id="qs-d-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" placeholder="Type your Answer" class="form-control">' +
+                                        '</div>' +
+                                        '<div class="input-group">' +
+                                        '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+                                        '<input value = "' + detail.correctAnswer + '" style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" type="text" class="form-control">' +
+                                        '</div>'+
+                                         '<div class="input-group">'+
+                                        '<span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>'+
+                                        '<input  value = "' + detail.description + '" style="background-color: white; border-color: white;" id="model-description-'+typeQuesionDetail+'-' + detail.id + '-' + item.id + '" type="text" class="form-control">' +
+                                        '</div>'+
+                                        '<div id="add-detail-quesion-'+typeQuesionDetail+'-' + detail.id + '"></div>';
+                                }
+                            }
+                            html += '</div>';
+
+                        }
+                    }
+                    div.innerHTML = typeQuesionDetail == 5 ? html +  '</div><div class="col-md-3"></div>' : html;
+                }
+            }
+        });
+    }
+    function addQuesion(type) {
+        if (typeQuesionDetail == 1) {
+            $('#form-add-infor-image').css('display', type == 'open' ? 'block' : 'none');
+        }
+        else if (typeQuesionDetail == 2) {
+            var countQuesion = document.getElementById('count-quesion');
+            countQuesion.innerHTML = countQuesionQA;
+            $('#form-add-infor-qa').css('display', type == 'open' ? 'block' : 'none');
+        }
+        else if (typeQuesionDetail == 3) {
+            var countQuesion = document.getElementById('count-quesion');
+            countQuesion.innerHTML = countQuesionC;
+            $('#form-add-infor-convertaion').css('display', type == 'open' ? 'block' : 'none');
+        }
+        else if (typeQuesionDetail == 4) {
+            var countQuesion = document.getElementById('count-quesion');
+            countQuesion.innerHTML = countQuesionT;
+            $('#form-add-infor-talk-short').css('display', type == 'open' ? 'block' : 'none');
+        }
+         else if (typeQuesionDetail == 5) {
+            $('#form-add-infor-complete-sentence').css('display', type == 'open' ? 'block' : 'none');
+        }else if(typeQuesionDetail == 6){
+            var countQuesion = document.getElementById('count-quesion');
+            countQuesion.innerHTML = countQuesionRD;
+            $('#form-add-infor-read').css('display', type == 'open' ? 'block' : 'none');
+        }
+        else if(typeQuesionDetail == 7){
+            var countQuesion = document.getElementById('count-quesion');
+            countQuesion.innerHTML = countQuesionRD;
+            $('#form-add-infor-reading-comprehen').css('display', type == 'open' ? 'block' : 'none');
+        }
+
+    }
+    function onUpload(option, type, id) {
+        if (option == 1) {
+            $('#link_audio_' + type + '_' + id).click();
+        } else if (option == 2) {
+            $('#files_' + type + '_' + id).click();
+        }
+    }
+    function uploadFiles(type, id) {
+        var input = document.getElementById('files_' + type + '_' + id);
+        var files = input.files;
+        var formData = new FormData();
+        for (var i = 0; i != files.length; i++) {
+            formData.append("files", files[i]);
+        }
+
+        $.ajax(
+            {
+                url: "/TestDetail/UploadFiles",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    $('#link-image-' + type + '-' + id).val(data.fileName);
+                    if(type == 6 || type == 7){
+                        var div = document.getElementById('show-image-'+typeQuesionDetail+'-0');
+                        div.innerHTML = '<img id="view-image-'+typeQuesionDetail+'-0" width="100%" src ="'+data.fileName+'"/>';
+                    }else{
+                        $("#view-image-" + type + '-' + id).attr("src", data.fileName);
+                    }
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    }
+    function uploadAudio(type, id) {
+        var input = document.getElementById('link_audio_' + type + '_' + id);
+        var audios = input.files;
+        var formData = new FormData();
+        for (var i = 0; i != audios.length; i++) {
+            formData.append("audios", audios[i]);
+        }
+
+        $.ajax(
+            {
+                url: "/TestDetail/UploadAudio",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    $('#link-audio-' + type + '-' + id).val(data.fileName);
+                    var audio = document.getElementById('view-audio-' + type + '-' + id);
+                    audio.src = data.fileName;
+                    $("#run-audio-" + type + '-' + id).trigger('load');
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    }
+    function updateQuesion(id, type) {
+        var answerCorrect = $('#conrect-answer-1-' + id).val();
+        var unitId = $('#unit-id').val();
+        var data = {
+            CorrectAnswer: answerCorrect,
+            UnitId: unitId,
+            LinkImage: $('#link-image-' + type + '-' + id).val(),
+            Id: id,
+            Audio: $('#link-audio-' + type + '-' + id).val(),
+            Description: $('#model-description-' + type + '-' + id).val(),
+            Scription: $('#model-script-' + type + '-' + id).val(),
+            Type: typeQuesion,
+            TypeDetail: typeQuesionDetail
+        };
+        if (!data.Scription || (typeQuesionDetail == 1 && (!data.CorrectAnswer || !data.LinkImage || !data.Audio))) {
+            alert('Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+        $.ajax({
+            url: "/TestDetail/CreateTestDetail",
+            type: "POST",
+            data: data,
+            success: function (result) {
+                debugger;
+                if (result.data > 0) {
+                    alert('Cập nhật thông tin câu hỏi thành công');
+                    onGetDataQuesion();
+                } else {
+                    alert('Gặp lỗi trong quá trình lưu');
+                }
+            }
+        });
+    }
+    $(function () {
+        $('#add-quesion').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var answerCorrect = $('#conrect-answer-1-0').val();
+            var unitId = $('#unit-id').val();
+            var data = {
+                CorrectAnswer: answerCorrect,
+                UnitId: unitId,
+                LinkImage: $('#link-image-1-0').val(),
+                Id: $('#id-test').val(),
+                Audio: $('#link-audio-1-0').val(),
+                Description: $('#model-description-1-0').val(),
+                Scription: $('#model-script-1-0').val(),
+                Type: typeQuesion,
+                TypeDetail: typeQuesionDetail
+            };
+            if (!data.Scription || !data.CorrectAnswer || (typeQuesionDetail == 1 && (!data.LinkImage || !data.Audio))) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            $.ajax({
+                url: "/TestDetail/CreateTestDetail",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    debugger;
+                    if (result.data > 0) {
+                        alert('Thêm câu hỏi thành công');
+                        $('#conrect-answer-1-0').val('');
+                        $('#link-image-1-0').val('');
+                        $('#link-audio-1-0').val('');
+                        $('#model-description-1-0').val('');
+                        $('#model-script-1-0').val('');
+                        $("#view-image-1-0").attr("src", '/upload_files/ImageNone.jpg');
+                        var audio = document.getElementById('view-audio-1-0');
+                        audio.src = '';
+                        $("#run-audio-1-0").trigger('load');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+        });
+    });
+    function deleteFormQuesion(id, type) {
+        const element = document.getElementById(id == 0 ? "add-detail-quesion-" + type : "add-detail-quesion-" + type + "-" + id);
+        element.remove();
+        if (type == 2) {
+            countQuesionQA = countQuesionQA - 1;
+            if (countQuesionQA < 7) {
+                $('.information-scroll').css('height', 'unset');
+                $('.information-scroll').css('overflow-y', 'none');
+            }
+        } else if (type == 3) {
+            countQuesionC = countQuesionC - 1;
+
+            if (countQuesionC < 3) {
+                $('.information-scroll').css('height', 'unset');
+                $('.information-scroll').css('overflow-y', 'none');
+            }
+        }
+        else if (type == 4) {
+            countQuesionT = countQuesionT - 1;
+
+            if (countQuesionT < 3) {
+                $('.information-scroll').css('height', 'unset');
+                $('.information-scroll').css('overflow-y', 'none');
+            }
+        }
+        else if (type == 6 || type == 7) {
+            if(typeQuesionDetail == 6){
+                countQuesionRD = countQuesionRD -1;
+            }else{
+                countQuesionRC = countQuesionRC -1
+            }
+            var count = typeQuesionDetail == 6 ? countQuesionRD : countQuesionRC
+            if (count < 3) {
+                $('.information-scroll').css('height', 'unset');
+                $('.information-scroll').css('overflow-y', 'none');
+            }
+        }
+
+    }
+    function addQuesionDetail() {
+        var html = '<p>Quesion: ' + (countQuesionQA + 1) + '<i style="float:right;" class="fa fa-trash" onclick="deleteFormQuesion(' + (countQuesionQA - 1) + ',2)" aria-hidden="true"></i></p>' +
+            '<div class="input-group">' +
+            '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+            '<input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-2-' + countQuesionQA + '" type="text" class="form-control">' +
+            '</div><div id="add-detail-quesion-2-' + countQuesionQA + '"></div>';
+        var div = document.getElementById(countQuesionQA == 1 ? 'add-detail-quesion-2' : 'add-detail-quesion-2-' + (countQuesionQA - 1));
+        div.innerHTML = html;
+        countQuesionQA = countQuesionQA + 1;
+        var countQuesionDiv = document.getElementById('count-quesion');
+        countQuesionDiv.innerHTML = countQuesionQA;
+        if (countQuesionQA > 7) {
+            $('.information-scroll').css('height', '60vh');
+            $('.information-scroll').css('overflow-y', 'auto');
+        }
+        //var rows = 7 * countQuesionQA;
+        //document.getElementById("script-qa").rows = rows + '';
+    }
+    function addQuesionConvertaionDetail() {
+        var html = '<p>Quesion: ' + (countQuesionC + 1) + '<i style="float:right;" class="fa fa-trash" onclick="deleteFormQuesion(' + (countQuesionC - 1) + ',3)" aria-hidden="true"></i></p>' +
+            '<input type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-3-' + countQuesionC + '" class="form-control"/>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-a-3-' + countQuesionC + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white; border-color:white" class="input-group-addon">B.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-b-3-' + countQuesionC + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-c-3-' + countQuesionC + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-d-3-' + countQuesionC + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group">' +
+            '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+            '<input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-3-' + countQuesionC + '" type="text" class="form-control">' +
+            '</div><div id="add-detail-quesion-3-' + countQuesionC + '"></div>';
+        var div = document.getElementById(countQuesionC == 1 ? 'add-detail-quesion-3' : 'add-detail-quesion-3-' + (countQuesionC - 1));
+        div.innerHTML = html;
+        countQuesionC = countQuesionC + 1;
+        var countQuesionDiv = document.getElementById('count-quesion');
+        countQuesionDiv.innerHTML = countQuesionC;
+        if (countQuesionC > 2) {
+            $('.information-scroll').css('height', '60vh');
+            $('.information-scroll').css('overflow-y', 'auto');
+        }
+        //var rows = 7 * countQuesionQA;
+        //document.getElementById("script-qa").rows = rows + '';
+    }
+    function addQuesionTalkShortDetail() {
+        var html = '<p>Quesion: ' + (countQuesionT + 1) + '<i style="float:right;" class="fa fa-trash" onclick="deleteFormQuesion(' + (countQuesionT - 1) + ',4)" aria-hidden="true"></i></p>' +
+            '<input type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-4-' + countQuesionT + '" class="form-control"/>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-a-4-' + countQuesionT + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white; border-color:white" class="input-group-addon">B.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-b-4-' + countQuesionT + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-c-4-' + countQuesionT + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-d-4-' + countQuesionT + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group">' +
+            '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+            '<input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-4-' + countQuesionT + '" type="text" class="form-control">' +
+            '</div><div id="add-detail-quesion-4-' + countQuesionT + '"></div>';
+        var div = document.getElementById(countQuesionT == 1 ? 'add-detail-quesion-4' : 'add-detail-quesion-4-' + (countQuesionT - 1));
+        div.innerHTML = html;
+        countQuesionT = countQuesionT + 1;
+        var countQuesionDiv = document.getElementById('count-quesion');
+        countQuesionDiv.innerHTML = countQuesionT;
+        if (countQuesionT > 2) {
+            $('.information-scroll').css('height', '60vh');
+            $('.information-scroll').css('overflow-y', 'auto');
+        }
+        //var rows = 7 * countQuesionQA;
+        //document.getElementById("script-qa").rows = rows + '';
+    }
+     function addQuesionReadDetail() {
+         var count = typeQuesionDetail == 6 ? countQuesionRD : countQuesionRC;
+        var html = '<p>Quesion: ' + (count + 1) + '<i style="float:right;" class="fa fa-trash" onclick="deleteFormQuesion(' + (count - 1) + ','+typeQuesionDetail+')" aria-hidden="true"></i></p>' +
+            '<input type="text" style="background-color: white; border-color:white" placeholder="Type your Question" id="title-'+typeQuesionDetail+'-' + count + '" class="form-control"/>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white; border-color:white" class="input-group-addon">A.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-a-'+typeQuesionDetail+'-' + count + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white; border-color:white" class="input-group-addon">B.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-b-'+typeQuesionDetail+'-' + count + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white;border-color:white" class="input-group-addon">C.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-c-'+typeQuesionDetail+'-' + count + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">' +
+            '<span style="background-color: white;border-color:white" class="input-group-addon">D.</span>' +
+            '<input style="background-color: white; border-color: white;" type="text" id="qs-d-'+typeQuesionDetail+'-' + count + '" placeholder="Type your Answer" class="form-control">' +
+            '</div>' +
+            '<div class="input-group">' +
+            '<span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer </span>' +
+            '<input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-'+typeQuesionDetail+'-' + count + '" type="text" class="form-control">' +
+            '</div>'+
+            '<div class="input-group">'+
+            '<span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>'+
+            '<input style="background-color: white; border-color: white;" id="model-description-'+typeQuesionDetail+'-' + count + '" type="text" class="form-control">' +
+            '</div>'+
+            '<div id="add-detail-quesion-'+typeQuesionDetail+'-' + count + '"></div>';
+        var div = document.getElementById(count == 1 ? 'add-detail-quesion-' + typeQuesionDetail : 'add-detail-quesion-' + typeQuesionDetail + '-' + (count - 1));
+        div.innerHTML = html;
+        if(typeQuesionDetail == 6){
+            countQuesionRD = countQuesionRD + 1;
+        }else{
+            countQuesionRC = countQuesionRC + 1;
+        }
+        
+        var countQuesionDiv = document.getElementById('count-quesion');
+        countQuesionDiv.innerHTML = count;
+        if (count > 2) {
+            $('.information-scroll').css('height', '60vh');
+            $('.information-scroll').css('overflow-y', 'auto');
+        }
+        //var rows = 7 * countQuesionQA;
+        //document.getElementById("script-qa").rows = rows + '';
+    }
+    $(function () {
+        $('#add-quesion-qa').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var unitId = $('#unit-id').val();
+            var data = {
+                UnitId: unitId,
+                Audio: $('#link-audio-2-0').val(),
+                Scription: $('#model-script-2-0').val(),
+                Type: typeQuesion,
+                TypeDetail: typeQuesionDetail,
+                QuestionsDetail: []
+            };
+            //get thông tin câu hỏi con
+            for (var i = 0; i < countQuesionQA; i++) {
+                var val = i == 0 ? $('#conrect-answer-2-0').val() : $('#conrect-answer-2-' + i).val();
+                data.QuestionsDetail.push({ CorrectAnswer: val });
+            }
+            if (!data.Scription || !data.Audio || data.QuestionsDetail.length < countQuesionQA) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            $.ajax({
+                url: "/TestDetail/CreateTestDetail",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    debugger;
+                    if (result.data > 0) {
+                        alert('Thêm câu hỏi thành công');
+                        const element = document.getElementById("add-detail-quesion-2");
+                        element.remove();
+                        if (countQuesionQA > 2) {
+                            for (var i = 1; i < countQuesionQA; i++) {
+                                const element = document.getElementById("add-detail-quesion-2-" + i);
+                                element.remove();
+                            }
+                        }
+                        $('#conrect-answer-2-0').val('');
+                        $('#model-script-2-0').val('');
+                        var audio = document.getElementById('view-audio-2-0');
+                        audio.src = '';
+                        countQuesionQA = 1;
+                        $("#run-audio-2-0").trigger('load');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+        });
+    });
+    $(function () {
+        $('#add-quesion-convertaion').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var unitId = $('#unit-id').val();
+            var data = {
+                UnitId: unitId,
+                Audio: $('#link-audio-3-0').val(),
+                Scription: $('#model-script-3-0').val(),
+                Type: typeQuesion,
+                TypeDetail: typeQuesionDetail,
+                QuestionsDetail: []
+            };
+            //get thông tin câu hỏi con
+            for (var i = 0; i < countQuesionC; i++) {
+                var val = i == 0 ? $('#conrect-answer-3-0').val() : $('#conrect-answer-3-' + i).val();
+                var title = i == 0 ? $('#title-3-0').val() : $('#title-3-' + i).val();
+                var qa = i == 0 ? $('#qs-a-3-0').val() : $('#qs-a-3-' + i).val();
+                var qb = i == 0 ? $('#qs-b-3-0').val() : $('#qs-b-3-' + i).val();
+                var qc = i == 0 ? $('#qs-c-3-0').val() : $('#qs-c-3-' + i).val();
+                var qd = i == 0 ? $('#qs-d-3-0').val() : $('#qs-d-3-' + i).val();
+                if(qa && qb && qc && qd && title && val){
+                    data.QuestionsDetail.push({ CorrectAnswer: val, QS: title, QSA: qa, QSB: qb, QSC: qc, QSD: qd });
+                }
+            }
+            if (!data.Scription || !data.Audio || data.QuestionsDetail.length < countQuesionC) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            $.ajax({
+                url: "/TestDetail/CreateTestDetail",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    debugger;
+                    if (result.data > 0) {
+                        alert('Thêm câu hỏi thành công');
+                        if(countQuesionC == 2){
+                            const element = document.getElementById("add-detail-quesion-3");
+                            element.remove();
+                        }
+                        if (countQuesionC > 2) {
+                            for (var i = 0; i < countQuesionC; i++) {
+                                const element = document.getElementById("add-detail-quesion-3-" + i);
+                                element.remove();
+                            }
+                        }
+                        $('#conrect-answer-3-0').val('');
+                        $('#model-script-3-0').val('');
+                        $('#qs-a-3-0').val('');
+                        $('#qs-b-3-0').val('');
+                        $('#qs-c-3-0').val('');
+                        $('#qs-d-3-0').val('');
+                        var audio = document.getElementById('view-audio-3-0');
+                        audio.src = '';
+                        countQuesionC = 1;
+                        $("#run-audio-3-0").trigger('load');
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+        });
+    });
+    function saveMultipData(id,type){
+        var unitId = $('#unit-id').val();
+            var data = {
+                UnitId: unitId,
+                Audio: $('#link-audio-'+type+'-0').val(),
+                Scription: $('#model-script-'+type+'-0').val(),
+                Type: typeQuesion,
+                TypeDetail: typeQuesionDetail,
+                LinkImage : $('#link-image-'+type+'-0').val(),
+                QuestionsDetail: []
+            };
+             var count = typeQuesionDetail == 4 ? countQuesionT : countQuesionRD;
+            //get thông tin câu hỏi con
+            for (var i = 0; i < count; i++) {
+                var val = i == 0 ? $('#conrect-answer-'+type+'-0').val() : $('#conrect-'+type+'-' + i).val();
+                var title = i == 0 ? $('#title-'+type+'-0').val() : $('#title-'+type+'-' + i).val();
+                var qa = i == 0 ? $('#qs-a-'+type+'-0').val() : $('#qs-a-'+type+'-' + i).val();
+                var qb = i == 0 ? $('#qs-b-'+type+'-0').val() : $('#qs-b-'+type+'-' + i).val();
+                var qc = i == 0 ? $('#qs-c-'+type+'-0').val() : $('#qs-c-'+type+'-' + i).val();
+                var qd = i == 0 ? $('#qs-d-'+type+'-0').val() : $('#qs-d-'+type+'-' + i).val();
+                var ds = i == 0 ? $('#model-description-'+type+'-0').val() : $('#model-description-'+type+'-'+ id).val();
+                if(qa && qb && qc && qd && title && val){
+                    data.QuestionsDetail.push({ CorrectAnswer: val, QS: title, QSA: qa, QSB: qb, QSC: qc, QSD: qd, Description : ds });
+                }
+            }
+            if ((!data.Scription && typeQuesionDetail != 7) || (!data.Audio &&  typeQuesionDetail == 4) || data.QuestionsDetail.length < countQuesionT) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            $.ajax({
+                url: "/TestDetail/CreateTestDetail",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    debugger;
+                    if (result.data > 0) {
+                        alert('Thêm câu hỏi thành công');
+                        var count = typeQuesionDetail == 4 ? countQuesionT : countQuesionRD;
+                        if (count > 2 ) {
+                            for (var i = 0; i < count; i++) {
+                                const element = document.getElementById("add-detail-quesion-"+type+"-" + i);
+                                element.remove();
+                            }
+                        }
+                        $('#title-'+type+'-0').val('');
+                        $('#conrect-answer-'+type+'-0').val('');
+                        $('#model-script-'+type+'-0').val('');
+                        $('#qs-a-'+type+'-0').val('');
+                        $('#qs-b-'+type+'-0').val('');
+                        $('#qs-c-'+type+'-0').val('');
+                        $('#qs-d-'+type+'-0').val('');
+                        $('#model-description-'+type+'-0').val('');
+                       
+                        
+                        $('#view-image-'+type+'-0').attr("src", '/upload_files/ImageNone.jpg');
+                        if(typeQuesionDetail == 4){
+                            countQuesionC = 1;
+                        }else if(typeQuesionDetail == 6){
+                             $('#model-description-'+type+'-0').val('');
+                            countQuesionRD = 1;
+                            if(data.LinkImage != null){
+                                const img = document.getElementById("view-image-6-0");
+                                img.remove();
+                            }
+                        }
+                        
+                        if(typeQuesionDetail == 4){
+                            
+                            var audio = document.getElementById('view-audio-'+type+'-0');
+                        audio.src = '';
+                            $("#run-audio-"+type+"-0").trigger('load');
+                        }
+                        
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+    }
+    function updateCompleteSentence(id){
+        var unitId = $('#unit-id').val();
+            var val  = $('#conrect-answer-5-' + id).val();
+            var title = $('#title-5-' + id).val();
+            var qa = $('#qs-a-5-' + id).val();
+            var qb = $('#qs-b-5-' + id).val();
+            var qc = $('#qs-c-5-' + id).val();
+            var qd = $('#qs-d-5-' + id).val();
+             if (!qa || !qb || !qc || !qd || !title || !val) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            var data = {
+                Id : id,
+                UnitId: unitId,
+                Scription: $('#model-description-5-'+ id).val(),
+                Type: typeQuesion,
+                TypeDetail: typeQuesionDetail,
+                AnswerA : qa,
+                AnswerB : qb,
+                AnswerC : qc,
+                AnswerD : qd,
+                CorrectAnswer : val,
+                Question : title,
+            };
+           
+            $.ajax({
+                url: "/TestDetail/CreateTestDetail",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    if (result.data > 0) {
+                        alert( id == 0 ?'Thêm câu hỏi thành công' : 'Cập nhật thông tin thành công');
+                       
+                        if(id == 0){
+                            $('#conrect-answer-5-0').val('');
+                            $('#model-description-5-0').val('');
+                            $('#title-5-0').val('');
+                            $('#qs-a-5-0').val('');
+                            $('#qs-b-5-0').val('');
+                            $('#qs-c-5-0').val('');
+                            $('#qs-d-5-0').val('');
+                        }
+                        onGetDataQuesion();
+                    } else {
+                        alert('Gặp lỗi trong quá trình lưu');
+                    }
+                }
+            });
+    }
 </script>
 
-<div class="col-md-12" style="margin-top: 10px">
-    <table>
-        <tr>
-            <td width="70%"><span style="font-size: 20px; font-weight: 600">Danh sách bài học con</span></td>
-            <td>
-                <div class="input-group mb-3">
-                    <button class="btn btn-primary" onclick="addDocument(0)">Thêm mới <i class="fa fa-plus" aria-hidden="true"></i></button> &emsp;
-                    <input type="text" class="form-control" placeholder="search document" aria-label="Recipient's username" aria-describedby="button-addon2">
-                    <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
+<div style="margin-bottom: 100px;">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 10px; padding: 0">
+            <input type="text" class="hidden" value="@ViewBag.idUnit" id="unit-id" />
+            <p>@Html.Raw(ViewBag.link)</p>
+            <span class="btn" style="font-size: 20px; font-weight: 600" id="lable-listening" onclick="typeActive('listening')">Listening</span>
+            &emsp;<span class="btn" onclick="typeActive('reading')" id="lable-reading" style="font-size: 20px; color:#ADB5BD; font-weight: 600">Reading</span>
+        </div>
+        <div class="col-md-12" style="padding: 0">
+            <div id="option-listening" style="display: block">
+                <button onclick="typeActiveDetail('image')" class="btn btn-default" id="image-description" style="background-color:#8976ED;border-radius: 100px;">Image description</button>&emsp;
+                <button onclick="typeActiveDetail('qa')" id="q-a" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Q&A</button>&emsp;
+                <button onclick="typeActiveDetail('conversation')" id="convention" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Conversation</button>
+                <button onclick="typeActiveDetail('shorttalk')" id="short-talk" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Short talk</button>
+            </div>
+            <div id="option-reading" style="display : none">
+                <button onclick="typeActiveDetail('completesentence')" class="btn btn-default" id="complete-sentence" style="background-color:#8976ED;border-radius: 100px;">Complete sentence</button>&emsp;
+                <button onclick="typeActiveDetail('completeparagraph')" id="complete-paragraph" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">Complete paragraph</button>&emsp;
+                <button onclick="typeActiveDetail('readingcomprehen')" id="reading-comprehen" style="background-color:#E7E7FB;border-radius: 100px;" class="btn btn-default">ReadingComprehen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12" style="padding: 0">
+            <div class="col-md-6" style="padding: 0">
+                <span style="font-size: 18px; font-weight: 600;"><span id="count-quesion"></span>/@ViewBag.count Quesion</span>
+                <span class="btn" onclick="refeshData()"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+            </div>
+            <div class="col-md-6" style="padding: 0">
+                <div class="input-group mb-3" style="display: flex">
+                    <input style="width: 57%" type="text" id="search-key" class="form-control" placeholder="search quesion" aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <button class="btn btn-default btn-outline-secondary" type="button" id="button-addon2" onclick="onGetDataQuesion()"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    <button class="btn btn-primary" onclick="addQuesion('open')">Add Quesion </button> &emsp;
                 </div>
-            </td>
-        </tr>
-    </table>
-    <hr />
-    <div>
-        <table>
-            <tr>
-                <td><b>Page</b></td>
-                <td>
-                    <select class="form-control" id="pading-list">
-                        <option selected value="10">10</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="-1">ALL</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-        <table class="table table-bordered">
-            <tr>
-                <th>STT</th>
-                <th>Title</th>
-                <th>LinkImage</th>
-                <th>LinkAudio</th>
-                <th>#</th>
-            </tr>
+            </div>
+        </div>
+        @*Thêm thông tin câu hỏi*@
+        <div class="row" style="display: none" id="form-add-infor-image">
+            <div class="col-md-12" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;">
+                <div class="col-md-5">
+                    <label style="width: 100%;">1.</label>
+                    <div style="background-color :#E9ECEF">
+                        <audio style="width: 90%;height: 22px;" id="run-audio-1-0" controls>
+                            <source id="view-audio-1-0">
+                        </audio>
+                        <div style="float:right; margin-top: 3px;">
+                            <i title="audio" onclick="onUpload(1,1,0)" class="fa fa-file-audio" aria-hidden="true"></i>&emsp;
+                            <i title="image" onclick="onUpload(2,1,0)" class="fa fa-file" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <input class="form-control hidden" value="" id="link-audio-1-0" />
+                    <form id="form-audio" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input class="hidden" id="link_audio_1_0" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(1,0);" />
+                            </div>
+                        </div>
+                    </form>
+                    <input class="form-control hidden" value="" id="link-image-1-0" />
+                    <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input id="files_1_0" hidden name="files" type="file" size="1" multiple onchange="uploadFiles(1,0);" />
+                            </div>
+                        </div>
+                    </form>
+                    <p>
+                        Quesion:
+                    </p>
+                    <div class="input-group">
+                        <span style="background-color: #D1E7DD" class="input-group-addon">Conrect Answer</span>
+                        <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-1-0" type="text" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                        <span style="background-color: white" class="input-group-addon">Description</span>
+                        <input style="background-color: white; border-color: white;" type="text" id="model-description-1-0" placeholder="Description" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" id="add-quesion">Save change</button>
+                    <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+                </div>
+                <div class="col-md-3">
+                    <label style="width: 100%">Image</label>
+                    <img src="~/upload_files/ImageNone.jpg" id="view-image-1-0" width="65%" />
+                </div>
+                <div class="col-md-4">
+                    <label style="width: 100%">Scription</label>
+                    <textarea placeholder="Type your request" id="model-script-1-0" class="form-control" rows="7">
 
-
-            @foreach (var i in ViewBag.lst)
-            {
-
-                <tr>
-                    <td>@i.Order</td>
-                    <td>@i.Title</td>
-                    <td>@i.Image</td>
-                    <td>@i.Audio</td>
-                    <td>
-                        <span class="btn btn-link" onclick="addDocument(@i.Id)" title="Edit info"><i class="fa fa-pencil" aria-hidden="true"></i></span>
-                        <span class="btn btn-link" title="Detail"><i class="fa fa-info" aria-hidden="true"></i></span>
-                        <span class="btn text-danger" onclick="deleteDocument(@i.Id)"><i class="fa fa-trash" aria-hidden="true"></i></span>
-                    </td>
-                </tr>
-            }
-        </table>
-
+                    </textarea>
+                </div>
+            </div>
+        </div>
+        @*Phần QA*@
+        <div class="row" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;display: none" id="form-add-infor-qa">
+            <div class="col-md-6 information-scroll">
+                <div style="background-color :#E9ECEF">
+                    <audio style="width: 90%;height: 22px;" id="run-audio-2-0" controls>
+                        <source id="view-audio-2-0">
+                    </audio>
+                    <div style="float:right; margin-top: 3px;">
+                        <i title="audio" onclick="onUpload(1,2,0)" class="fa fa-file-audio" aria-hidden="true"></i>
+                    </div>
+                    <input class="form-control hidden" value="" id="link-audio-2-0" />
+                    <form id="form-audio-2-0" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input class="hidden" id="link_audio_2_0" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(2,0);" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <p>
+                    Quesion: 1
+                </p>
+                <div class="input-group">
+                    <span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>
+                    <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-2-0" type="text" class="form-control">
+                </div>
+                <div style="margin-bottom: 5px;" id="add-detail-quesion-2">
+                </div>
+                <button class="btn btn-default" onclick="addQuesionDetail()" style="background-color:#E7E7FB;border-radius: 100px;">Add question for this Section</button>
+            </div>
+            <div class="col-md-6">
+                <label>Script</label>
+                <textarea id="model-script-2-0" placeholder="Type your Require" class="form-control" rows="10"></textarea>
+            </div>
+            <div class="col-md-12" style="padding-top: 10px;">
+                <button class="btn btn-primary" id="add-quesion-qa">Save change</button>&emsp;
+                <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+            </div>
+        </div>
+        @*Phần hội thoại*@
+        <div class="row" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;display: none" id="form-add-infor-convertaion">
+            <div class="col-md-6 information-scroll">
+                <div style="background-color :#E9ECEF">
+                    <audio style="width: 90%;height: 22px;" id="run-audio-3-0" controls>
+                        <source id="view-audio-3-0">
+                    </audio>
+                    <div style="float:right; margin-top: 3px;">
+                        <i title="audio" onclick="onUpload(1,3,0)" class="fa fa-file-audio" aria-hidden="true"></i>
+                    </div>
+                    <input class="form-control hidden" value="" id="link-audio-3-0" />
+                    <form id="form-audio-2-0" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input class="hidden" id="link_audio_3_0" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(3,0);" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <p>
+                    Quesion: 1
+                </p>
+                <input type="text" style="background-color: white; border-color:white" id="title-3-0" placeholder="Type your Question" class="form-control" />
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white; border-color:white" class="input-group-addon">A.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-a-3-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">B.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-b-3-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">C.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-c-3-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">D.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-d-3-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group">
+                    <span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>
+                    <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-3-0" type="text" class="form-control">
+                </div>
+                <div style="margin-bottom: 5px;" id="add-detail-quesion-3">
+                </div>
+                <button class="btn btn-default" onclick="addQuesionConvertaionDetail()" style="background-color:#E7E7FB;border-radius: 100px;">Add question for this Section</button>
+            </div>
+            <div class="col-md-6">
+                <label>Script</label>
+                <textarea id="model-script-3-0" placeholder="Type your Require" class="form-control" rows="10"></textarea>
+            </div>
+            <div class="col-md-12" style="padding-top: 10px;">
+                <button class="btn btn-primary" id="add-quesion-convertaion">Save change</button>&emsp;
+                <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+            </div>
+        </div>
+        @*Phần hội thoại ngắn*@
+        <div class="row" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;display: none" id="form-add-infor-talk-short">
+            <div class="col-md-6 information-scroll">
+                <div style="background-color :#E9ECEF">
+                    <audio style="width: 90%;height: 22px;" id="run-audio-4-0" controls>
+                        <source id="view-audio-4-0">
+                    </audio>
+                    <div style="float:right; margin-top: 3px;">
+                        <i title="audio" onclick="onUpload(1,4,0)" class="fa fa-file-audio" aria-hidden="true"></i>
+                        <i title="image" onclick="onUpload(2,4,0)" class="fa fa-file" aria-hidden="true"></i>
+                    </div>
+                    <input class="form-control hidden" value="" id="link-audio-4-0" />
+                    <form id="form-audio-4-0" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input class="hidden" id="link_audio_4_0" name="link_audio" type="file" size="1" multiple onchange="uploadAudio(4,0);" />
+                            </div>
+                        </div>
+                    </form>
+                    <input class="form-control hidden" value="" id="link-image-4-0" />
+                    <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input id="files_4_0" hidden name="files" type="file" size="1" multiple onchange="uploadFiles(4,0);" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <p>
+                    Quesion: 1
+                </p>
+                <input type="text" style="background-color: white; border-color:white" id="title-4-0" placeholder="Type your Question" class="form-control" />
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white; border-color:white" class="input-group-addon">A.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-a-4-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">B.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-b-4-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">C.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-c-4-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">D.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-d-4-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group">
+                    <span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>
+                    <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-4-0" type="text" class="form-control">
+                </div>
+                <div style="margin-bottom: 5px;" id="add-detail-quesion-4">
+                </div>
+                <button class="btn btn-default" onclick="addQuesionTalkShortDetail()" style="background-color:#E7E7FB;border-radius: 100px;">Add question for this Section</button>
+            </div>
+            <div class="col-md-6">
+                <label style="width: 100%">Image</label>
+                    <img src="~/upload_files/ImageNone.jpg" id="view-image-4-0" width="70%" />
+                <label style="width: 100%">Script</label>
+                <textarea id="model-script-4-0" placeholder="Type your Require" class="form-control" rows="10"></textarea>
+            </div>
+            <div class="col-md-12" style="padding-top: 10px;">
+                <button class="btn btn-primary" onclick="saveMultipData(0,4)">Save change</button>&emsp;
+                <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+            </div>
+        </div>
+        @*Phần hoàn thành câu*@
+        <div class="row" style="margin-bottom: 10px;display: none" id="form-add-infor-complete-sentence">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div style="background-color:#f2f4f7;padding: 15px;">
+                    <p>
+                    Quesion:
+                    </p>
+                <input type="text" style="background-color: white; border-color:white" id="title-5-0" placeholder="Type your Question" class="form-control" />
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white; border-color:white" class="input-group-addon">A.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-a-5-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">B.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-b-5-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">C.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-c-5-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">D.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-d-5-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group">
+                    <span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>
+                    <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-5-0" type="text" class="form-control">
+                </div>
+                 <div class="input-group">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>
+                    <input style="background-color: white; border-color: white;" id="model-description-5-0" type="text" class="form-control">
+                </div>
+                <div style="padding-top: 10px;">
+                    <button class="btn btn-primary" onclick="updateCompleteSentence(0)">Save change</button>&emsp;
+                    <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+                </div>
+                </div>
+                
+            </div>
+            <div class="col-md-3">
+            </div>
+        </div>
+        @*Phần đọc hiểu*@
+        <div class="row" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;display: none" id="form-add-infor-read">
+            <div class="col-md-6">
+                    <lable style="background-color :#E9ECEF">
+                     <p style="width: 100%">
+                    Conversation/ Paragraph:
+                    <span style="float:right; margin-top: 3px;">
+                        <i title="image" onclick="onUpload(2,6,0)" class="fa fa-file" aria-hidden="true"></i>
+                    </span>
+                    </p></lable>
+                    <input class="form-control hidden" value="" id="link-image-6-0" />
+                    <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input id="files_6_0" hidden name="files" type="file" size="1" multiple onchange="uploadFiles(6,0);" />
+                            </div>
+                        </div>
+                    </form>
+                <div id="show-image-6-0" width="70%"></div>
+                <textarea id="model-script-6-0" placeholder="Type your Require" class="form-control" rows="10"></textarea>
+            </div>
+            <div class="col-md-6 information-scroll">
+                <p>Quesion 1.</p>
+                <input type="text" style="background-color: white; border-color:white" id="title-6-0" placeholder="Type your Question" class="form-control" />
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white; border-color:white" class="input-group-addon">A.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-a-6-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">B.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-b-6-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">C.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-c-6-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">D.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-d-6-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group">
+                    <span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>
+                    <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-6-0" type="text" class="form-control">
+                </div>
+                 <div class="input-group">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>
+                    <input style="background-color: white; border-color: white;" id="model-description-6-0" type="text" class="form-control">
+                </div>
+                <div style="margin-bottom: 5px;" id="add-detail-quesion-6">
+                </div>
+                <button class="btn btn-default" onclick="addQuesionReadDetail()" style="background-color:#E7E7FB;border-radius: 100px;">Add question for this Section</button>
+            </div>
+            <div class="col-md-12" style="padding-top: 10px;">
+                <button class="btn btn-primary" onclick="saveMultipData(0,6)">Save change</button>&emsp;
+                <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+            </div>
+        </div>
+        @*Phần đọc hiểu part7*@
+        <div class="row" style="background-color:#f2f4f7;margin-bottom: 10px; padding: 5px;display: none" id="form-add-infor-reading-comprehen">
+            <div class="col-md-6">
+                    <lable style="background-color :#E9ECEF">
+                     <p style="width: 100%">
+                    Conversation/ Paragraph:
+                    <span style="float:right; margin-top: 3px;">
+                        <i title="image" onclick="onUpload(2,7,0)" class="fa fa-file" aria-hidden="true"></i>
+                    </span>
+                    </p></lable>
+                    <input class="form-control hidden" value="" id="link-image-7-0" />
+                    <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                        <div class="buttons">
+                            <div class="upload-button">
+                                <input id="files_7_0" hidden name="files" type="file" size="1" multiple onchange="uploadFiles(7,0);" />
+                            </div>
+                        </div>
+                    </form>
+                <div id="show-image-7-0" width="70%"></div>
+                <textarea id="model-script-7-0" placeholder="Type your Require" class="form-control" rows="10"></textarea>
+            </div>
+            <div class="col-md-6 information-scroll">
+                <p>Quesion 1.</p>
+                <input type="text" style="background-color: white; border-color:white" id="title-7-0" placeholder="Type your Question" class="form-control" />
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white; border-color:white" class="input-group-addon">A.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-a-7-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">B.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-b-7-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">C.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-c-7-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">D.</span>
+                    <input style="background-color: white; border-color: white;" type="text" id="qs-d-7-0" placeholder="Type your Answer" class="form-control">
+                </div>
+                <div class="input-group">
+                    <span style="background-color: #D1E7DD;border-color:#D1E7DD" class="input-group-addon">Conrect Answer</span>
+                    <input style="background-color: #D1E7DD; border-color: #D1E7DD;" id="conrect-answer-7-0" type="text" class="form-control">
+                </div>
+                 <div class="input-group">
+                    <span style="background-color: white;border-color:white" class="input-group-addon">Desciption</span>
+                    <input style="background-color: white; border-color: white;" id="model-description-7-0" type="text" class="form-control">
+                </div>
+                <div style="margin-bottom: 5px;" id="add-detail-quesion-7">
+                </div>
+                <button class="btn btn-default" onclick="addQuesionReadDetail()" style="background-color:#E7E7FB;border-radius: 100px;">Add question for this Section</button>
+            </div>
+            <div class="col-md-12" style="padding-top: 10px;">
+                <button class="btn btn-primary" onclick="saveMultipData(0,7)">Save change</button>&emsp;
+                <button class="btn btn-default" onclick="addQuesion('close')">Close</button>
+            </div>
+        </div>
+        @*Danh sách câu hỏi*@
+        <div class="row" id="table-quesion">
+        </div>
     </div>
 </div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

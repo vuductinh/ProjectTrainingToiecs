@@ -1,11 +1,39 @@
-﻿namespace ProjectTrainingToiecs.Service.Service.Impl
+﻿using System.Net.NetworkInformation;
+using System.Net.Sockets;
+
+namespace ProjectTrainingToiecs.Service.Service.Impl
 {
-    public class AppCommonService
+    public class AppCommonService : ICommonService
     {
-        private readonly DbTrainingToiecsContext _context;
-        public AppCommonService(DbTrainingToiecsContext context)
+        public string GetLocalIPv4(NetworkInterfaceType _type)
         {
-            _context = context;
+            string output = "";
+            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
+                {
+                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            output = ip.Address.ToString();
+                        }
+                    }
+                }
+            }
+            return output;
+        }
+        public string GetBetween(string strSource, string strStart, string strEnd)
+        {
+            if (strSource.Contains(strStart) && strSource.Contains(strEnd))
+            {
+                int start, end;
+                start = strSource.IndexOf(strStart, 0) + strStart.Length;
+                end = strSource.IndexOf(strEnd, start);
+                return strSource.Substring(start, end - start);
+            }
+
+            return "";
         }
     }
 }

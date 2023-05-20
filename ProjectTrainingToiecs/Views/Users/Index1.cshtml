@@ -1,37 +1,42 @@
 ﻿<script>
-     $(document).ready(function () {
-         getDataUser();
+    $(document).ready(function () {
+        getDataUser();
     });
     function refeshData() {
         $('#search-key').val('');
         $('#pading-list').val(10);
+        $('#from-date').val('');
+        $('#to-date').val('');
         getDataUser();
     }
-    function getDataUser(){
+    function getDataUser() {
         debugger;
         var search = $('#search-key').val();
         var pageSize = $('#pading-list').val();
+        var formDate = $('#from-date').val();
+        var toDate = $('#to-date').val();
         $.ajax({
             url: "/Users/GetUsers",
             type: "Post",
-            data: { PageSize: pageSize, TextSearch : search },
+            data: { PageSize: pageSize, TextSearch: search, FromDate : formDate, ToDate : toDate },
             success: function (result) {
                 if (result.data) {
                     var div = document.getElementById('table-user');
                     var html = '';
-                    for(var i= 0; i<result.data.length ; i ++){
+                    for (var i = 0; i < result.data.length; i++) {
                         var item = result.data[i];
                         html += '<tr><td> ' + item.order + '</td>' +
-                            '<td> '+ item.userName+'</td>'+
-                            '<td> '+ item.fullName+ '</td>' +
-                            '<td> '+ item.email + '</td>' +
+                            '<td> ' + item.userName + '</td>' +
+                            '<td> ' + item.fullName + (item.memberNew ? '&emsp;<span class="btn btn-default member" style="color : #28A745;font-size: 10px; background: #D1E7DD;">New</span></td>' : '</td>') +
+                            '<td style="color:' + item.colorCourse + '"> ' + item.typeTxt + '</td>' +
                             '<td class="' + item.processColor + '"> ' + item.process + '% </td>' +
-                            '<td> '+ item.activeTxt+  '</td>'+
-                            '<td> '+ item.typeTxt + '</td>'+
-                            '<td>'+
-                            '<span class="btn btn-link" onclick = "editUser('+item.id+')" title = "Edit info"> <i class="fa fa-pencil" aria-hidden="true"> </i></span>'+
-                                '<span class="btn btn-link" title = "Detail" > <i class="fa fa-info" aria-hidden="true"> </i></span>'+
-                                    '<span class="btn text-danger" onclick="deleteAccount('+item.id+')"> <i class="fa fa-trash" aria-hidden="true"> </i></span>'+
+                            '<td> ' + item.startDate + '</td>' +
+                            '<td> ' + item.email + '</td>' +
+                            '<td> ' + item.activeTxt + '</td>' +
+                            
+                            '<td>' +
+                            '<span class="btn btn-link" onclick = "getInfoAccount(' + item.id + ')" title = "Edit info"> <i class="fa fa-pencil" aria-hidden="true"> </i></span>' +
+                            '<span class="btn text-danger" onclick="deleteAccount(' + item.id +')"> <i class="fa fa-trash" aria-hidden="true"> </i></span>' +
                             '</td></tr>';
                     }
                     div.innerHTML = html;
@@ -43,9 +48,10 @@
         var url = window.location.protocol + "//" + window.location.host + '/Users/Edit?id=' + id;
         location.href = url;
     }
-<<<<<<< HEAD
-    function deleteAccount(id) {
-        if (confirm("Bạn có chắc muốn xóa tài khoản này!") == true) {
+    function deleteAccount(id) 
+    {
+        debugger;
+        if (confirm("Bạn có chắc muốn xóa người dùng này!") == true) {
             $.ajax({
                 url: "/Users/DeleteAccount",
                 type: "Post",
@@ -54,81 +60,113 @@
                     if (result.data) {
                         var url = window.location.protocol + "//" + window.location.host + '/Home/Index1';
                         location.href = url;
-=======
-   function signOutAdmin() {
-       debugger;
-        $.ajax({
-            url: "/Users/SignOut",
-            type: "GET",
-            success: function (result) {
-                if (result.result == 1) {
-                    var url = window.location.protocol + "//" + window.location.host + '/Users/Login';
-                    location.href = url;
-                }
-            }
-        });
-    };
-</script>   
-<div class="container"></div>
-    <div>
-    <h2 class="text-center" style="float:right;">
-        Welcome  @ViewBag.userName <span class="btn btn-link" onclick="signOutAdmin()"><i class="fa fa-sign-out" title="sign out" aria-hidden="true"></i></span>
-        </h2>
-    </div>
-    <div class="row">
-        <div col-md-12>
-            <label class="control-label align-content-center">Danh sách người dùng</label>
-            <div>
-                <table class="table table-bordered">
-                    <tr>
-                        <th>STT</th>
-                        <th>Username</th>
-                        <th>Fullname</th>
-                        <th>Email</th>
-                        <th>Process</th>
-                        <th>Active</th>
-                        <th>Type</th>
-                        <th>#</th>
-                    </tr>
-
-
-                    @foreach (var i in ViewBag.lst)
-                    {
-
-                        <tr>
-                            <td>@i.Order</td>
-                            <td>@i.UserName</td>
-                            <td>@i.FullName</td>
-                            <td>@i.Email</td>
-                            <td>@(i.Process) %</td>
-                            <td>@i.ActiveTxt</td>
-                            <td>@i.TypeTxt</td>
-                            <td>
-                                <span onclick="editUser(@i.Id)">Sửa</span>
-                                <span>Chi tiết</span>
-                            </td>
-                        </tr>
->>>>>>> 644256050d3090a15f366a3bd7420fb5b2833a9c
                     }
                 }
             });
         }
     }
+    function getInfoAccount(id) {
+        $.ajax({
+            url: "/Users/UserInfo",
+            type: "Post",
+            data: { id: id },
+            success: function (result) {
+                if (result.data) {
+                    debugger;
+                    $('#model-full-name').val(result.data.fullName);
+                    $('#model-course').val(result.data.typeTxt);
+                    $('#model-email').val(result.data.email);
+                    $('#model-phone').val(result.data.phone);
+                    $('#model-start').val(result.data.startDate);
+                    $('#model-id').val(result.data.id);
+                    $("#infor-user").modal('show');
+                }
+            }
+        });
+    }
+    $(function () {
+        $('#update-user').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            debugger;
+            var fname = $('#model-full-name').val();
+            var email = $('#model-email').val();
+            var phone = $('#model-phone').val();
+            var id = $('#model-id').val();
+            if (fname == null || fname == '') {
+                alert('Vui lòng nhập tên đầy đủ của người dùng');
+                return;
+            }
+            var data = { Id: id, FullName: fname, Phone : phone, Email : email };
+            $.ajax({
+                url: "/Users/UpdateUser",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    if (result.data) {
+                        $("#infor-user").modal('hide');
+                        getDataUser();
+                    } else {
+                    }
+                }
+            });
+        });
+    });
 </script>
-<div class="container">
+<style>
+    .member{
+        height: 26px;
+        margin-top: -30px;
+        margin-left: -10px;
+    }
+    .tooltip-content-drug {
+    position: relative;
+}
+
+.show-tooltip-content-drug {
+    display: none;
+    position: absolute;
+    z-index: 100;
+    border: 1px;
+    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+    border-color: gray;
+    padding: 3px;
+    color: black;
+    top: 0px;
+    left: 0px;
+    text-align: left;
+    width: 200px;
+    height : 300px
+}
+
+.tooltip-content-drug:hover span.show-tooltip-content-drug {
+    display: block;
+}
+
+span.show-tooltip-content-drug span {
+    background-color: forestgreen;
+    color: white;
+}
+
+span.show-tooltip-content-drug strong {
+    background-color: #05D6EE;
+}
+</style>
+
+<div>
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-6"><span style="font-size: 20px; font-weight: 600">Users</span></div>
+        <div class="col-md-6" style="padding:0">
+            <div class="input-group mb-3" style="display:flex;">
+                <input type="text" style="width : 83%" class="form-control" placeholder="search username" id="search-key" aria-label="Recipient's username" aria-describedby="button-addon2">
+                <button class="btn btn-default btn-outline-secondary" type="button" onclick="getDataUser()" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12" style="margin-top: 10px;">
-            <table>
-                <tr>
-                    <td width="70%"><span style="font-size: 20px; font-weight: 600">Users</span></td>
-                    <td>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="search username" id="search-key" aria-label="Recipient's username" aria-describedby="button-addon2">
-                            <button class="btn btn-outline-secondary" type="button" onclick="getDataUser()" id="button-addon2"><i class="fa fa-search" aria-hidden="true"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
             <div>
                 <table>
                     <tr>
@@ -153,19 +191,63 @@
                             <th>STT</th>
                             <th>Username</th>
                             <th>Fullname</th>
-                            <th>Email</th>
+                            <th>Course</th>
                             <th>Process</th>
+                            <th>
+                                <span class="tooltip-content-drug">
+                                    StartDate
+                                    <span class="show-tooltip-content-drug" style="{{onSetWidth(gridItem)}}">
+                                        <label>From date</label>
+                                        <input class="form-control" id="from-date" type="date"/>
+                                        <label>To date</label>
+                                        <input class="form-control" id="to-date" type="date" />
+                                        <button class="btn btn-primary" style="margin-top : 5px" onclick="getDataUser()">Find</button>
+                                    </span>
+                                </span>
+                            </th>
+                            <th>Email</th>
                             <th>Active</th>
-                            <th>Type</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="table-user">
-
                     </tbody>
                 </table>
-
             </div>
         </div>
     </div>
 </div>
+<div class="modal fade" id="infor-user" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit User</h4>
+            </div>
+            <div class="modal-body">
+                <input class="form-control hidden" type="text" id="model-id">
+                <label>Name</label>
+                <input class="form-control" type="text" id="model-full-name">
+                 <label>Course</label>
+                <input class="form-control" readonly id="model-course" type="text" />
+                <label>Email</label>
+                <input class="form-control" readonly type="text" id="model-email" />
+                <label>Phone</label>
+                <input class="form-control" type="text" id="model-phone" />
+                <label>StartDate</label>
+                <input class="form-control" readonly id="model-start" type="text" />
+                <label>SpendingTime</label>
+                <input class="form-control" id="model-spend" readonly type="text" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="update-user">Save change</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

@@ -43,6 +43,59 @@
         top: 22px;
     }
 </style>
+<script>
+    $(function () {
+        $('#basic-addon2').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var code = $('#number-code').val();
+            var reCode = $('#re-code-muber').val();
+            var userName = $('#user-name').val();
+            var password = $('#password').val();
+            var fullName = $('#full-name').val();
+            var email = $('#email').val();
+            var phone = $('#phone').val();
+            var type = $('#course-type').val();
+            var data = { UserName: userName, Password: password, FullName: fullName, Email: email, TypeCourse: type, Phone: phone };
+            if (code.length == 6 && code == reCode) {
+                $.ajax({
+                    url: "/Users/ValidateCode",
+                    type: "POST",
+                    data: data,
+                    success: function (result) {
+                        if (result.result) {
+                            alert('Đăng ký thành công giờ bạn có thể đăng nhập để trải nghiệm');
+                            document.getElementById("view-code").style.display = "none";
+                            document.getElementById("view-code").style.display = "none";
+                        } else {
+                            alert(result.data);
+                        }
+                    }
+                });
+            }
+        });
+    })
+    function onValidateNumber() {
+
+    }
+    function setInterval() {
+
+        // Get today's date and time
+        var now = new Date().getTime();
+        var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime()
+        var distance = countDownDate - now;
+
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        // Output the result in an element with id="demo"
+        document.getElementById("count-down").innerHTML = seconds + "s ";
+
+        // If the count down is over, write some text
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("count-down").innerHTML = "EXPIRED";
+        }
+    }
+</script>
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
@@ -80,7 +133,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" id="number-code" placeholder="fill number code" aria-label="Recipient's username" aria-describedby="basic-addon2">
                             <div class="input-group-append">
-                                <span class="input-group-text" id="basic-addon2">Xác nhận</span>
+                                <span class="btn input-group-text" id="basic-addon2">Xác nhận</span>
                             </div>
                         </div>
                         <p>Mã xác thực đã gửi qua mail vui lòng kiểm tra và nhập mã xác thực để hoàn thành đăng ký</p>

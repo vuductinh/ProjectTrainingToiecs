@@ -34,10 +34,11 @@ namespace ProjectTrainingToiecs.Models
         [NotMapped]
         public string TypeTxt
         {
-            get
-            {
-                return TypeCourse == 1 ? "Cơ bản" : "Nâng cao";
-            }
+            //get
+            //{
+            //    return TypeCourse == 1 ? "Cơ bản" : "Nâng cao";
+            //}
+            get;set;
         }
         [NotMapped]
         public string ProcessColor
@@ -57,6 +58,43 @@ namespace ProjectTrainingToiecs.Models
                     val = "text-success";
                 }
                 return val;
+            }
+        }
+        [NotMapped]
+        public string StartDate
+        {
+            get
+            {
+                return Created.HasValue ? Created.Value.ToString("dd/MM/yyyy") : "";
+            }
+        }
+        [NotMapped]
+        public string ColorCourse
+        {
+            get
+            {
+                var val = "";
+                if (TypeTxt == "Beginner")
+                {
+                    val = "#520DC2";
+                }
+                else if (TypeTxt == "Advence")
+                {
+                    val = "#B02A37";
+                }
+                else if (TypeTxt == "Intermeditate")
+                {
+                    val = "#CC9A06";
+                }
+                return val;
+            }
+        }
+        [NotMapped]
+        public bool MemberNew
+        {
+            get
+            {
+                return Created.HasValue ? ((DateTime.Now - Created.Value).TotalDays <= 7 ? true : false) : false;
             }
         }
     }

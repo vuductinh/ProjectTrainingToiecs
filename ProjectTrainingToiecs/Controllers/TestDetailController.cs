@@ -8,6 +8,9 @@ namespace ProjectTrainingToiecs.Controllers
     public class TestDetailController : Controller
     {
         private readonly DbTrainingToiecsContext _context;
+        private readonly int[] types = { (int)ETypeDtetailQuesion.TalkShort, (int)ETypeDtetailQuesion.QAndA, (int)ETypeDtetailQuesion.Conversation,
+        (int)ETypeDtetailQuesion.CompleteParagraph,(int)ETypeDtetailQuesion.ReadingComprehen
+        };
         public TestDetailController(DbTrainingToiecsContext context)
         {
             _context = context;
@@ -59,19 +62,45 @@ namespace ProjectTrainingToiecs.Controllers
         public JsonResult CreateTestDetail(TestDetail model)
         {
             //check order
-            if(model.ItemOrder == 0)
+            if(model.ItemOrder == 0 && model.Id == 0 && !types.Contains(model.TypeDetail))
             {
-                model.ItemOrder = _context.TestDetails.Any() ?_context.TestDetails.Max(x => x.ItemOrder) + 1 : 1;
+                model.ItemOrder = _context.TestDetails.Any(x=>x.UnitId == model.UnitId && x.RecordStatusId == (int)ERecordStatus.Actived) ?
+                    _context.TestDetails.Where(x => x.UnitId == model.UnitId && x.RecordStatusId == (int)ERecordStatus.Actived).Max(x => x.ItemOrder) + 1 : 1;
             }
             if (model.Id > 0)
             {
-                _context.Update(model);
+                var quesionOld = _context.TestDetails.FirstOrDefault(x => x.Id == model.Id);
+                quesionOld.Scription = model.Scription;
+                quesionOld.LinkImage = model.LinkImage;
+                quesionOld.Audio = model.Audio;
+                quesionOld.Description = model.Description;
+                quesionOld.CorrectAnswer = model.CorrectAnswer;
+                quesionOld.AnswerA = model.AnswerA;
+                quesionOld.AnswerB = model.AnswerB;
+                quesionOld.AnswerC = model.AnswerC;
+                quesionOld.AnswerD = model.AnswerD;
+                quesionOld.Question = model.Question;
+                _context.Update(quesionOld);
+                _context.SaveChanges();
             }
             else
             {
                 _context.Add(model);
+                _context.SaveChanges();
+                if (types.Contains(model.TypeDetail))
+                {
+                    var order = 1;
+                    foreach(var i in model.QuestionsDetail)
+                    {
+                        i.IdQS = model.Id;
+                        i.ItemOrder = order;
+                        _context.Add(i);
+                        _context.SaveChanges();
+                        order++;
+                    }
+                }
             }
-            _context.SaveChanges();
+            
             return Json(new { data = model.Id });
         }
         [HttpPost]
@@ -143,6 +172,40 @@ namespace ProjectTrainingToiecs.Controllers
                 val = true;
             }
             return Json(new { Data = val });
+        }
+        public JsonResult DeleteTestDetail(int id)
+        {
+            var val = false;
+            var user = _context.Questions.FirstOrDefault(x => x.Id == id);
+            if (user != null)
+            {
+                user.RecordStatusId = (int)ERecordStatus.Deleted;
+                _context.Update(user);
+                _context.SaveChanges();
+                val = true;
+            }
+            return Json(new { Data = val });
+        }
+        public JsonResult UpdateInfoQuesion(Question model)
+        {
+            if(model.Id > 0)
+            {
+                var quesionOld= _context.Questions.FirstOrDefault(x => x.Id == model.Id);
+                quesionOld.CorrectAnswer = model.CorrectAnswer;
+                quesionOld.QS = model.QS;
+                quesionOld.QSA = model.QSA;
+                quesionOld.QSB = model.QSB;
+                quesionOld.QSC = model.QSC;
+                quesionOld.QSD = model.QSD;
+                quesionOld.Description = model.Description;
+                _context.Update(quesionOld);
+            }
+            else
+            {
+                _context.Add(model);
+            }
+            _context.SaveChanges();
+            return Json(new { Data = model.Id > 0 });
         }
     }
 }

@@ -58,13 +58,52 @@ namespace ProjectTrainingToiecs.Controllers
                 _context.StatusStudies.FirstOrDefault(x => x.IdTest == model.Id && x.UserId == userId).Option  : "";
             return Json(new {data = model});
         }
-        
+        [HttpPost]
         public JsonResult SaveStatusStudy(StatusStudy model)
         {
             model.UserId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
-            _context.StatusStudies.Add(model);
-            _context.SaveChanges();
-            return Json(new { data = model.Id > 0 });
+            //check kết quả bài đã lưu chưa
+            var check = _context.StatusStudies.Any(x => x.IdTest == model.IdTest && x.UserId == model.UserId);
+            if (!check)
+            {
+                _context.StatusStudies.Add(model);
+                _context.SaveChanges();
+            }
+            return Json(new { data = model.Id > 0 || check });
+        }
+        [HttpPost]
+        public JsonResult SaveDetailStatusStudy(List<StatusStudy> lst)
+        {
+            lst.ForEach(x =>
+            {
+                x.UserId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                //check kết quả bài đã lưu chưa
+                var check = _context.StatusStudies.Any(xx => xx.IdTest == x.IdTest && xx.UserId == x.UserId);
+                if (!check)
+                {
+                    _context.StatusStudies.Add(x);
+                    _context.SaveChanges();
+                }
+            });
+           
+            return Json(new { data = true });
+        }
+        [HttpPost]
+        public JsonResult ResetStatusStudy(int unitId, int typeQuesion)
+        {
+           var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var idQs = _context.TestDetails.Where(x => x.TypeDetail == typeQuesion).Select(x=>x.Id);
+            if (idQs.Any())
+            {
+               var data =  _context.StatusStudies.Where(x =>x.UserId == userId && x.UnitId == unitId && idQs.Contains(x.IdTest));
+                if (data.Any())
+                {
+                    _context.RemoveRange(data);
+                    _context.SaveChanges();
+                }
+            }
+            
+            return Json(new { data = true });
         }
     }
 }
